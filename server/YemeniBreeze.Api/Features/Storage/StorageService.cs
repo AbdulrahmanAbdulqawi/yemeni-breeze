@@ -59,6 +59,39 @@ public class StorageService
         !string.IsNullOrWhiteSpace(_options.AccessKey) &&
         !string.IsNullOrWhiteSpace(_options.SecretKey);
 
+    /// <summary>Temporary diagnostic: tries a bucket LIST under path-style and virtual-hosted addressing.</summary>
+    public async Task<object> DiagnoseAsync()
+    {
+        if (!UseS3) return new { s3 = false };
+        var results = new List<object>();
+        foreach (var pathStyle in new[] { true, false })
+        {
+            var cfg = new AmazonS3Config
+            {
+                ServiceURL = _options.Endpoint,
+                ForcePathStyle = pathStyle,
+                AuthenticationRegion = _options.Region,
+                RequestChecksumCalculation = Amazon.Runtime.RequestChecksumCalculation.WHEN_REQUIRED,
+                ResponseChecksumValidation = Amazon.Runtime.ResponseChecksumValidation.WHEN_REQUIRED
+            };
+            using var client = new AmazonS3Client(_options.AccessKey, _options.SecretKey, cfg);
+            try
+            {
+                var r = await client.ListObjectsV2Async(new ListObjectsV2Request { BucketName = _options.Bucket, MaxKeys = 1 });
+                results.Add(new { pathStyle, ok = true, keyCount = r.KeyCount });
+            }
+            catch (AmazonS3Exception ex)
+            {
+                results.Add(new { pathStyle, ok = false, ex.ErrorCode, status = (int)ex.StatusCode, ex.Message });
+            }
+            catch (Exception ex)
+            {
+                results.Add(new { pathStyle, ok = false, type = ex.GetType().Name, ex.Message });
+            }
+        }
+        return new { endpoint = _options.Endpoint, region = _options.Region, bucket = _options.Bucket, results };
+    }
+
     public async Task PutAsync(string key, Stream data, string contentType, CancellationToken ct = default)
     {
         if (_s3 is not null)

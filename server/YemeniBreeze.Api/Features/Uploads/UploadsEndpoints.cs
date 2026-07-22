@@ -42,6 +42,10 @@ public static class UploadsEndpoints
         .RequireAuthorization()
         .DisableAntiforgery();
 
+        // Temporary S3 diagnostic
+        app.MapGet("/api/admin/uploads/diag", (StorageService storage) => storage.DiagnoseAsync())
+            .RequireAuthorization();
+
         // Multiple images → resized to WebP
         app.MapPost("/api/admin/uploads/batch", async (IFormFileCollection files, ImageService images) =>
         {
