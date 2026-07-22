@@ -10,7 +10,7 @@
       <div class="gallery-grid">
         @for (item of items(); track item.id) {
           <figure class="gallery-item arch">
-            <img [src]="item.imageUrl" [alt]="lang.pick(item, 'caption')" loading="lazy" />
+            <img [src]="item.thumbUrl || item.imageUrl" [alt]="lang.pick(item, 'caption')" loading="lazy" />
             @if (lang.pick(item, 'caption')) {
               <figcaption>{{ lang.pick(item, 'caption') }}</figcaption>
             }

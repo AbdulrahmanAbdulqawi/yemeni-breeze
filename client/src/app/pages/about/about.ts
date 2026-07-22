@@ -1,6 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { map } from 'rxjs';
+import { ApiService } from '../../core/api.service';
 
 @Component({
   selector: 'app-about',
@@ -9,6 +12,13 @@ import { TranslocoPipe } from '@jsverse/transloco';
   styleUrl: './about.scss'
 })
 export class About {
+  private api = inject(ApiService);
+
+  readonly aboutImage = toSignal(
+    this.api.getSettings().pipe(map(s => s['aboutImageUrl'] || null)),
+    { initialValue: null }
+  );
+
   readonly team = [
     { name: 'Koutaiba', roleKey: 'about.roleFounder' },
     { name: 'Ali', roleKey: 'about.roleCoFounder' },

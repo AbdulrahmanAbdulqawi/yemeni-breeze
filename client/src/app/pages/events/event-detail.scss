@@ -79,3 +79,59 @@
     font-size: 3rem;
   }
 }
+
+.album-section {
+  background: var(--yb-cream);
+}
+
+.album-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1.2rem;
+}
+
+.album-item {
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  background: none;
+  --yb-arch-radius: 90px;
+
+  img {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.2s ease;
+  }
+
+  &:hover img {
+    transform: scale(1.04);
+  }
+}
+
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(71, 24, 10, 0.92);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 2rem;
+  cursor: zoom-out;
+
+  img {
+    max-width: min(92vw, 1100px);
+    max-height: 82vh;
+    border-radius: var(--yb-radius);
+  }
+
+  p {
+    color: var(--yb-cream);
+    font-weight: 600;
+    margin: 0;
+  }
+}

@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import {
+  CheckinResult,
   ContactMessageDto,
   EventDto,
   EventInput,
@@ -9,7 +10,9 @@ import {
   RegisterRequest,
   RegistrationDto,
   RegistrationResult,
-  RegistrationStatus
+  RegistrationStatus,
+  SiteSettings,
+  UploadResult
 } from './models';
 
 @Injectable({ providedIn: 'root' })
@@ -99,6 +102,29 @@ export class ApiService {
   adminUpload(file: File) {
     const form = new FormData();
     form.append('file', file);
-    return this.http.post<{ url: string }>('/api/admin/uploads', form);
+    return this.http.post<UploadResult>('/api/admin/uploads', form);
+  }
+
+  adminUploadBatch(files: File[]) {
+    const form = new FormData();
+    for (const file of files) form.append('files', file);
+    return this.http.post<UploadResult[]>('/api/admin/uploads/batch', form);
+  }
+
+  getSettings() {
+    return this.http.get<SiteSettings>('/api/settings');
+  }
+
+  adminUpdateSettings(settings: SiteSettings) {
+    return this.http.put<SiteSettings>('/api/admin/settings', settings);
+  }
+
+  adminCheckin(eventId: number, ticketCode: string) {
+    return this.http.post<CheckinResult>(`/api/admin/events/${eventId}/checkin`, { ticketCode });
+  }
+
+  adminCheckinById(eventId: number, registrationId: number) {
+    return this.http.post<CheckinResult>(
+      `/api/admin/events/${eventId}/registrations/${registrationId}/checkin`, {});
   }
 }

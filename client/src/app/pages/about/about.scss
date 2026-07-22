@@ -19,6 +19,24 @@
   font-size: 1.08rem;
 }
 
+.story-block.with-image {
+  max-width: 980px;
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 2.2rem;
+  align-items: center;
+
+  @media (max-width: 760px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.story-image {
+  width: 100%;
+  object-fit: cover;
+  --yb-arch-radius: 140px;
+}
+
 .mission {
   background: var(--yb-cream);
 }

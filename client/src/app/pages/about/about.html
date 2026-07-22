@@ -6,9 +6,14 @@
 </section>
 
 <section class="section">
-  <div class="container narrow">
-    <p>{{ 'about.founding' | transloco }}</p>
-    <p>{{ 'about.open' | transloco }}</p>
+  <div class="container narrow story-block" [class.with-image]="aboutImage()">
+    @if (aboutImage(); as image) {
+      <img [src]="image" alt="" class="story-image arch" />
+    }
+    <div>
+      <p>{{ 'about.founding' | transloco }}</p>
+      <p>{{ 'about.open' | transloco }}</p>
+    </div>
   </div>
 </section>
 

@@ -128,6 +128,24 @@ public static class RegistrationsEndpoints
             return Results.Ok(new { alreadyCheckedIn, registration = ToDto(registration) });
         }).RequireAuthorization();
 
+        // Manual check-in from the search fallback (no ticket needed)
+        admin.MapPost("/{id:int}/checkin", async (int eventId, int id, AppDbContext db) =>
+        {
+            var registration = await db.Registrations
+                .FirstOrDefaultAsync(r => r.EventId == eventId && r.Id == id);
+            if (registration is null) return Results.NotFound();
+            if (registration.Status != RegistrationStatus.Confirmed)
+                return Results.BadRequest(new { message = $"Registration is {registration.Status}, not Confirmed." });
+
+            var alreadyCheckedIn = registration.CheckedInAt is not null;
+            if (!alreadyCheckedIn)
+            {
+                registration.CheckedInAt = DateTime.UtcNow;
+                await db.SaveChangesAsync();
+            }
+            return Results.Ok(new { alreadyCheckedIn, registration = ToDto(registration) });
+        });
+
         admin.MapGet("/export.csv", async (int eventId, AppDbContext db) =>
         {
             var rows = await db.Registrations

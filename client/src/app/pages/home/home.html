@@ -1,4 +1,7 @@
-<section class="hero">
+<section class="hero" [class.has-image]="heroImage()">
+  @if (heroImage(); as image) {
+    <div class="hero-bg" [style.background-image]="'url(' + image + ')'"></div>
+  }
   <div class="container hero-inner">
     <img src="/assets/logo.png" alt="Yemeni Breeze — نسمات اليمن" class="hero-logo" />
     <h1 class="hero-title">{{ 'home.heroTitle' | transloco }}</h1>

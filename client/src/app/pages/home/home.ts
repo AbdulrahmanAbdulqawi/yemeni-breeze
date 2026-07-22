@@ -25,4 +25,9 @@ export class Home {
     ),
     { initialValue: null }
   );
+
+  readonly heroImage = toSignal(
+    this.api.getSettings().pipe(map(s => s['heroImageUrl'] || null)),
+    { initialValue: null }
+  );
 }

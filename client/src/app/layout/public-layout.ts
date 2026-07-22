@@ -2,6 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { Lang, LanguageService } from '../core/language.service';
+import { SeoService } from '../core/seo.service';
 
 @Component({
   selector: 'app-public-layout',
@@ -11,6 +12,10 @@ import { Lang, LanguageService } from '../core/language.service';
 })
 export class PublicLayout {
   readonly lang = inject(LanguageService);
+
+  constructor() {
+    inject(SeoService).init();
+  }
   readonly menuOpen = signal(false);
   readonly languages: { code: Lang; label: string }[] = [
     { code: 'en', label: 'EN' },

@@ -47,6 +47,7 @@ export interface RegisterRequest {
   phone?: string;
   guestsCount: number;
   note?: string;
+  language?: string;
 }
 
 export interface RegistrationResult {
@@ -65,17 +66,31 @@ export interface RegistrationDto {
   note: string | null;
   status: RegistrationStatus;
   createdAt: string;
+  checkedInAt: string | null;
+}
+
+export interface CheckinResult {
+  alreadyCheckedIn: boolean;
+  registration: RegistrationDto;
 }
 
 export interface GalleryItemDto {
   id: number;
   eventId: number | null;
   imageUrl: string;
+  thumbUrl: string | null;
   captionEn: string;
   captionNl: string;
   captionAr: string;
   sortOrder: number;
 }
+
+export interface UploadResult {
+  url: string;
+  thumbUrl: string;
+}
+
+export type SiteSettings = Record<string, string>;
 
 export interface ContactMessageDto {
   id: number;

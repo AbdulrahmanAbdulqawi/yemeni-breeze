@@ -14,6 +14,9 @@ import { RegistrationDto, RegistrationStatus } from '../core/models';
       <h1>{{ 'admin.registrations.title' | transloco }}</h1>
       <div class="head-actions">
         <a routerLink="/admin/events" class="btn btn-outline">←</a>
+        <a [routerLink]="['/admin/events', eventId(), 'checkin']" class="btn btn-primary">
+          {{ 'admin.checkin.title' | transloco }}
+        </a>
         <button class="btn btn-primary" (click)="exportCsv()">
           {{ 'admin.registrations.exportCsv' | transloco }}
         </button>
@@ -35,6 +38,7 @@ import { RegistrationDto, RegistrationStatus } from '../core/models';
               <th>{{ 'admin.registrations.phone' | transloco }}</th>
               <th>{{ 'admin.registrations.guests' | transloco }}</th>
               <th>{{ 'admin.registrations.status' | transloco }}</th>
+              <th>{{ 'admin.checkin.checkedIn' | transloco }}</th>
               <th>{{ 'admin.registrations.note' | transloco }}</th>
               <th>{{ 'admin.registrations.registeredAt' | transloco }}</th>
               <th></th>
@@ -51,6 +55,11 @@ import { RegistrationDto, RegistrationStatus } from '../core/models';
                   <span class="badge" [class]="'badge badge-' + registration.status.toLowerCase()">
                     {{ registration.status }}
                   </span>
+                </td>
+                <td>
+                  @if (registration.checkedInAt) {
+                    <span class="badge badge-confirmed">✓ {{ registration.checkedInAt | date: 'HH:mm' }}</span>
+                  }
                 </td>
                 <td class="note-cell">{{ registration.note }}</td>
                 <td>{{ registration.createdAt | date: 'short' }}</td>

@@ -1,4 +1,26 @@
 {
+  "seo": {
+    "home": {
+      "title": "Yemen is more than a war",
+      "description": "Yemeni Breeze is a youth-led cultural initiative in Amsterdam. We CONNECT cultures, we SHOWCASE Yemen, we BUILD bridges through art, food, and community."
+    },
+    "about": {
+      "title": "Our Story",
+      "description": "How Yemeni Breeze grew from one vision into an open movement — our mission, values, and the team behind it."
+    },
+    "events": {
+      "title": "Events",
+      "description": "Upcoming and past Yemeni Breeze events in Amsterdam — communal dinners, cooking workshops, music, and culture. Register online."
+    },
+    "gallery": {
+      "title": "Gallery",
+      "description": "Photos from Yemeni Breeze events — Yemeni food, music, and community in Amsterdam."
+    },
+    "contact": {
+      "title": "Contact",
+      "description": "Get in touch with Yemeni Breeze — partnerships, volunteering, press, and questions."
+    }
+  },
   "nav": {
     "home": "Home",
     "about": "Our Story",
@@ -65,6 +87,7 @@
   },
   "events": {
     "title": "Events",
+    "album": "Photos from this event",
     "upcoming": "Upcoming",
     "past": "Past events",
     "capacity": "Capacity",
@@ -173,9 +196,27 @@
       "cancel": "Cancel",
       "empty": "No registrations yet."
     },
+    "checkin": {
+      "title": "Check-in",
+      "scan": "Scan QR ticket",
+      "startCamera": "Start camera",
+      "stopCamera": "Stop camera",
+      "search": "Find a guest",
+      "searchPlaceholder": "Search by name or email…",
+      "checkIn": "Check in",
+      "checkedIn": "Checked in",
+      "seatsCheckedIn": "seats checked in"
+    },
     "gallery": {
       "title": "Gallery",
       "add": "Add photo",
+      "branding": "Site images",
+      "heroImage": "Homepage hero photo",
+      "aboutImage": "Our Story photo",
+      "dropTitle": "Drop photos here to upload",
+      "dropOr": "or choose files:",
+      "attachToEvent": "Attach to event:",
+      "uploading": "Uploading…",
       "captionEn": "Caption (English)",
       "captionNl": "Caption (Dutch)",
       "captionAr": "Caption (Arabic)",

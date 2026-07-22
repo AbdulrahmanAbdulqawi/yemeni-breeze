@@ -1,4 +1,26 @@
 {
+  "seo": {
+    "home": {
+      "title": "Jemen is meer dan een oorlog",
+      "description": "Yemeni Breeze is een cultureel jongereninitiatief in Amsterdam. Wij verbinden culturen, tonen Jemen en bouwen bruggen via kunst, eten en community."
+    },
+    "about": {
+      "title": "Ons verhaal",
+      "description": "Hoe Yemeni Breeze uitgroeide van één visie tot een open beweging — onze missie, waarden en het team erachter."
+    },
+    "events": {
+      "title": "Evenementen",
+      "description": "Aankomende en eerdere Yemeni Breeze-evenementen in Amsterdam — gezamenlijke diners, kookworkshops, muziek en cultuur. Schrijf je online in."
+    },
+    "gallery": {
+      "title": "Galerij",
+      "description": "Foto's van Yemeni Breeze-evenementen — Jemenitisch eten, muziek en community in Amsterdam."
+    },
+    "contact": {
+      "title": "Contact",
+      "description": "Neem contact op met Yemeni Breeze — partnerschappen, vrijwilligerswerk, pers en vragen."
+    }
+  },
   "nav": {
     "home": "Home",
     "about": "Ons verhaal",
@@ -65,6 +87,7 @@
   },
   "events": {
     "title": "Evenementen",
+    "album": "Foto's van dit evenement",
     "upcoming": "Aankomend",
     "past": "Eerdere evenementen",
     "capacity": "Capaciteit",
@@ -173,9 +196,27 @@
       "cancel": "Annuleren",
       "empty": "Nog geen inschrijvingen."
     },
+    "checkin": {
+      "title": "Check-in",
+      "scan": "Scan QR-ticket",
+      "startCamera": "Camera starten",
+      "stopCamera": "Camera stoppen",
+      "search": "Zoek een gast",
+      "searchPlaceholder": "Zoek op naam of e-mail…",
+      "checkIn": "Inchecken",
+      "checkedIn": "Ingecheckt",
+      "seatsCheckedIn": "plaatsen ingecheckt"
+    },
     "gallery": {
       "title": "Galerij",
       "add": "Foto toevoegen",
+      "branding": "Site-afbeeldingen",
+      "heroImage": "Foto homepage",
+      "aboutImage": "Foto Ons verhaal",
+      "dropTitle": "Sleep foto's hierheen om te uploaden",
+      "dropOr": "of kies bestanden:",
+      "attachToEvent": "Koppel aan evenement:",
+      "uploading": "Uploaden…",
       "captionEn": "Bijschrift (Engels)",
       "captionNl": "Bijschrift (Nederlands)",
       "captionAr": "Bijschrift (Arabisch)",

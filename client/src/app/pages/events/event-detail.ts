@@ -1,13 +1,14 @@
-import { Component, inject, input, signal } from '@angular/core';
+import { Component, effect, inject, input, signal } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { LocalizedDatePipe } from '../../core/localized-date.pipe';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { switchMap } from 'rxjs';
+import { combineLatest, map, switchMap } from 'rxjs';
 import { ApiService } from '../../core/api.service';
 import { LanguageService } from '../../core/language.service';
-import { RegistrationStatus } from '../../core/models';
+import { GalleryItemDto, RegistrationStatus } from '../../core/models';
+import { SeoService } from '../../core/seo.service';
 
 @Component({
   selector: 'app-event-detail',
@@ -22,10 +23,27 @@ export class EventDetail {
 
   readonly slug = input.required<string>();
 
+  private seo = inject(SeoService);
+
+  private seoSync = effect(() => {
+    const ev = this.event();
+    this.lang.current(); // re-run on language switch
+    if (ev) this.seo.setTags(this.lang.pick(ev, 'title'), this.lang.pick(ev, 'description').slice(0, 160));
+  });
+
   readonly event = toSignal(
     toObservable(this.slug).pipe(switchMap(slug => this.api.getEvent(slug))),
     { initialValue: null }
   );
+
+  readonly album = toSignal(
+    combineLatest([toObservable(this.event), this.api.getGallery()]).pipe(
+      map(([event, items]) => event ? items.filter(i => i.eventId === event.id) : [])
+    ),
+    { initialValue: [] as GalleryItemDto[] }
+  );
+
+  readonly lightbox = signal<GalleryItemDto | null>(null);
 
   readonly submitting = signal(false);
   readonly result = signal<RegistrationStatus | null>(null);
@@ -47,7 +65,7 @@ export class EventDetail {
     }
     this.submitting.set(true);
     this.errorKey.set(null);
-    this.api.register(event.slug, this.form.getRawValue()).subscribe({
+    this.api.register(event.slug, { ...this.form.getRawValue(), language: this.lang.current() }).subscribe({
       next: response => {
         this.result.set(response.status);
         this.submitting.set(false);

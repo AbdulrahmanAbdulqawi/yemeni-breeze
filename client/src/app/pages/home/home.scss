@@ -3,6 +3,21 @@
   color: var(--yb-cream);
   text-align: center;
   padding: 4.5rem 0 5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  opacity: 0.22;
+  filter: sepia(0.3);
+}
+
+.hero-inner {
+  position: relative;
 }
 
 .hero-logo {

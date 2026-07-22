@@ -1,54 +1,76 @@
 import { Component, inject, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
+import { forkJoin } from 'rxjs';
 import { ApiService } from '../core/api.service';
-import { GalleryItemDto } from '../core/models';
+import { EventDto, GalleryItemDto, SiteSettings } from '../core/models';
 
 @Component({
   selector: 'app-admin-gallery',
-  imports: [ReactiveFormsModule, TranslocoPipe],
+  imports: [FormsModule, TranslocoPipe],
   template: `
     <div class="admin-head">
       <h1>{{ 'admin.gallery.title' | transloco }}</h1>
     </div>
 
-    <form class="card add-form" [formGroup]="form" (ngSubmit)="add()">
-      <div class="field">
-        <label>{{ 'admin.gallery.add' | transloco }}</label>
-        <input type="file" accept="image/*" (change)="upload($event)" />
-        @if (form.controls.imageUrl.value) {
-          <img [src]="form.controls.imageUrl.value" class="preview" alt="" />
-        }
-      </div>
-      <div class="grid-3">
-        <div class="field">
-          <label for="captionEn">{{ 'admin.gallery.captionEn' | transloco }}</label>
-          <input id="captionEn" formControlName="captionEn" />
+    <!-- Branding images -->
+    <div class="card branding-card">
+      <h3>{{ 'admin.gallery.branding' | transloco }}</h3>
+      <div class="branding-grid">
+        <div class="branding-slot">
+          <label>{{ 'admin.gallery.heroImage' | transloco }}</label>
+          @if (settings()['heroImageUrl']; as url) {
+            <img [src]="url" alt="" />
+          }
+          <input type="file" accept="image/*" (change)="uploadBranding($event, 'heroImageUrl')" />
         </div>
-        <div class="field">
-          <label for="captionNl">{{ 'admin.gallery.captionNl' | transloco }}</label>
-          <input id="captionNl" formControlName="captionNl" />
-        </div>
-        <div class="field">
-          <label for="captionAr">{{ 'admin.gallery.captionAr' | transloco }}</label>
-          <input id="captionAr" formControlName="captionAr" dir="rtl" />
+        <div class="branding-slot">
+          <label>{{ 'admin.gallery.aboutImage' | transloco }}</label>
+          @if (settings()['aboutImageUrl']; as url) {
+            <img [src]="url" alt="" />
+          }
+          <input type="file" accept="image/*" (change)="uploadBranding($event, 'aboutImageUrl')" />
         </div>
       </div>
-      <div class="field small">
-        <label for="sortOrder">{{ 'admin.gallery.sortOrder' | transloco }}</label>
-        <input id="sortOrder" formControlName="sortOrder" type="number" />
+    </div>
+
+    <!-- Multi-upload drop zone -->
+    <div
+      class="dropzone"
+      [class.dragover]="dragging()"
+      (dragover)="$event.preventDefault(); dragging.set(true)"
+      (dragleave)="dragging.set(false)"
+      (drop)="onDrop($event)">
+      <p class="dz-title">{{ 'admin.gallery.dropTitle' | transloco }}</p>
+      <p>{{ 'admin.gallery.dropOr' | transloco }}</p>
+      <input type="file" accept="image/*" multiple (change)="onPick($event)" />
+      <div class="dz-options">
+        <label>
+          {{ 'admin.gallery.attachToEvent' | transloco }}
+          <select [(ngModel)]="selectedEventId">
+            <option [ngValue]="null">—</option>
+            @for (event of events(); track event.id) {
+              <option [ngValue]="event.id">{{ event.titleEn }}</option>
+            }
+          </select>
+        </label>
       </div>
-      <button class="btn btn-primary" type="submit" [disabled]="form.invalid || saving()">
-        {{ 'admin.gallery.add' | transloco }}
-      </button>
-    </form>
+      @if (uploading()) {
+        <p class="dz-progress">{{ 'admin.gallery.uploading' | transloco }} ({{ uploadCount() }})</p>
+      }
+    </div>
 
     <div class="items-grid">
       @for (item of items(); track item.id) {
         <div class="card item-card">
-          <img [src]="item.imageUrl" alt="" />
+          <img [src]="item.thumbUrl || item.imageUrl" alt="" />
           <div class="item-body">
-            <p>{{ item.captionEn }}</p>
+            <p>
+              {{ item.captionEn }}
+              @if (eventTitle(item.eventId); as title) {
+                <span class="event-tag">{{ title }}</span>
+              }
+            </p>
             <button class="btn-link danger" (click)="remove(item)">
               {{ 'admin.gallery.delete' | transloco }}
             </button>
@@ -58,27 +80,77 @@ import { GalleryItemDto } from '../core/models';
     </div>
   `,
   styles: `
-    .add-form {
-      padding: 1.6rem;
+    .branding-card {
+      padding: 1.4rem 1.6rem;
+      margin-bottom: 1.6rem;
+      max-width: 860px;
+
+      h3 {
+        margin-bottom: 0.8rem;
+      }
+    }
+
+    .branding-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.2rem;
+    }
+
+    .branding-slot {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+
+      label {
+        font-weight: 600;
+        color: var(--yb-brown);
+      }
+
+      img {
+        max-height: 110px;
+        width: auto;
+        border-radius: 8px;
+        object-fit: cover;
+      }
+    }
+
+    .dropzone {
+      border: 2.5px dashed var(--yb-blue);
+      border-radius: var(--yb-radius);
+      background: #fff;
+      padding: 2rem;
+      text-align: center;
       margin-bottom: 2rem;
       max-width: 860px;
-    }
+      transition: background 0.15s ease;
 
-    .grid-3 {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 1rem;
-    }
+      &.dragover {
+        background: #eef;
+        border-style: solid;
+      }
 
-    .field.small {
-      max-width: 160px;
-    }
+      .dz-title {
+        font-family: var(--yb-font-heading);
+        font-size: 1.15rem;
+        color: var(--yb-maroon);
+        margin: 0 0 0.3rem;
+      }
 
-    .preview {
-      max-height: 130px;
-      width: auto;
-      border-radius: 8px;
-      margin-top: 0.5rem;
+      .dz-options {
+        margin-top: 1rem;
+
+        select {
+          margin-inline-start: 0.6rem;
+          padding: 0.35rem 0.6rem;
+          border-radius: 8px;
+          border: 1.5px solid #d9c9a8;
+        }
+      }
+
+      .dz-progress {
+        color: var(--yb-blue);
+        font-weight: 700;
+      }
     }
 
     .items-grid {
@@ -105,6 +177,17 @@ import { GalleryItemDto } from '../core/models';
       }
     }
 
+    .event-tag {
+      display: inline-block;
+      background: var(--yb-cream);
+      color: var(--yb-brown);
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 0.05rem 0.6rem;
+      margin-inline-start: 0.4rem;
+    }
+
     .btn-link {
       background: none;
       border: none;
@@ -121,46 +204,74 @@ import { GalleryItemDto } from '../core/models';
 })
 export class AdminGallery {
   private api = inject(ApiService);
-  private fb = inject(FormBuilder);
   private transloco = inject(TranslocoService);
 
   readonly items = signal<GalleryItemDto[]>([]);
-  readonly saving = signal(false);
-
-  readonly form = this.fb.nonNullable.group({
-    imageUrl: ['', Validators.required],
-    captionEn: [''],
-    captionNl: [''],
-    captionAr: [''],
-    sortOrder: [0]
-  });
+  readonly events = signal<EventDto[]>([]);
+  readonly settings = signal<SiteSettings>({});
+  readonly dragging = signal(false);
+  readonly uploading = signal(false);
+  readonly uploadCount = signal(0);
+  selectedEventId: number | null = null;
 
   constructor() {
     this.load();
+    this.api.adminGetEvents().subscribe(events => this.events.set(events));
+    this.api.getSettings().subscribe(settings => this.settings.set(settings));
   }
 
   load() {
     this.api.getGallery().subscribe(items => this.items.set(items));
   }
 
-  upload(input: Event) {
-    const file = (input.target as HTMLInputElement).files?.[0];
-    if (!file) return;
-    this.api.adminUpload(file).subscribe(result =>
-      this.form.controls.imageUrl.setValue(result.url));
+  eventTitle(eventId: number | null): string | null {
+    if (eventId === null) return null;
+    return this.events().find(e => e.id === eventId)?.titleEn ?? null;
   }
 
-  add() {
-    if (this.form.invalid || this.saving()) return;
-    this.saving.set(true);
-    this.api.adminAddGalleryItem({ eventId: null, ...this.form.getRawValue() }).subscribe({
-      next: () => {
-        this.form.reset({ imageUrl: '', captionEn: '', captionNl: '', captionAr: '', sortOrder: 0 });
-        this.saving.set(false);
-        this.load();
+  onDrop(drop: DragEvent) {
+    drop.preventDefault();
+    this.dragging.set(false);
+    const files = Array.from(drop.dataTransfer?.files ?? [])
+      .filter(f => f.type.startsWith('image/'));
+    if (files.length) this.uploadFiles(files);
+  }
+
+  onPick(change: Event) {
+    const input = change.target as HTMLInputElement;
+    const files = Array.from(input.files ?? []);
+    if (files.length) this.uploadFiles(files);
+    input.value = '';
+  }
+
+  private uploadFiles(files: File[]) {
+    this.uploading.set(true);
+    this.uploadCount.set(files.length);
+    this.api.adminUploadBatch(files).subscribe({
+      next: results => {
+        const creations = results.map((result, index) =>
+          this.api.adminAddGalleryItem({
+            eventId: this.selectedEventId,
+            imageUrl: result.url,
+            thumbUrl: result.thumbUrl,
+            captionEn: '', captionNl: '', captionAr: '',
+            sortOrder: this.items().length + index
+          }));
+        forkJoin(creations).subscribe(() => {
+          this.uploading.set(false);
+          this.load();
+        });
       },
-      error: () => this.saving.set(false)
+      error: () => this.uploading.set(false)
     });
+  }
+
+  uploadBranding(change: Event, key: 'heroImageUrl' | 'aboutImageUrl') {
+    const file = (change.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+    this.api.adminUpload(file).subscribe(result =>
+      this.api.adminUpdateSettings({ [key]: result.url })
+        .subscribe(settings => this.settings.set(settings)));
   }
 
   remove(item: GalleryItemDto) {

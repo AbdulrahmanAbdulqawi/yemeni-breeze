@@ -89,4 +89,28 @@
       }
     </div>
   </section>
+
+  @if (album().length) {
+    <section class="section album-section">
+      <div class="container">
+        <h2 class="section-title">{{ 'events.album' | transloco }}</h2>
+        <div class="album-grid">
+          @for (photo of album(); track photo.id) {
+            <button class="album-item arch" (click)="lightbox.set(photo)">
+              <img [src]="photo.thumbUrl || photo.imageUrl" [alt]="lang.pick(photo, 'caption')" loading="lazy" />
+            </button>
+          }
+        </div>
+      </div>
+    </section>
+  }
+
+  @if (lightbox(); as photo) {
+    <div class="lightbox" (click)="lightbox.set(null)">
+      <img [src]="photo.imageUrl" [alt]="lang.pick(photo, 'caption')" />
+      @if (lang.pick(photo, 'caption')) {
+        <p>{{ lang.pick(photo, 'caption') }}</p>
+      }
+    </div>
+  }
 }

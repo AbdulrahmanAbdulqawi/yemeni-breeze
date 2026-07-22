@@ -1,0 +1,35 @@
+# Coolify deployment — add as a "Docker Compose" resource pointing at this file.
+# Traefik (managed by Coolify) terminates TLS and routes the domain to `web`;
+# no host ports are published here. Set the env vars below in the Coolify UI.
+services:
+  api:
+    build: ./server/YemeniBreeze.Api
+    environment:
+      - ConnectionStrings__Default=Data Source=/data/yemenibreeze.db
+      - Jwt__Key=${JWT_KEY}
+      - Admin__Email=${ADMIN_EMAIL}
+      - Admin__Password=${ADMIN_PASSWORD}
+      - Cors__Origins__0=${SITE_ORIGIN}
+      - Email__SmtpHost=${EMAIL_SMTP_HOST:-smtp-relay.brevo.com}
+      - Email__SmtpPort=${EMAIL_SMTP_PORT:-587}
+      - Email__SmtpUser=${EMAIL_SMTP_USER}
+      - Email__SmtpKey=${EMAIL_SMTP_KEY}
+      - Email__FromAddress=${EMAIL_FROM_ADDRESS}
+      - Email__FromName=Yemeni Breeze
+      - Email__PublicBaseUrl=${SITE_ORIGIN}
+    volumes:
+      - dbdata:/data
+      - uploads:/app/wwwroot/uploads
+    restart: unless-stopped
+
+  web:
+    build: ./client
+    expose:
+      - "80"
+    depends_on:
+      - api
+    restart: unless-stopped
+
+volumes:
+  dbdata:
+  uploads:

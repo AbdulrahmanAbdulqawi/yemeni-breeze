@@ -28,6 +28,7 @@ export const routes: Routes = [
       { path: 'events', loadComponent: () => import('./admin/admin-events').then(m => m.AdminEvents) },
       { path: 'events/new', loadComponent: () => import('./admin/admin-event-form').then(m => m.AdminEventForm) },
       { path: 'events/:eventId/registrations', loadComponent: () => import('./admin/admin-registrations').then(m => m.AdminRegistrations) },
+      { path: 'events/:eventId/checkin', loadComponent: () => import('./admin/admin-checkin').then(m => m.AdminCheckin) },
       { path: 'events/:id', loadComponent: () => import('./admin/admin-event-form').then(m => m.AdminEventForm) },
       { path: 'gallery', loadComponent: () => import('./admin/admin-gallery').then(m => m.AdminGallery) },
       { path: 'messages', loadComponent: () => import('./admin/admin-messages').then(m => m.AdminMessages) }
