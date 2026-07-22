@@ -185,6 +185,52 @@ public class V2FeatureTests : IClassFixture<ApiFactory>
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 
+    [Fact]
+    public async Task File_Upload_Stores_Video_And_Serves_It_Back()
+    {
+        await AuthenticateAsync();
+
+        var payload = new byte[64 * 1024];
+        Random.Shared.NextBytes(payload);
+        using var content = new MultipartFormDataContent();
+        var part = new ByteArrayContent(payload);
+        part.Headers.ContentType = new MediaTypeHeaderValue("video/mp4");
+        content.Add(part, "file", "clip.mp4");
+
+        var response = await _client.PostAsync("/api/admin/uploads/file", content);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var uploaded = await response.Content.ReadFromJsonAsync<UploadedFileResult>();
+        Assert.Equal("video", uploaded!.Kind);
+        Assert.StartsWith("/api/media/", uploaded.Url);
+
+        // media proxy is public and returns the exact bytes with the right content-type
+        var served = await _client.GetAsync(uploaded.Url);
+        Assert.Equal(HttpStatusCode.OK, served.StatusCode);
+        Assert.Equal("video/mp4", served.Content.Headers.ContentType!.MediaType);
+        Assert.Equal(payload, await served.Content.ReadAsByteArrayAsync());
+    }
+
+    [Fact]
+    public async Task File_Upload_Rejects_Executable()
+    {
+        await AuthenticateAsync();
+        using var content = new MultipartFormDataContent();
+        var part = new ByteArrayContent([1, 2, 3, 4]);
+        content.Add(part, "file", "malware.exe");
+
+        var response = await _client.PostAsync("/api/admin/uploads/file", content);
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task Media_Proxy_Rejects_Path_Traversal_Keys()
+    {
+        var response = await _client.GetAsync("/api/media/..%2f..%2fappsettings.json");
+        Assert.True(response.StatusCode is HttpStatusCode.BadRequest or HttpStatusCode.NotFound);
+    }
+
+    private record UploadedFileResult(string Url, string Kind, string ContentType);
+
     private static byte[] CreatePng(int width, int height)
     {
         using var image = new Image<Rgba32>(width, height, new Rgba32(143, 27, 4));

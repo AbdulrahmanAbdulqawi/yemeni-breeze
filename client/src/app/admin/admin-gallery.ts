@@ -1,9 +1,9 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
-import { forkJoin } from 'rxjs';
+import { Observable, forkJoin, switchMap } from 'rxjs';
 import { ApiService } from '../core/api.service';
-import { EventDto, GalleryItemDto, SiteSettings } from '../core/models';
+import { EventDto, GalleryItemDto, MediaType, SiteSettings } from '../core/models';
 
 @Component({
   selector: 'app-admin-gallery',
@@ -43,7 +43,7 @@ import { EventDto, GalleryItemDto, SiteSettings } from '../core/models';
       (drop)="onDrop($event)">
       <p class="dz-title">{{ 'admin.gallery.dropTitle' | transloco }}</p>
       <p>{{ 'admin.gallery.dropOr' | transloco }}</p>
-      <input type="file" accept="image/*" multiple (change)="onPick($event)" />
+      <input type="file" accept="image/*,video/*,application/pdf" multiple (change)="onPick($event)" />
       <div class="dz-options">
         <label>
           {{ 'admin.gallery.attachToEvent' | transloco }}
@@ -63,7 +63,17 @@ import { EventDto, GalleryItemDto, SiteSettings } from '../core/models';
     <div class="items-grid">
       @for (item of items(); track item.id) {
         <div class="card item-card">
-          <img [src]="item.thumbUrl || item.imageUrl" alt="" />
+          @switch (item.mediaType) {
+            @case ('video') {
+              <video [src]="item.imageUrl" controls preload="metadata"></video>
+            }
+            @case ('file') {
+              <a class="file-tile" [href]="item.imageUrl" target="_blank" rel="noopener">📄 {{ 'admin.gallery.openFile' | transloco }}</a>
+            }
+            @default {
+              <img [src]="item.thumbUrl || item.imageUrl" alt="" />
+            }
+          }
           <div class="item-body">
             <p>
               {{ item.captionEn }}
@@ -159,10 +169,25 @@ import { EventDto, GalleryItemDto, SiteSettings } from '../core/models';
       gap: 1.2rem;
     }
 
-    .item-card img {
+    .item-card img,
+    .item-card video {
       width: 100%;
       height: 160px;
       object-fit: cover;
+      display: block;
+      background: #000;
+    }
+
+    .file-tile {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 160px;
+      background: var(--yb-cream);
+      color: var(--yb-brown);
+      font-weight: 700;
+      text-decoration: none;
+      gap: 0.4rem;
     }
 
     .item-body {
@@ -232,8 +257,7 @@ export class AdminGallery {
   onDrop(drop: DragEvent) {
     drop.preventDefault();
     this.dragging.set(false);
-    const files = Array.from(drop.dataTransfer?.files ?? [])
-      .filter(f => f.type.startsWith('image/'));
+    const files = Array.from(drop.dataTransfer?.files ?? []);
     if (files.length) this.uploadFiles(files);
   }
 
@@ -247,23 +271,50 @@ export class AdminGallery {
   private uploadFiles(files: File[]) {
     this.uploading.set(true);
     this.uploadCount.set(files.length);
-    this.api.adminUploadBatch(files).subscribe({
-      next: results => {
-        const creations = results.map((result, index) =>
-          this.api.adminAddGalleryItem({
-            eventId: this.selectedEventId,
-            imageUrl: result.url,
-            thumbUrl: result.thumbUrl,
-            captionEn: '', captionNl: '', captionAr: '',
-            sortOrder: this.items().length + index
-          }));
-        forkJoin(creations).subscribe(() => {
-          this.uploading.set(false);
-          this.load();
-        });
+    const base = this.items().length;
+    const images = files.filter(f => f.type.startsWith('image/'));
+    const others = files.filter(f => !f.type.startsWith('image/'));
+
+    const tasks: Observable<GalleryItemDto>[] = [];
+
+    // Images are batch-resized to WebP, then registered as gallery items
+    if (images.length) {
+      tasks.push(this.api.adminUploadBatch(images).pipe(
+        switchMap(results => forkJoin(results.map((r, i) =>
+          this.api.adminAddGalleryItem(this.newItem(r.url, r.thumbUrl, 'image', base + i)))))
+      ) as unknown as Observable<GalleryItemDto>);
+    }
+
+    // Videos / files are stored as-is
+    others.forEach((file, i) => {
+      tasks.push(this.api.adminUploadFile(file).pipe(
+        switchMap(res => this.api.adminAddGalleryItem(
+          this.newItem(res.url, null, res.kind, base + images.length + i)))
+      ));
+    });
+
+    if (!tasks.length) {
+      this.uploading.set(false);
+      return;
+    }
+    forkJoin(tasks).subscribe({
+      next: () => {
+        this.uploading.set(false);
+        this.load();
       },
       error: () => this.uploading.set(false)
     });
+  }
+
+  private newItem(imageUrl: string, thumbUrl: string | null, mediaType: MediaType, sortOrder: number) {
+    return {
+      eventId: this.selectedEventId,
+      imageUrl,
+      thumbUrl,
+      mediaType,
+      captionEn: '', captionNl: '', captionAr: '',
+      sortOrder
+    };
   }
 
   uploadBranding(change: Event, key: 'heroImageUrl' | 'aboutImageUrl') {

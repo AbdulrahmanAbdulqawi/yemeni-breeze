@@ -5,17 +5,17 @@ using YemeniBreeze.Api.Domain;
 namespace YemeniBreeze.Api.Features.Gallery;
 
 public record GalleryItemDto(
-    int Id, int? EventId, string ImageUrl, string? ThumbUrl,
+    int Id, int? EventId, string ImageUrl, string? ThumbUrl, string MediaType,
     string CaptionEn, string CaptionNl, string CaptionAr, int SortOrder);
 
 public record GalleryItemInput(
-    int? EventId, string ImageUrl, string? ThumbUrl,
+    int? EventId, string ImageUrl, string? ThumbUrl, string? MediaType,
     string CaptionEn, string CaptionNl, string CaptionAr, int SortOrder);
 
 public static class GalleryEndpoints
 {
     private static GalleryItemDto ToDto(GalleryItem g) =>
-        new(g.Id, g.EventId, g.ImageUrl, g.ThumbUrl, g.CaptionEn, g.CaptionNl, g.CaptionAr, g.SortOrder);
+        new(g.Id, g.EventId, g.ImageUrl, g.ThumbUrl, g.MediaType, g.CaptionEn, g.CaptionNl, g.CaptionAr, g.SortOrder);
 
     public static void MapGalleryEndpoints(this IEndpointRouteBuilder app)
     {
@@ -32,6 +32,7 @@ public static class GalleryEndpoints
                 EventId = input.EventId,
                 ImageUrl = input.ImageUrl,
                 ThumbUrl = input.ThumbUrl,
+                MediaType = input.MediaType ?? "image",
                 CaptionEn = input.CaptionEn,
                 CaptionNl = input.CaptionNl,
                 CaptionAr = input.CaptionAr,
@@ -49,6 +50,7 @@ public static class GalleryEndpoints
             item.EventId = input.EventId;
             item.ImageUrl = input.ImageUrl;
             item.ThumbUrl = input.ThumbUrl;
+            item.MediaType = input.MediaType ?? item.MediaType;
             item.CaptionEn = input.CaptionEn;
             item.CaptionNl = input.CaptionNl;
             item.CaptionAr = input.CaptionAr;

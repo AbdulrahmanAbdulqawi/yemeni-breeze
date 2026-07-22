@@ -11,9 +11,18 @@ using YemeniBreeze.Api.Features.Events;
 using YemeniBreeze.Api.Features.Gallery;
 using YemeniBreeze.Api.Features.Registrations;
 using YemeniBreeze.Api.Features.Settings;
+using YemeniBreeze.Api.Features.Storage;
 using YemeniBreeze.Api.Features.Uploads;
 
 var builder = WebApplication.CreateBuilder(args);
+
+const long maxUploadBytes = 210L * 1024 * 1024; // 210 MB — headroom over the 200 MB file limit
+builder.WebHost.ConfigureKestrel(o => o.Limits.MaxRequestBodySize = maxUploadBytes);
+builder.Services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(o =>
+{
+    o.MultipartBodyLengthLimit = maxUploadBytes;
+    o.ValueLengthLimit = int.MaxValue;
+});
 
 builder.Services.ConfigureHttpJsonOptions(options =>
     options.SerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter()));
@@ -48,6 +57,7 @@ builder.Services
     });
 builder.Services.AddAuthorization();
 
+builder.Services.AddSingleton<StorageService>();
 builder.Services.AddSingleton<ImageService>();
 builder.Services.AddSingleton<EmailService>();
 

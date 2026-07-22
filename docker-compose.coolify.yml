@@ -17,6 +17,12 @@ services:
       - Email__FromAddress=${EMAIL_FROM_ADDRESS}
       - Email__FromName=Yemeni Breeze
       - Email__PublicBaseUrl=${SITE_ORIGIN}
+      # Hetzner Object Storage (S3). Leave blank to fall back to the local uploads volume.
+      - Storage__Endpoint=${STORAGE_ENDPOINT}
+      - Storage__Region=${STORAGE_REGION}
+      - Storage__Bucket=${STORAGE_BUCKET}
+      - Storage__AccessKey=${STORAGE_ACCESS_KEY}
+      - Storage__SecretKey=${STORAGE_SECRET_KEY}
     volumes:
       - dbdata:/data
       - uploads:/app/wwwroot/uploads

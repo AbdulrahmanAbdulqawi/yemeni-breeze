@@ -12,6 +12,7 @@ import {
   RegistrationResult,
   RegistrationStatus,
   SiteSettings,
+  UploadedFile,
   UploadResult
 } from './models';
 
@@ -109,6 +110,12 @@ export class ApiService {
     const form = new FormData();
     for (const file of files) form.append('files', file);
     return this.http.post<UploadResult[]>('/api/admin/uploads/batch', form);
+  }
+
+  adminUploadFile(file: File) {
+    const form = new FormData();
+    form.append('file', file);
+    return this.http.post<UploadedFile>('/api/admin/uploads/file', form);
   }
 
   getSettings() {

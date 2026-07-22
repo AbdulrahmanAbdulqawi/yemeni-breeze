@@ -59,6 +59,7 @@ public class GalleryItem
     public Event? Event { get; set; }
     public string ImageUrl { get; set; } = "";
     public string? ThumbUrl { get; set; }
+    public string MediaType { get; set; } = "image"; // image | video | file
     public string CaptionEn { get; set; } = "";
     public string CaptionNl { get; set; } = "";
     public string CaptionAr { get; set; } = "";

@@ -74,11 +74,14 @@ export interface CheckinResult {
   registration: RegistrationDto;
 }
 
+export type MediaType = 'image' | 'video' | 'file';
+
 export interface GalleryItemDto {
   id: number;
   eventId: number | null;
   imageUrl: string;
   thumbUrl: string | null;
+  mediaType: MediaType;
   captionEn: string;
   captionNl: string;
   captionAr: string;
@@ -88,6 +91,12 @@ export interface GalleryItemDto {
 export interface UploadResult {
   url: string;
   thumbUrl: string;
+}
+
+export interface UploadedFile {
+  url: string;
+  kind: MediaType;
+  contentType: string;
 }
 
 export type SiteSettings = Record<string, string>;

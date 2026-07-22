@@ -96,9 +96,19 @@
         <h2 class="section-title">{{ 'events.album' | transloco }}</h2>
         <div class="album-grid">
           @for (photo of album(); track photo.id) {
-            <button class="album-item arch" (click)="lightbox.set(photo)">
-              <img [src]="photo.thumbUrl || photo.imageUrl" [alt]="lang.pick(photo, 'caption')" loading="lazy" />
-            </button>
+            @switch (photo.mediaType) {
+              @case ('video') {
+                <video class="album-item arch" [src]="photo.imageUrl" controls preload="metadata"></video>
+              }
+              @case ('file') {
+                <a class="album-item arch file-tile" [href]="photo.imageUrl" target="_blank" rel="noopener">📄</a>
+              }
+              @default {
+                <button class="album-item arch" (click)="lightbox.set(photo)">
+                  <img [src]="photo.thumbUrl || photo.imageUrl" [alt]="lang.pick(photo, 'caption')" loading="lazy" />
+                </button>
+              }
+            }
           }
         </div>
       </div>
