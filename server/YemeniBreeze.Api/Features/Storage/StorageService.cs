@@ -60,13 +60,19 @@ public class StorageService
     {
         if (_s3 is not null)
         {
+            // Buffer to a seekable MemoryStream so the SDK can compute a normal SigV4
+            // signed-payload hash — Hetzner rejects UNSIGNED-PAYLOAD with InvalidArgument.
+            await using var buffer = new MemoryStream();
+            await data.CopyToAsync(buffer, ct);
+            buffer.Position = 0;
+
             await _s3.PutObjectAsync(new PutObjectRequest
             {
                 BucketName = _options.Bucket,
                 Key = key,
-                InputStream = data,
+                InputStream = buffer,
                 ContentType = contentType,
-                DisablePayloadSigning = true // Hetzner: avoid streaming-chunked signature
+                AutoCloseStream = false
             }, ct);
         }
         else
