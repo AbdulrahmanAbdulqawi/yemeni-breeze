@@ -1,0 +1,6 @@
+@YemeniBreeze.Api_HostAddress = http://localhost:5239
+
+GET {{YemeniBreeze.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

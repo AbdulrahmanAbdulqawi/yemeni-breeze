@@ -1,0 +1,26 @@
+# Build outputs
+**/bin/
+**/obj/
+client/dist/
+client/.angular/
+node_modules/
+
+# Local databases & logs
+*.db
+*.db-shm
+*.db-wal
+*.log
+
+# IDE
+.vs/
+.vscode/
+.idea/
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Source material folders (brand assets live in client/public/assets)
+OneDrive_1_7-22-2026/
+drive-download-*/
+hello.zip
