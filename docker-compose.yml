@@ -1,0 +1,26 @@
+services:
+  api:
+    build: ./server/YemeniBreeze.Api
+    environment:
+      - ConnectionStrings__Default=Data Source=/data/yemenibreeze.db
+      # Override these in production (e.g. with a .env file):
+      - Jwt__Key=${JWT_KEY:-dev-only-secret-change-in-production-minimum-32-chars!}
+      - Admin__Email=${ADMIN_EMAIL:-admin@yemenibreeze.nl}
+      - Admin__Password=${ADMIN_PASSWORD:-ChangeMe!2026}
+      - Cors__Origins__0=${SITE_ORIGIN:-http://localhost:8080}
+    volumes:
+      - dbdata:/data
+      - uploads:/app/wwwroot/uploads
+    restart: unless-stopped
+
+  web:
+    build: ./client
+    ports:
+      - "8080:80"
+    depends_on:
+      - api
+    restart: unless-stopped
+
+volumes:
+  dbdata:
+  uploads:
