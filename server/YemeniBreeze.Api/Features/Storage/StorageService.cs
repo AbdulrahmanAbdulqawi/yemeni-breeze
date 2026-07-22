@@ -64,34 +64,32 @@ public class StorageService
     {
         if (!UseS3) return new { s3 = false };
 
-        var regionCandidates = new[] { _options.Region ?? "hel1", "us-east-1", "eu-central-1", "eu-central", "default" };
-        var results = new List<object>();
-        foreach (var region in regionCandidates.Distinct())
+        var cfg = new AmazonS3Config
         {
-            var cfg = new AmazonS3Config
-            {
-                ServiceURL = _options.Endpoint,
-                ForcePathStyle = true,
-                AuthenticationRegion = region,
-                RequestChecksumCalculation = Amazon.Runtime.RequestChecksumCalculation.WHEN_REQUIRED,
-                ResponseChecksumValidation = Amazon.Runtime.ResponseChecksumValidation.WHEN_REQUIRED
-            };
-            using var client = new AmazonS3Client(_options.AccessKey, _options.SecretKey, cfg);
-            try
-            {
-                var r = await client.ListObjectsV2Async(new ListObjectsV2Request { BucketName = _options.Bucket, MaxKeys = 1 });
-                results.Add(new { region, ok = true, keyCount = r.KeyCount });
-            }
-            catch (AmazonS3Exception ex)
-            {
-                results.Add(new { region, ok = false, ex.ErrorCode, status = (int)ex.StatusCode });
-            }
-            catch (Exception ex)
-            {
-                results.Add(new { region, ok = false, type = ex.GetType().Name });
-            }
-        }
-        return new { endpoint = _options.Endpoint, bucket = _options.Bucket, results };
+            ServiceURL = _options.Endpoint,
+            ForcePathStyle = true,
+            AuthenticationRegion = _options.Region
+        };
+        using var client = new AmazonS3Client(_options.AccessKey, _options.SecretKey, cfg);
+
+        // Presigned URLs use pure query-string SigV4 (no x-amz-content-sha256 / checksum headers).
+        // Testing these with plain curl isolates whether the problem is the SDK's request headers.
+        var presignedGet = client.GetPreSignedURL(new GetPreSignedUrlRequest
+        {
+            BucketName = _options.Bucket,
+            Key = "diag-test.txt",
+            Verb = HttpVerb.GET,
+            Expires = DateTime.UtcNow.AddMinutes(20)
+        });
+        var presignedPut = client.GetPreSignedURL(new GetPreSignedUrlRequest
+        {
+            BucketName = _options.Bucket,
+            Key = "diag-test.txt",
+            Verb = HttpVerb.PUT,
+            ContentType = "text/plain",
+            Expires = DateTime.UtcNow.AddMinutes(20)
+        });
+        return new { endpoint = _options.Endpoint, region = _options.Region, bucket = _options.Bucket, presignedGet, presignedPut };
     }
 
     public async Task PutAsync(string key, Stream data, string contentType, CancellationToken ct = default)
