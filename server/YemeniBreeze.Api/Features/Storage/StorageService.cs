@@ -63,6 +63,12 @@ public class StorageService
     public async Task<object> DiagnoseAsync()
     {
         if (!UseS3) return new { s3 = false };
+
+        // Print the raw Hetzner HTTP response (incl. the error XML) to the container log
+        Amazon.AWSConfigs.LoggingConfig.LogResponses = Amazon.ResponseLoggingOption.Always;
+        Amazon.AWSConfigs.LoggingConfig.LogTo = Amazon.LoggingOptions.Console;
+        Amazon.AWSConfigs.LoggingConfig.LogResponsesSizeLimit = 8192;
+
         var results = new List<object>();
         foreach (var pathStyle in new[] { true, false })
         {
