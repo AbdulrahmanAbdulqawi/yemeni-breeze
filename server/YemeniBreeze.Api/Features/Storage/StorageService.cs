@@ -64,19 +64,15 @@ public class StorageService
     {
         if (!UseS3) return new { s3 = false };
 
-        // Print the raw Hetzner HTTP response (incl. the error XML) to the container log
-        Amazon.AWSConfigs.LoggingConfig.LogResponses = Amazon.ResponseLoggingOption.Always;
-        Amazon.AWSConfigs.LoggingConfig.LogTo = Amazon.LoggingOptions.Console;
-        Amazon.AWSConfigs.LoggingConfig.LogResponsesSizeLimit = 8192;
-
+        var regionCandidates = new[] { _options.Region ?? "hel1", "us-east-1", "eu-central-1", "eu-central", "default" };
         var results = new List<object>();
-        foreach (var pathStyle in new[] { true, false })
+        foreach (var region in regionCandidates.Distinct())
         {
             var cfg = new AmazonS3Config
             {
                 ServiceURL = _options.Endpoint,
-                ForcePathStyle = pathStyle,
-                AuthenticationRegion = _options.Region,
+                ForcePathStyle = true,
+                AuthenticationRegion = region,
                 RequestChecksumCalculation = Amazon.Runtime.RequestChecksumCalculation.WHEN_REQUIRED,
                 ResponseChecksumValidation = Amazon.Runtime.ResponseChecksumValidation.WHEN_REQUIRED
             };
@@ -84,18 +80,18 @@ public class StorageService
             try
             {
                 var r = await client.ListObjectsV2Async(new ListObjectsV2Request { BucketName = _options.Bucket, MaxKeys = 1 });
-                results.Add(new { pathStyle, ok = true, keyCount = r.KeyCount });
+                results.Add(new { region, ok = true, keyCount = r.KeyCount });
             }
             catch (AmazonS3Exception ex)
             {
-                results.Add(new { pathStyle, ok = false, ex.ErrorCode, status = (int)ex.StatusCode, ex.Message });
+                results.Add(new { region, ok = false, ex.ErrorCode, status = (int)ex.StatusCode });
             }
             catch (Exception ex)
             {
-                results.Add(new { pathStyle, ok = false, type = ex.GetType().Name, ex.Message });
+                results.Add(new { region, ok = false, type = ex.GetType().Name });
             }
         }
-        return new { endpoint = _options.Endpoint, region = _options.Region, bucket = _options.Bucket, results };
+        return new { endpoint = _options.Endpoint, bucket = _options.Bucket, results };
     }
 
     public async Task PutAsync(string key, Stream data, string contentType, CancellationToken ct = default)
