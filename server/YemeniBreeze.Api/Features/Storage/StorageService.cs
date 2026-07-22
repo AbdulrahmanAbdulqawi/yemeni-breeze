@@ -38,7 +38,10 @@ public class StorageService
             {
                 ServiceURL = _options.Endpoint,
                 ForcePathStyle = true, // path-style avoids per-bucket TLS/DNS issues on Hetzner
-                AuthenticationRegion = _options.Region
+                AuthenticationRegion = _options.Region,
+                // Hetzner rejects the SDK's default CRC32 checksum header with InvalidArgument
+                RequestChecksumCalculation = Amazon.Runtime.RequestChecksumCalculation.WHEN_REQUIRED,
+                ResponseChecksumValidation = Amazon.Runtime.ResponseChecksumValidation.WHEN_REQUIRED
             };
             _s3 = new AmazonS3Client(_options.AccessKey, _options.SecretKey, s3Config);
             _logger.LogInformation("StorageService: using S3 bucket '{Bucket}' at {Endpoint}",
