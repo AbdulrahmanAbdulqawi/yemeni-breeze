@@ -54,6 +54,17 @@ h4 {
 
 a {
   color: var(--yb-maroon);
+
+  &:hover {
+    color: var(--yb-blue);
+  }
+}
+
+/* Blue focus ring — visible on both cream and brown surfaces */
+a:focus-visible,
+button:focus-visible {
+  outline: 3px solid var(--yb-blue);
+  outline-offset: 2px;
 }
 
 img {
@@ -146,7 +157,15 @@ img {
     height: 4px;
     margin: 0.8rem auto 0;
     border-radius: 2px;
-    background: linear-gradient(90deg, var(--yb-red), var(--yb-orange), var(--yb-yellow));
+    /* full qamariya mosaic: red → orange → yellow → green → blue */
+    background: linear-gradient(
+      90deg,
+      var(--yb-red) 0 20%,
+      var(--yb-orange) 20% 40%,
+      var(--yb-yellow) 40% 60%,
+      var(--yb-green) 60% 80%,
+      var(--yb-blue) 80% 100%
+    );
   }
 }
 
@@ -188,8 +207,8 @@ img {
     color: var(--yb-brown-deep);
 
     &:focus {
-      outline: 2px solid var(--yb-orange);
-      border-color: var(--yb-orange);
+      outline: 2px solid var(--yb-blue);
+      border-color: var(--yb-blue);
     }
   }
 }

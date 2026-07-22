@@ -47,6 +47,9 @@ public class Registration
     public string? Note { get; set; }
     public RegistrationStatus Status { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public Guid TicketCode { get; set; } = Guid.NewGuid();
+    public DateTime? CheckedInAt { get; set; }
+    public string Language { get; set; } = "en";
 }
 
 public class GalleryItem
@@ -55,10 +58,17 @@ public class GalleryItem
     public int? EventId { get; set; }
     public Event? Event { get; set; }
     public string ImageUrl { get; set; } = "";
+    public string? ThumbUrl { get; set; }
     public string CaptionEn { get; set; } = "";
     public string CaptionNl { get; set; } = "";
     public string CaptionAr { get; set; } = "";
     public int SortOrder { get; set; }
+}
+
+public class SiteSetting
+{
+    public string Key { get; set; } = "";
+    public string Value { get; set; } = "";
 }
 
 public class ContactMessage

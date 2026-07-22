@@ -12,6 +12,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<Registration> Registrations => Set<Registration>();
     public DbSet<GalleryItem> GalleryItems => Set<GalleryItem>();
     public DbSet<ContactMessage> ContactMessages => Set<ContactMessage>();
+    public DbSet<SiteSetting> SiteSettings => Set<SiteSetting>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -38,6 +39,15 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
                 .HasForeignKey(x => x.EventId)
                 .OnDelete(DeleteBehavior.Cascade);
             r.HasIndex(x => new { x.EventId, x.Email }).IsUnique();
+            r.HasIndex(x => x.TicketCode).IsUnique();
+            r.Property(x => x.Language).HasMaxLength(5);
+        });
+
+        builder.Entity<SiteSetting>(s =>
+        {
+            s.HasKey(x => x.Key);
+            s.Property(x => x.Key).HasMaxLength(100);
+            s.Property(x => x.Value).HasMaxLength(1000);
         });
 
         builder.Entity<GalleryItem>(g =>

@@ -6,9 +6,11 @@ using Microsoft.IdentityModel.Tokens;
 using YemeniBreeze.Api.Data;
 using YemeniBreeze.Api.Features.Auth;
 using YemeniBreeze.Api.Features.Contact;
+using YemeniBreeze.Api.Features.Email;
 using YemeniBreeze.Api.Features.Events;
 using YemeniBreeze.Api.Features.Gallery;
 using YemeniBreeze.Api.Features.Registrations;
+using YemeniBreeze.Api.Features.Settings;
 using YemeniBreeze.Api.Features.Uploads;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -46,6 +48,9 @@ builder.Services
     });
 builder.Services.AddAuthorization();
 
+builder.Services.AddSingleton<ImageService>();
+builder.Services.AddSingleton<EmailService>();
+
 builder.Services.AddCors(options => options.AddDefaultPolicy(policy =>
     policy.WithOrigins(builder.Configuration.GetSection("Cors:Origins").Get<string[]>()
             ?? ["http://localhost:4200"])
@@ -65,6 +70,7 @@ app.MapRegistrationsEndpoints();
 app.MapGalleryEndpoints();
 app.MapContactEndpoints();
 app.MapUploadsEndpoints();
+app.MapSettingsEndpoints();
 
 using (var scope = app.Services.CreateScope())
 {
