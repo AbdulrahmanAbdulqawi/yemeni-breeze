@@ -1,0 +1,92 @@
+@if (event(); as ev) {
+  <section class="section-dark detail-head">
+    <div class="container">
+      <h1>{{ lang.pick(ev, 'title') }}</h1>
+      <p class="detail-meta">
+        <span>📅 {{ 'events.date' | transloco }}: {{ ev.date | localizedDate: 'full' }}</span>
+        <span>🕓 {{ 'events.time' | transloco }}: {{ ev.startTime }}–{{ ev.endTime }}</span>
+        <span>📍 {{ 'events.location' | transloco }}: {{ ev.location }}</span>
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container detail-grid">
+      <div class="detail-info">
+        @if (ev.imageUrl) {
+          <img [src]="ev.imageUrl" [alt]="lang.pick(ev, 'title')" class="detail-img arch" />
+        }
+        <p class="detail-desc">{{ lang.pick(ev, 'description') }}</p>
+
+        @if (ev.isRegistrationOpen) {
+          @if (ev.spotsLeft > 0) {
+            <p class="capacity-badge open">✓ {{ ev.spotsLeft }} {{ 'events.spotsLeft' | transloco }}</p>
+          } @else {
+            <p class="capacity-badge waitlist">{{ 'events.waitlistOpen' | transloco }}</p>
+          }
+        } @else {
+          <p class="capacity-badge closed">{{ 'events.registrationClosed' | transloco }}</p>
+        }
+      </div>
+
+      @if (ev.isRegistrationOpen) {
+        <div class="detail-form card">
+          @if (result() === null) {
+            <h2>{{ (ev.spotsLeft > 0 ? 'events.form.title' : 'events.form.waitlistTitle') | transloco }}</h2>
+            @if (ev.spotsLeft <= 0) {
+              <p class="waitlist-note">{{ 'events.form.waitlistNote' | transloco }}</p>
+            }
+            <form [formGroup]="form" (ngSubmit)="submit()">
+              <div class="field">
+                <label for="fullName">{{ 'events.form.fullName' | transloco }}</label>
+                <input id="fullName" formControlName="fullName" autocomplete="name" />
+                @if (form.controls.fullName.touched && form.controls.fullName.invalid) {
+                  <span class="error-text">{{ 'events.form.fullName' | transloco }} *</span>
+                }
+              </div>
+              <div class="field">
+                <label for="email">{{ 'events.form.email' | transloco }}</label>
+                <input id="email" formControlName="email" type="email" autocomplete="email" />
+                @if (form.controls.email.touched && form.controls.email.invalid) {
+                  <span class="error-text">{{ 'events.form.email' | transloco }} *</span>
+                }
+              </div>
+              <div class="field">
+                <label for="phone">{{ 'events.form.phone' | transloco }}</label>
+                <input id="phone" formControlName="phone" type="tel" autocomplete="tel" />
+              </div>
+              <div class="field">
+                <label for="guests">{{ 'events.form.guests' | transloco }}</label>
+                <input id="guests" formControlName="guestsCount" type="number" min="1" max="10" />
+              </div>
+              <div class="field">
+                <label for="note">{{ 'events.form.note' | transloco }}</label>
+                <textarea id="note" formControlName="note" rows="3"></textarea>
+              </div>
+              @if (errorKey(); as key) {
+                <p class="error-text">{{ key | transloco }}</p>
+              }
+              <button class="btn btn-primary" type="submit" [disabled]="submitting()">
+                {{ (submitting() ? 'events.form.submitting' : 'events.form.submit') | transloco }}
+              </button>
+            </form>
+          } @else if (result() === 'Confirmed') {
+            <div class="result confirmed">
+              <span class="result-icon">🎉</span>
+              <h2>{{ 'events.form.confirmedTitle' | transloco }}</h2>
+              <p>{{ 'events.form.confirmedText' | transloco }}</p>
+              <a routerLink="/events" class="btn btn-outline">{{ 'nav.events' | transloco }}</a>
+            </div>
+          } @else {
+            <div class="result waitlisted">
+              <span class="result-icon">⏳</span>
+              <h2>{{ 'events.form.waitlistedTitle' | transloco }}</h2>
+              <p>{{ 'events.form.waitlistedText' | transloco }}</p>
+              <a routerLink="/events" class="btn btn-outline">{{ 'nav.events' | transloco }}</a>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </section>
+}

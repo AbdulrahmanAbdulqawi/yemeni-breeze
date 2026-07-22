@@ -1,0 +1,43 @@
+<header class="site-header">
+  <div class="container header-inner">
+    <a routerLink="/" class="brand" (click)="closeMenu()">
+      <img src="/assets/logo.png" alt="Yemeni Breeze — نسمات اليمن" class="brand-logo" />
+      <span class="brand-name">Yemeni Breeze</span>
+    </a>
+
+    <button class="menu-toggle" (click)="toggleMenu()" aria-label="Menu">☰</button>
+
+    <nav class="site-nav" [class.open]="menuOpen()">
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" (click)="closeMenu()">{{ 'nav.home' | transloco }}</a>
+      <a routerLink="/about" routerLinkActive="active" (click)="closeMenu()">{{ 'nav.about' | transloco }}</a>
+      <a routerLink="/events" routerLinkActive="active" (click)="closeMenu()">{{ 'nav.events' | transloco }}</a>
+      <a routerLink="/gallery" routerLinkActive="active" (click)="closeMenu()">{{ 'nav.gallery' | transloco }}</a>
+      <a routerLink="/contact" routerLinkActive="active" (click)="closeMenu()">{{ 'nav.contact' | transloco }}</a>
+
+      <span class="lang-switch">
+        @for (l of languages; track l.code) {
+          <button
+            class="lang-btn"
+            [class.active]="lang.current() === l.code"
+            (click)="setLang(l.code); closeMenu()">{{ l.label }}</button>
+        }
+      </span>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <router-outlet />
+</main>
+
+<footer class="site-footer">
+  <div class="container footer-inner">
+    <img src="/assets/logo.png" alt="Yemeni Breeze" class="footer-logo" />
+    <p class="footer-tagline">{{ 'footer.tagline' | transloco }}</p>
+    <p class="footer-location">{{ 'footer.location' | transloco }}</p>
+    <a class="footer-instagram" href="https://instagram.com/Yemeni.breeze" target="_blank" rel="noopener">
+      {{ 'footer.instagram' | transloco }} — <span dir="ltr">&#64;Yemeni.breeze</span>
+    </a>
+    <p class="footer-rights">{{ 'footer.rights' | transloco }}</p>
+  </div>
+</footer>

@@ -1,0 +1,61 @@
+<section class="section-dark about-hero">
+  <div class="container">
+    <h1>{{ 'about.title' | transloco }}</h1>
+    <p class="about-intro">{{ 'about.intro' | transloco }}</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container narrow">
+    <p>{{ 'about.founding' | transloco }}</p>
+    <p>{{ 'about.open' | transloco }}</p>
+  </div>
+</section>
+
+<section class="section mission">
+  <div class="container narrow">
+    <h2 class="section-title">{{ 'about.missionTitle' | transloco }}</h2>
+    <p class="mission-text">{{ 'about.missionText' | transloco }}</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <h2 class="section-title">{{ 'about.valuesTitle' | transloco }}</h2>
+    <div class="values-grid">
+      @for (value of values; track value.key) {
+        <div class="value-card card">
+          <span class="value-dot" [style.background]="value.color"></span>
+          <h3>{{ 'about.value' + value.key | transloco }}</h3>
+          <p>{{ 'about.value' + value.key + 'Text' | transloco }}</p>
+        </div>
+      }
+    </div>
+  </div>
+</section>
+
+<section class="section section-dark">
+  <div class="container narrow">
+    <h2 class="section-title">{{ 'about.socialTitle' | transloco }}</h2>
+    <p class="social-text">{{ 'about.socialText' | transloco }}</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <h2 class="section-title">{{ 'about.teamTitle' | transloco }}</h2>
+    <div class="team-grid">
+      @for (member of team; track member.name) {
+        <div class="team-card card arch">
+          <div class="team-avatar">{{ member.name.charAt(0) }}</div>
+          <h3>{{ member.name }}</h3>
+          <p>{{ member.roleKey | transloco }}</p>
+        </div>
+      }
+    </div>
+    <p class="team-note">{{ 'about.teamNote' | transloco }}</p>
+    <p class="team-cta">
+      <a routerLink="/contact" class="btn btn-primary">{{ 'about.joinCta' | transloco }}</a>
+    </p>
+  </div>
+</section>

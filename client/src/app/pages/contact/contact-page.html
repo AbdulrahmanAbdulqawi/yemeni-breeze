@@ -1,0 +1,61 @@
+<section class="section-dark page-head">
+  <div class="container">
+    <h1>{{ 'contact.title' | transloco }}</h1>
+    <p class="contact-intro">{{ 'contact.intro' | transloco }}</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container contact-grid">
+    <div class="contact-side">
+      <div class="card side-card">
+        <h3>{{ 'contact.partnership' | transloco }}</h3>
+        <p>{{ 'contact.partnershipText' | transloco }}</p>
+      </div>
+      <div class="card side-card">
+        <h3>{{ 'contact.volunteer' | transloco }}</h3>
+        <p>{{ 'contact.volunteerText' | transloco }}</p>
+      </div>
+      <div class="card side-card">
+        <h3>Instagram</h3>
+        <p>
+          <a href="https://instagram.com/Yemeni.breeze" target="_blank" rel="noopener" dir="ltr">&#64;Yemeni.breeze</a>
+        </p>
+      </div>
+    </div>
+
+    <div class="card contact-form">
+      @if (!sent()) {
+        <form [formGroup]="form" (ngSubmit)="submit()">
+          <div class="field">
+            <label for="name">{{ 'contact.name' | transloco }}</label>
+            <input id="name" formControlName="name" autocomplete="name" />
+          </div>
+          <div class="field">
+            <label for="email">{{ 'contact.email' | transloco }}</label>
+            <input id="email" formControlName="email" type="email" autocomplete="email" />
+          </div>
+          <div class="field">
+            <label for="subject">{{ 'contact.subject' | transloco }}</label>
+            <input id="subject" formControlName="subject" />
+          </div>
+          <div class="field">
+            <label for="message">{{ 'contact.message' | transloco }}</label>
+            <textarea id="message" formControlName="message" rows="6"></textarea>
+          </div>
+          @if (failed()) {
+            <p class="error-text">{{ 'contact.error' | transloco }}</p>
+          }
+          <button class="btn btn-primary" type="submit" [disabled]="sending()">
+            {{ (sending() ? 'contact.sending' : 'contact.send') | transloco }}
+          </button>
+        </form>
+      } @else {
+        <div class="sent-result">
+          <span class="sent-icon">💌</span>
+          <p>{{ 'contact.sent' | transloco }}</p>
+        </div>
+      }
+    </div>
+  </div>
+</section>

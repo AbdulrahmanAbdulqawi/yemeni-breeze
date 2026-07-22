@@ -1,1 +1,255 @@
-/* You can add global styles to this file, and also import other style files */
+/* ===== Yemeni Breeze design tokens (sampled from brand logo & posters) ===== */
+:root {
+  --yb-brown: #5b1f05;
+  --yb-brown-deep: #47180a;
+  --yb-maroon: #8f1b04;
+  --yb-cream: #f6e7be;
+  --yb-cream-light: #fbf3da;
+  --yb-red: #da4b3a;
+  --yb-orange: #ed9e42;
+  --yb-yellow: #edcb4e;
+  --yb-blue: #2b2be0;
+  --yb-green: #3bab4b;
+  --yb-dark-tile: #601000;
+
+  --yb-font-heading: 'Cinzel', serif;
+  --yb-font-body: 'Source Sans 3', system-ui, sans-serif;
+  --yb-radius: 14px;
+  --yb-arch-radius: 160px;
+}
+
+/* Arabic gets its own type pairing */
+[dir='rtl'] {
+  --yb-font-heading: 'Amiri', serif;
+  --yb-font-body: 'Cairo', system-ui, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--yb-font-body);
+  color: var(--yb-brown-deep);
+  background: var(--yb-cream-light);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--yb-font-heading);
+  color: var(--yb-maroon);
+  line-height: 1.25;
+  margin: 0 0 0.5em;
+}
+
+a {
+  color: var(--yb-maroon);
+}
+
+img {
+  max-width: 100%;
+}
+
+.container {
+  width: min(1120px, 92%);
+  margin-inline: auto;
+}
+
+/* ===== Buttons ===== */
+.btn {
+  display: inline-block;
+  font-family: var(--yb-font-body);
+  font-weight: 600;
+  font-size: 1rem;
+  padding: 0.7rem 1.6rem;
+  border-radius: 999px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+  }
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    transform: none;
+  }
+}
+
+.btn-primary {
+  background: var(--yb-maroon);
+  color: var(--yb-cream);
+
+  &:hover {
+    background: var(--yb-red);
+  }
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--yb-maroon);
+  border-color: var(--yb-maroon);
+
+  &:hover {
+    background: var(--yb-maroon);
+    color: var(--yb-cream);
+  }
+}
+
+.btn-cream {
+  background: var(--yb-cream);
+  color: var(--yb-brown);
+
+  &:hover {
+    background: var(--yb-yellow);
+  }
+}
+
+/* ===== Sections ===== */
+.section {
+  padding: 4.5rem 0;
+}
+
+.section-dark {
+  background: var(--yb-brown);
+  color: var(--yb-cream);
+
+  h1,
+  h2,
+  h3 {
+    color: var(--yb-cream);
+  }
+}
+
+.section-title {
+  font-size: clamp(1.7rem, 3.5vw, 2.4rem);
+  text-align: center;
+  margin-bottom: 2.5rem;
+
+  &::after {
+    content: '';
+    display: block;
+    width: 70px;
+    height: 4px;
+    margin: 0.8rem auto 0;
+    border-radius: 2px;
+    background: linear-gradient(90deg, var(--yb-red), var(--yb-orange), var(--yb-yellow));
+  }
+}
+
+/* ===== Qamariya arch (signature brand shape) ===== */
+.arch {
+  border-start-start-radius: var(--yb-arch-radius);
+  border-start-end-radius: var(--yb-arch-radius);
+  overflow: hidden;
+}
+
+.card {
+  background: #fff;
+  border-radius: var(--yb-radius);
+  box-shadow: 0 6px 24px rgba(71, 24, 10, 0.08);
+  overflow: hidden;
+}
+
+/* ===== Forms ===== */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 1.1rem;
+
+  label {
+    font-weight: 600;
+    color: var(--yb-brown);
+  }
+
+  input,
+  textarea,
+  select {
+    font-family: var(--yb-font-body);
+    font-size: 1rem;
+    padding: 0.65rem 0.9rem;
+    border: 1.5px solid #d9c9a8;
+    border-radius: 10px;
+    background: #fff;
+    color: var(--yb-brown-deep);
+
+    &:focus {
+      outline: 2px solid var(--yb-orange);
+      border-color: var(--yb-orange);
+    }
+  }
+}
+
+.error-text {
+  color: var(--yb-red);
+  font-size: 0.9rem;
+}
+
+/* ===== Badges ===== */
+.badge {
+  display: inline-block;
+  padding: 0.2rem 0.8rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.badge-confirmed {
+  background: #e2f4e5;
+  color: #1d7c2e;
+}
+
+.badge-waitlisted {
+  background: #fdf0d7;
+  color: #a86b0e;
+}
+
+.badge-cancelled {
+  background: #f6dad6;
+  color: var(--yb-maroon);
+}
+
+/* ===== Tables (admin) ===== */
+.table-wrap {
+  overflow-x: auto;
+}
+
+table.yb-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: var(--yb-radius);
+  overflow: hidden;
+
+  th,
+  td {
+    padding: 0.7rem 1rem;
+    text-align: start;
+    border-bottom: 1px solid #f0e4c8;
+  }
+
+  th {
+    background: var(--yb-brown);
+    color: var(--yb-cream);
+    font-family: var(--yb-font-body);
+    font-weight: 600;
+  }
+
+  tr:hover td {
+    background: var(--yb-cream-light);
+  }
+}

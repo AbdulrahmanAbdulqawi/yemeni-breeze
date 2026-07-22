@@ -1,0 +1,82 @@
+<section class="hero">
+  <div class="container hero-inner">
+    <img src="/assets/logo.png" alt="Yemeni Breeze — نسمات اليمن" class="hero-logo" />
+    <h1 class="hero-title">{{ 'home.heroTitle' | transloco }}</h1>
+    <p class="hero-subtitle">{{ 'home.heroSubtitle' | transloco }}</p>
+    <div class="hero-actions">
+      <a routerLink="/events" class="btn btn-cream">{{ 'home.heroCta' | transloco }}</a>
+      <a routerLink="/about" class="btn btn-outline btn-outline-cream">{{ 'home.heroSecondary' | transloco }}</a>
+    </div>
+  </div>
+</section>
+
+<section class="section pillars">
+  <div class="container pillars-grid">
+    <div class="pillar">
+      <span class="pillar-dot" style="background: var(--yb-red)"></span>
+      <h3>{{ 'home.connect' | transloco }}</h3>
+      <p>{{ 'home.connectText' | transloco }}</p>
+    </div>
+    <div class="pillar">
+      <span class="pillar-dot" style="background: var(--yb-orange)"></span>
+      <h3>{{ 'home.showcase' | transloco }}</h3>
+      <p>{{ 'home.showcaseText' | transloco }}</p>
+    </div>
+    <div class="pillar">
+      <span class="pillar-dot" style="background: var(--yb-green)"></span>
+      <h3>{{ 'home.build' | transloco }}</h3>
+      <p>{{ 'home.buildText' | transloco }}</p>
+    </div>
+  </div>
+</section>
+
+<section class="section section-dark stats">
+  <div class="container">
+    <h2 class="section-title">{{ 'home.statsTitle' | transloco }}</h2>
+    <div class="stats-grid">
+      <div class="stat">
+        <span class="stat-number">650+</span>
+        <span class="stat-label">{{ 'home.statAttendees' | transloco }}</span>
+      </div>
+      <div class="stat">
+        <span class="stat-number">600K+</span>
+        <span class="stat-label">{{ 'home.statViews' | transloco }}</span>
+      </div>
+      <div class="stat">
+        <span class="stat-number">3</span>
+        <span class="stat-label">{{ 'home.statEvents' | transloco }}</span>
+      </div>
+      <div class="stat">
+        <span class="stat-number">350</span>
+        <span class="stat-label">{{ 'home.statMeals' | transloco }}</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+@if (nextEvent(); as event) {
+  <section class="section next-event">
+    <div class="container">
+      <h2 class="section-title">{{ 'home.upcomingTitle' | transloco }}</h2>
+      <div class="card next-event-card">
+        <div class="next-event-body">
+          <h3>{{ lang.pick(event, 'title') }}</h3>
+          <p class="next-event-meta">
+            📅 {{ event.date | localizedDate: 'long' }} · 🕓 {{ event.startTime }}–{{ event.endTime }} · 📍 {{ event.location }}
+          </p>
+          <p class="next-event-desc">{{ lang.pick(event, 'description') }}</p>
+          <a [routerLink]="['/events', event.slug]" class="btn btn-primary">
+            {{ (event.spotsLeft > 0 ? 'events.register' : 'events.joinWaitlist') | transloco }}
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+}
+
+<section class="section mission-strip">
+  <div class="container">
+    <h2 class="section-title">{{ 'home.missionTitle' | transloco }}</h2>
+    <p class="mission-text">{{ 'home.missionText' | transloco }}</p>
+  </div>
+</section>

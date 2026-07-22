@@ -1,0 +1,149 @@
+.site-header {
+  background: var(--yb-brown);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
+}
+
+.header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.6rem 0;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  text-decoration: none;
+}
+
+.brand-logo {
+  height: 52px;
+  width: auto;
+}
+
+.brand-name {
+  font-family: var(--yb-font-heading);
+  font-size: 1.15rem;
+  letter-spacing: 0.06em;
+  color: var(--yb-cream);
+}
+
+.menu-toggle {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--yb-cream);
+  font-size: 1.6rem;
+  cursor: pointer;
+}
+
+.site-nav {
+  display: flex;
+  align-items: center;
+  gap: 1.4rem;
+
+  a {
+    color: var(--yb-cream);
+    text-decoration: none;
+    font-weight: 600;
+    padding: 0.3rem 0;
+    border-bottom: 2px solid transparent;
+
+    &:hover,
+    &.active {
+      color: var(--yb-yellow);
+      border-bottom-color: var(--yb-yellow);
+    }
+  }
+}
+
+.lang-switch {
+  display: inline-flex;
+  gap: 0.25rem;
+  margin-inline-start: 0.6rem;
+}
+
+.lang-btn {
+  background: transparent;
+  border: 1.5px solid var(--yb-cream);
+  color: var(--yb-cream);
+  border-radius: 8px;
+  padding: 0.15rem 0.55rem;
+  font-weight: 700;
+  cursor: pointer;
+
+  &.active,
+  &:hover {
+    background: var(--yb-cream);
+    color: var(--yb-brown);
+  }
+}
+
+@media (max-width: 860px) {
+  .menu-toggle {
+    display: block;
+  }
+
+  .site-nav {
+    display: none;
+    position: absolute;
+    inset-inline: 0;
+    top: 100%;
+    flex-direction: column;
+    background: var(--yb-brown-deep);
+    padding: 1.2rem 6%;
+    align-items: flex-start;
+
+    &.open {
+      display: flex;
+    }
+  }
+}
+
+main {
+  min-height: 60vh;
+}
+
+.site-footer {
+  background: var(--yb-brown-deep);
+  color: var(--yb-cream);
+  text-align: center;
+  padding: 3rem 0 2rem;
+  margin-top: 4rem;
+}
+
+.footer-logo {
+  height: 90px;
+}
+
+.footer-tagline {
+  font-family: var(--yb-font-heading);
+  font-size: 1.05rem;
+  margin: 1rem 0 0.2rem;
+}
+
+.footer-location {
+  opacity: 0.8;
+  margin: 0.2rem 0 1rem;
+}
+
+.footer-instagram {
+  color: var(--yb-yellow);
+  font-weight: 600;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.footer-rights {
+  opacity: 0.6;
+  font-size: 0.85rem;
+  margin-top: 1.4rem;
+}

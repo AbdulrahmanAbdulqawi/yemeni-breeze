@@ -1,0 +1,89 @@
+.about-hero {
+  padding: 4rem 0;
+  text-align: center;
+
+  h1 {
+    font-size: clamp(2rem, 4.5vw, 3rem);
+  }
+}
+
+.about-intro {
+  max-width: 720px;
+  margin: 0 auto;
+  font-size: 1.15rem;
+  opacity: 0.94;
+}
+
+.container.narrow {
+  max-width: 760px;
+  font-size: 1.08rem;
+}
+
+.mission {
+  background: var(--yb-cream);
+}
+
+.mission-text,
+.social-text {
+  text-align: center;
+  font-size: 1.12rem;
+}
+
+.values-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 1.4rem;
+}
+
+.value-card {
+  padding: 1.6rem;
+  text-align: center;
+}
+
+.value-dot {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  margin-bottom: 0.6rem;
+}
+
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1.4rem;
+  max-width: 980px;
+  margin: 0 auto;
+}
+
+.team-card {
+  padding: 2.2rem 1rem 1.4rem;
+  text-align: center;
+  --yb-arch-radius: 90px;
+}
+
+.team-avatar {
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 0.8rem;
+  border-radius: 50%;
+  background: var(--yb-brown);
+  color: var(--yb-cream);
+  font-family: var(--yb-font-heading);
+  font-size: 1.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.team-note {
+  text-align: center;
+  max-width: 640px;
+  margin: 2.2rem auto 1rem;
+  font-style: italic;
+  opacity: 0.85;
+}
+
+.team-cta {
+  text-align: center;
+}

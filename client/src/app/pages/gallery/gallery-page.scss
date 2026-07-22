@@ -1,0 +1,52 @@
+.page-head {
+  padding: 3rem 0;
+  text-align: center;
+
+  h1 {
+    margin: 0;
+    font-size: clamp(2rem, 4.5vw, 3rem);
+  }
+}
+
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.6rem;
+}
+
+.gallery-item {
+  margin: 0;
+  background: #fff;
+  box-shadow: 0 6px 24px rgba(71, 24, 10, 0.1);
+  --yb-arch-radius: 120px;
+
+  img {
+    width: 100%;
+    height: 300px;
+    object-fit: cover;
+    display: block;
+  }
+
+  figcaption {
+    padding: 0.7rem 1rem;
+    font-weight: 600;
+    color: var(--yb-brown);
+    text-align: center;
+  }
+}
+
+.gallery-empty {
+  text-align: center;
+  padding: 3rem 0;
+
+  .empty-logo {
+    height: 130px;
+    opacity: 0.8;
+    margin-bottom: 1rem;
+  }
+
+  p {
+    max-width: 480px;
+    margin: 0 auto 1.4rem;
+  }
+}
