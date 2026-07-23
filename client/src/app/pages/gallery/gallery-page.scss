@@ -84,6 +84,16 @@
   }
 }
 
+.tile-open {
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
 .tile:hover .tile-media img {
   transform: scale(1.08);
 }
@@ -98,7 +108,10 @@
   background: var(--yb-surface-low);
 }
 
-/* Caption reveals over the image on hover, and is always shown on touch */
+/* Caption reveals over the image on hover, and is always shown on touch.
+   Purely decorative (no interactive content), so it must not intercept
+   clicks meant for the .tile-open button underneath — including while
+   invisible, since opacity:0 elements still receive pointer events by default. */
 .tile-overlay {
   position: absolute;
   inset: 0;
@@ -107,6 +120,7 @@
   padding: 1.6rem;
   background: linear-gradient(to top, rgb(49 15 2 / 0.85), rgb(49 15 2 / 0.15) 55%, transparent);
   opacity: 0;
+  pointer-events: none;
   transition: opacity 0.3s ease;
 }
 
@@ -165,6 +179,100 @@
       aspect-ratio: 4 / 3;
     }
   }
+}
+
+/* ===== Lightbox ===== */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background: rgb(28 28 19 / 0.92);
+}
+
+.lightbox-content {
+  max-width: min(90vw, 900px);
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.9rem;
+
+  img {
+    max-width: 100%;
+    max-height: 70vh;
+    border-radius: var(--yb-radius);
+    object-fit: contain;
+  }
+}
+
+.lightbox-caption {
+  color: var(--yb-cream);
+  text-align: center;
+  margin: 0;
+  font-family: var(--yb-font-heading);
+}
+
+.lightbox-close,
+.lightbox-nav {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: none;
+  background: rgb(253 249 234 / 0.12);
+  color: var(--yb-cream);
+  cursor: pointer;
+  transition: background 0.15s ease;
+
+  &:hover {
+    background: rgb(253 249 234 / 0.22);
+  }
+
+  svg {
+    width: 22px;
+    height: 22px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+}
+
+.lightbox-close {
+  inset-block-start: 1.2rem;
+  inset-inline-end: 1.2rem;
+}
+
+.lightbox-nav {
+  inset-block-start: 50%;
+  transform: translateY(-50%);
+}
+
+.lightbox-prev {
+  inset-inline-start: 1.2rem;
+}
+
+.lightbox-next {
+  inset-inline-end: 1.2rem;
+}
+
+/* Glyphs mirror in RTL so they still point the reading-correct direction,
+   while each button's action (prev/next) and screen position stay fixed.
+   :host-context (not "[dir='rtl'] &") because dir="rtl" lives on <html>,
+   outside this component — a bare attribute-ancestor selector gets Angular's
+   per-component [_ngcontent] scoping attribute appended to it too, which
+   <html> never carries, so it can never match. */
+:host-context([dir='rtl']) .lightbox-prev svg,
+:host-context([dir='rtl']) .lightbox-next svg {
+  transform: scaleX(-1);
 }
 
 /* ===== Empty state ===== */

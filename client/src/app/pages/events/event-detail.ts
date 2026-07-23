@@ -1,4 +1,4 @@
-import { Component, effect, inject, input, signal } from '@angular/core';
+import { Component, HostListener, computed, effect, inject, input, signal } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { LocalizedDatePipe } from '../../core/localized-date.pipe';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -7,6 +7,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { combineLatest, map, switchMap } from 'rxjs';
 import { ApiService } from '../../core/api.service';
 import { LanguageService } from '../../core/language.service';
+import { originalUrl } from '../../core/media-url';
 import { GalleryItemDto, RegistrationStatus } from '../../core/models';
 import { SeoService } from '../../core/seo.service';
 
@@ -43,7 +44,58 @@ export class EventDetail {
     { initialValue: [] as GalleryItemDto[] }
   );
 
-  readonly lightbox = signal<GalleryItemDto | null>(null);
+  // --- Lightbox: image-only subset of the album, navigable by index ---
+
+  readonly originalUrl = originalUrl;
+
+  readonly lightboxImages = computed(() =>
+    this.album().filter(item => item.mediaType !== 'video' && item.mediaType !== 'file'));
+
+  readonly lightboxIndex = signal<number | null>(null);
+
+  readonly lightbox = computed(() => {
+    const list = this.lightboxImages();
+    const index = this.lightboxIndex();
+    return index !== null && index >= 0 && index < list.length ? list[index] : null;
+  });
+
+  openLightbox(item: GalleryItemDto) {
+    const index = this.lightboxImages().findIndex(i => i.id === item.id);
+    this.lightboxIndex.set(index === -1 ? null : index);
+  }
+
+  closeLightbox() {
+    this.lightboxIndex.set(null);
+  }
+
+  step(delta: number) {
+    const list = this.lightboxImages();
+    const index = this.lightboxIndex();
+    if (!list.length || index === null) return;
+    this.lightboxIndex.set((index + delta + list.length) % list.length);
+  }
+
+  @HostListener('document:keydown', ['$event'])
+  onKeydown(event: KeyboardEvent) {
+    if (this.lightboxIndex() === null) return;
+    const rtl = this.lang.current() === 'ar';
+    if (event.key === 'Escape') this.closeLightbox();
+    else if (event.key === 'ArrowRight') this.step(rtl ? -1 : 1);
+    else if (event.key === 'ArrowLeft') this.step(rtl ? 1 : -1);
+  }
+
+  private touchStartX = 0;
+
+  onTouchStart(event: TouchEvent) {
+    this.touchStartX = event.touches[0].clientX;
+  }
+
+  onTouchEnd(event: TouchEvent) {
+    const delta = event.changedTouches[0].clientX - this.touchStartX;
+    if (Math.abs(delta) < 40) return;
+    const rtl = this.lang.current() === 'ar';
+    this.step(delta < 0 ? (rtl ? -1 : 1) : rtl ? 1 : -1);
+  }
 
   readonly submitting = signal(false);
   readonly result = signal<RegistrationStatus | null>(null);

@@ -311,11 +311,13 @@ import { EventDto } from '../core/models';
         transform: translateX(3px);
       }
 
-      [dir='rtl'] &:hover svg {
+      /* :host-context (not "[dir='rtl'] &") because dir="rtl" lives on <html>,
+         outside this component — see gallery-page.scss for the full note. */
+      :host-context([dir='rtl']) &:hover svg {
         transform: translateX(-3px) scaleX(-1);
       }
 
-      [dir='rtl'] & svg {
+      :host-context([dir='rtl']) & svg {
         transform: scaleX(-1);
       }
     }
@@ -360,7 +362,7 @@ import { EventDto } from '../core/models';
         color: var(--yb-red);
       }
 
-      [dir='rtl'] & svg {
+      :host-context([dir='rtl']) & svg {
         transform: scaleX(-1);
       }
     }

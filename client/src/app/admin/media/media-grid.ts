@@ -2,6 +2,7 @@ import { Component, input, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { Lang } from '../../core/language.service';
+import { originalUrl } from '../../core/media-url';
 import { GalleryItemDto, MediaFolderDto } from '../../core/models';
 import { LangSelect } from '../ui/lang-select';
 
@@ -147,6 +148,9 @@ export interface CaptionEdit {
             <span class="tile-caption">{{ item.captionEn || '—' }}</span>
             <span class="tile-actions">
               <a [href]="item.imageUrl" target="_blank" rel="noopener">{{ 'admin.media.openFile' | transloco }}</a>
+              @if (item.mediaType === 'image') {
+                <a [href]="originalUrl(item.imageUrl)" download>{{ 'admin.media.downloadOriginal' | transloco }}</a>
+              }
               <button type="button" class="btn-link danger" (click)="deleteOne.emit(item)">
                 {{ 'admin.media.delete' | transloco }}
               </button>
@@ -390,8 +394,9 @@ export interface CaptionEdit {
 
     .tile-actions {
       display: flex;
-      justify-content: space-between;
-      gap: 0.5rem;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.4rem 0.6rem;
 
       a {
         font-size: 0.82rem;
@@ -399,6 +404,7 @@ export interface CaptionEdit {
 
       .btn-link {
         font-size: 0.82rem;
+        margin-inline-start: auto;
       }
     }
   `
@@ -422,6 +428,8 @@ export class MediaGrid {
   captionAr = '';
 
   private lastClickedId: number | null = null;
+
+  readonly originalUrl = originalUrl;
 
   toggle(item: GalleryItemDto, event: MouseEvent) {
     const ids = new Set(this.selectedIds());

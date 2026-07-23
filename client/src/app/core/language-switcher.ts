@@ -75,7 +75,9 @@ import { Lang, LanguageService } from './language.service';
       cursor: pointer;
       accent-color: var(--yb-maroon);
 
-      [dir='rtl'] & {
+      /* :host-context (not "[dir='rtl'] &") because dir="rtl" lives on <html>,
+         outside this component — see gallery-page.scss for the full note. */
+      :host-context([dir='rtl']) & {
         padding: 0.25rem 0.55rem 0.25rem 1.6rem;
       }
 

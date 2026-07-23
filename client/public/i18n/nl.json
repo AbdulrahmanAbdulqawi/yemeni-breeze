@@ -124,7 +124,11 @@
     "title": "Galerij",
     "empty": "Foto's van onze evenementen komen binnenkort — volg ons in de tussentijd op Instagram.",
     "all": "Alles",
-    "intro": "Momenten van onze evenementen in Amsterdam — handen in de keuken, muziek in de zaal, en tafels waar Jemenitische en Nederlandse gasten als gelijken samen zitten."
+    "intro": "Momenten van onze evenementen in Amsterdam — handen in de keuken, muziek in de zaal, en tafels waar Jemenitische en Nederlandse gasten als gelijken samen zitten.",
+    "download": "Downloaden",
+    "previous": "Vorige foto",
+    "next": "Volgende foto",
+    "close": "Sluiten"
   },
   "contact": {
     "title": "Contact",
@@ -284,6 +288,7 @@
       "applyCaptions": "Toepassen op selectie",
       "empty": "Nog geen media hier. Upload bestanden om te beginnen.",
       "openFile": "Bestand openen",
+      "downloadOriginal": "Origineel downloaden",
       "delete": "Verwijderen",
       "cancel": "Annuleren",
       "create": "Aanmaken",

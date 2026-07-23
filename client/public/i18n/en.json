@@ -124,7 +124,11 @@
     "title": "Gallery",
     "empty": "Photos from our events are coming soon — follow us on Instagram in the meantime.",
     "all": "All",
-    "intro": "Moments from our events in Amsterdam — hands in the kitchen, music in the room, and tables where Yemeni and Dutch guests sit together as equals."
+    "intro": "Moments from our events in Amsterdam — hands in the kitchen, music in the room, and tables where Yemeni and Dutch guests sit together as equals.",
+    "download": "Download",
+    "previous": "Previous photo",
+    "next": "Next photo",
+    "close": "Close"
   },
   "contact": {
     "title": "Contact",
@@ -284,6 +288,7 @@
       "applyCaptions": "Apply to selected",
       "empty": "No media here yet. Upload some files to get started.",
       "openFile": "Open file",
+      "downloadOriginal": "Download original",
       "delete": "Delete",
       "cancel": "Cancel",
       "create": "Create",

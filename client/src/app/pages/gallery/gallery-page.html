@@ -47,10 +47,12 @@
                   </a>
                 }
                 @default {
-                  <img
-                    [src]="entry.item.thumbUrl || entry.item.imageUrl"
-                    [alt]="lang.pick(entry.item, 'caption')"
-                    loading="lazy" />
+                  <button type="button" class="tile-open" (click)="openLightbox(entry.item)">
+                    <img
+                      [src]="entry.item.thumbUrl || entry.item.imageUrl"
+                      [alt]="lang.pick(entry.item, 'caption')"
+                      loading="lazy" />
+                  </button>
                 }
               }
 
@@ -74,3 +76,36 @@
     }
   </div>
 </section>
+
+@if (lightboxItem(); as photo) {
+  <div class="lightbox" (click)="closeLightbox()" (touchstart)="onTouchStart($event)" (touchend)="onTouchEnd($event)">
+    <button type="button" class="lightbox-close" (click)="$event.stopPropagation(); closeLightbox()" [attr.aria-label]="'gallery.close' | transloco">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M6 6l12 12M18 6 6 18" />
+      </svg>
+    </button>
+
+    @if (lightboxImages().length > 1) {
+      <button type="button" class="lightbox-nav lightbox-prev" (click)="$event.stopPropagation(); step(-1)" [attr.aria-label]="'gallery.previous' | transloco">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M15 6 9 12l6 6" />
+        </svg>
+      </button>
+      <button type="button" class="lightbox-nav lightbox-next" (click)="$event.stopPropagation(); step(1)" [attr.aria-label]="'gallery.next' | transloco">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="m9 6 6 6-6 6" />
+        </svg>
+      </button>
+    }
+
+    <div class="lightbox-content" (click)="$event.stopPropagation()">
+      <img [src]="photo.imageUrl" [alt]="lang.pick(photo, 'caption')" />
+      @if (lang.pick(photo, 'caption')) {
+        <p class="lightbox-caption">{{ lang.pick(photo, 'caption') }}</p>
+      }
+      <a class="btn btn-primary lightbox-download" [href]="originalUrl(photo.imageUrl)" download>
+        {{ 'gallery.download' | transloco }}
+      </a>
+    </div>
+  </div>
+}
