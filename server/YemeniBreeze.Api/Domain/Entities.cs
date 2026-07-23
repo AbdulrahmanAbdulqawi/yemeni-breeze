@@ -83,6 +83,29 @@ public class SiteSetting
     public string Value { get; set; } = "";
 }
 
+public class ContentBlock
+{
+    public string Key { get; set; } = "";
+    public string ValueEn { get; set; } = "";
+    public string ValueNl { get; set; } = "";
+    public string ValueAr { get; set; } = "";
+}
+
+public class TeamMember
+{
+    public int Id { get; set; }
+    public string Name { get; set; } = "";
+    public string RoleEn { get; set; } = "";
+    public string RoleNl { get; set; } = "";
+    public string RoleAr { get; set; } = "";
+    public string? PhotoUrl { get; set; }
+    public string? BioEn { get; set; }
+    public string? BioNl { get; set; }
+    public string? BioAr { get; set; }
+    public string? Slug { get; set; }
+    public int SortOrder { get; set; }
+}
+
 public class ContactMessage
 {
     public int Id { get; set; }

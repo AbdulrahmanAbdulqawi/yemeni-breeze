@@ -6,6 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using YemeniBreeze.Api.Data;
 using YemeniBreeze.Api.Features.Auth;
 using YemeniBreeze.Api.Features.Contact;
+using YemeniBreeze.Api.Features.Content;
 using YemeniBreeze.Api.Features.Email;
 using YemeniBreeze.Api.Features.Events;
 using YemeniBreeze.Api.Features.Gallery;
@@ -13,6 +14,7 @@ using YemeniBreeze.Api.Features.Media;
 using YemeniBreeze.Api.Features.Registrations;
 using YemeniBreeze.Api.Features.Settings;
 using YemeniBreeze.Api.Features.Storage;
+using YemeniBreeze.Api.Features.Team;
 using YemeniBreeze.Api.Features.Uploads;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -83,6 +85,8 @@ app.MapContactEndpoints();
 app.MapUploadsEndpoints();
 app.MapSettingsEndpoints();
 app.MapFoldersEndpoints();
+app.MapContentEndpoints();
+app.MapTeamEndpoints();
 
 using (var scope = app.Services.CreateScope())
 {

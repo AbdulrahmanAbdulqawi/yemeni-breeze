@@ -14,6 +14,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<MediaFolder> MediaFolders => Set<MediaFolder>();
     public DbSet<ContactMessage> ContactMessages => Set<ContactMessage>();
     public DbSet<SiteSetting> SiteSettings => Set<SiteSetting>();
+    public DbSet<ContentBlock> ContentBlocks => Set<ContentBlock>();
+    public DbSet<TeamMember> TeamMembers => Set<TeamMember>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -78,6 +80,27 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
             c.Property(x => x.Email).HasMaxLength(300);
             c.Property(x => x.Subject).HasMaxLength(300);
             c.Property(x => x.Message).HasMaxLength(4000);
+        });
+
+        builder.Entity<ContentBlock>(c =>
+        {
+            c.HasKey(x => x.Key);
+            c.Property(x => x.Key).HasMaxLength(100);
+            c.Property(x => x.ValueEn).HasMaxLength(4000);
+            c.Property(x => x.ValueNl).HasMaxLength(4000);
+            c.Property(x => x.ValueAr).HasMaxLength(4000);
+        });
+
+        builder.Entity<TeamMember>(t =>
+        {
+            t.Property(x => x.Name).HasMaxLength(200);
+            t.Property(x => x.RoleEn).HasMaxLength(200);
+            t.Property(x => x.RoleNl).HasMaxLength(200);
+            t.Property(x => x.RoleAr).HasMaxLength(200);
+            t.Property(x => x.BioEn).HasMaxLength(4000);
+            t.Property(x => x.BioNl).HasMaxLength(4000);
+            t.Property(x => x.BioAr).HasMaxLength(4000);
+            t.HasIndex(x => x.Slug).IsUnique();
         });
     }
 }

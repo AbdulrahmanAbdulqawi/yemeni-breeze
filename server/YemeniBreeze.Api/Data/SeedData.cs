@@ -109,5 +109,19 @@ public static class SeedData
                 new MediaFolder { Name = e.TitleEn, EventId = e.Id }));
             await db.SaveChangesAsync();
         }
+
+        // Idempotent: only inserts keys that don't exist yet, so admin edits are
+        // never overwritten and new editable fields can be added later without a migration.
+        var existingKeys = (await db.ContentBlocks.Select(c => c.Key).ToListAsync()).ToHashSet();
+        var missingKeys = ContentDefaults.Values.Keys.Where(k => !existingKeys.Contains(k)).ToList();
+        if (missingKeys.Count > 0)
+        {
+            db.ContentBlocks.AddRange(missingKeys.Select(key =>
+            {
+                var (en, nl, ar) = ContentDefaults.Values[key];
+                return new ContentBlock { Key = key, ValueEn = en, ValueNl = nl, ValueAr = ar };
+            }));
+            await db.SaveChangesAsync();
+        }
     }
 }
