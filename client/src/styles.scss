@@ -2,22 +2,35 @@
 
 /* ===== Yemeni Breeze design tokens (sampled from brand logo & posters) ===== */
 :root {
-  --yb-brown: #5b1f05;
-  --yb-brown-deep: #47180a;
-  --yb-maroon: #8f1b04;
-  --yb-cream: #f6e7be;
-  --yb-cream-light: #fbf3da;
-  --yb-red: #da4b3a;
+  /* Deep espresso browns + warm paper + gold, refined from the qamariya palette */
+  --yb-brown: #310f02;
+  --yb-brown-deep: #1c1c13;
+  --yb-brown-soft: #4b2312;
+  --yb-maroon: #693b28;
+  --yb-cream: #fdf9ea;
+  --yb-cream-light: #fdf9ea;
+  --yb-surface: #f2eedf;
+  --yb-surface-low: #f8f4e5;
+  --yb-outline: #d6c2bb;
+
+  /* Gold is the accent that reads against the dark browns */
+  --yb-gold: #ffe088;
+  --yb-gold-dim: #e9c349;
+
+  --yb-red: #ba1a1a;
   --yb-orange: #ed9e42;
   --yb-yellow: #edcb4e;
   --yb-blue: #2b2be0;
   --yb-green: #3bab4b;
-  --yb-dark-tile: #601000;
+  --yb-dark-tile: #4b2312;
 
-  --yb-font-heading: 'Cinzel', serif;
-  --yb-font-body: 'Source Sans 3', system-ui, sans-serif;
-  --yb-radius: 14px;
+  --yb-font-heading: 'Libre Caslon Text', Georgia, serif;
+  --yb-font-body: 'Manrope', system-ui, sans-serif;
+  --yb-radius: 12px;
   --yb-arch-radius: 160px;
+
+  --yb-section-padding: 80px;
+  --yb-gutter: 24px;
 }
 
 /* Arabic gets its own type pairing */

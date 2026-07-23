@@ -3,7 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { Lang } from '../../core/language.service';
 import { GalleryItemDto, MediaFolderDto } from '../../core/models';
-import { LangTabs } from '../ui/lang-tabs';
+import { LangSelect } from '../ui/lang-select';
 
 export interface CaptionEdit {
   captionEn?: string | null;
@@ -13,7 +13,7 @@ export interface CaptionEdit {
 
 @Component({
   selector: 'app-media-grid',
-  imports: [FormsModule, TranslocoPipe, LangTabs],
+  imports: [FormsModule, TranslocoPipe, LangSelect],
   template: `
     @if (selectedIds().size > 0) {
       <div class="bulk-bar">
@@ -41,7 +41,7 @@ export interface CaptionEdit {
 
       @if (captionsOpen()) {
         <form class="caption-form card" (ngSubmit)="applyCaptions()">
-          <app-lang-tabs [(active)]="captionLang" />
+          <app-lang-select [(active)]="captionLang" [label]="'admin.events.translation' | transloco" />
           <div class="caption-fields">
             @switch (captionLang()) {
               @case ('nl') {

@@ -121,7 +121,9 @@
   },
   "gallery": {
     "title": "Gallery",
-    "empty": "Photos from our events are coming soon — follow us on Instagram in the meantime."
+    "empty": "Photos from our events are coming soon — follow us on Instagram in the meantime.",
+    "all": "All",
+    "intro": "Moments from our events in Amsterdam — hands in the kitchen, music in the room, and tables where Yemeni and Dutch guests sit together as equals."
   },
   "contact": {
     "title": "Contact",
@@ -188,7 +190,8 @@
       "sectionMedia": "Media",
       "sectionPublishing": "Publishing",
       "description": "Description",
-      "emptyIn": "Still empty in"
+      "emptyIn": "Still empty in",
+      "translation": "Translation"
     },
     "registrations": {
       "title": "Registrations",

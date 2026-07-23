@@ -121,7 +121,9 @@
   },
   "gallery": {
     "title": "Galerij",
-    "empty": "Foto's van onze evenementen komen binnenkort — volg ons in de tussentijd op Instagram."
+    "empty": "Foto's van onze evenementen komen binnenkort — volg ons in de tussentijd op Instagram.",
+    "all": "Alles",
+    "intro": "Momenten van onze evenementen in Amsterdam — handen in de keuken, muziek in de zaal, en tafels waar Jemenitische en Nederlandse gasten als gelijken samen zitten."
   },
   "contact": {
     "title": "Contact",
@@ -188,7 +190,8 @@
       "sectionMedia": "Media",
       "sectionPublishing": "Publicatie",
       "description": "Omschrijving",
-      "emptyIn": "Nog leeg in"
+      "emptyIn": "Nog leeg in",
+      "translation": "Vertaling"
     },
     "registrations": {
       "title": "Inschrijvingen",

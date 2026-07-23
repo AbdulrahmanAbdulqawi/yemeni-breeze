@@ -1,29 +1,66 @@
-<section class="section-dark page-head">
-  <div class="container">
+<section class="gallery-hero">
+  <div class="hero-texture" aria-hidden="true"></div>
+  <div class="container hero-inner">
     <h1>{{ 'gallery.title' | transloco }}</h1>
+    <p class="hero-intro">{{ 'gallery.intro' | transloco }}</p>
+
+    @if (filters().length) {
+      <div class="filter-bar" role="tablist">
+        <button
+          type="button"
+          role="tab"
+          class="filter-btn"
+          [class.active]="activeFolder() === null"
+          [attr.aria-selected]="activeFolder() === null"
+          (click)="select(null)">
+          {{ 'gallery.all' | transloco }}
+        </button>
+        @for (folder of filters(); track folder.id) {
+          <button
+            type="button"
+            role="tab"
+            class="filter-btn"
+            [class.active]="activeFolder() === folder.id"
+            [attr.aria-selected]="activeFolder() === folder.id"
+            (click)="select(folder.id)">
+            {{ folder.name }}
+          </button>
+        }
+      </div>
+    }
   </div>
 </section>
 
-<section class="section">
+<section class="gallery-section">
   <div class="container">
-    @if (items().length) {
-      <div class="gallery-grid">
-        @for (item of items(); track item.id) {
-          <figure class="gallery-item arch">
-            @switch (item.mediaType) {
-              @case ('video') {
-                <video [src]="item.imageUrl" controls preload="metadata"></video>
+    @if (visible().length) {
+      <div class="bento">
+        @for (entry of visible(); track entry.item.id) {
+          <figure class="tile" [class]="'tile tile-' + entry.shape">
+            <div class="tile-media">
+              @switch (entry.item.mediaType) {
+                @case ('video') {
+                  <video [src]="entry.item.imageUrl" controls preload="metadata"></video>
+                }
+                @case ('file') {
+                  <a class="file-tile" [href]="entry.item.imageUrl" target="_blank" rel="noopener">
+                    <span aria-hidden="true">📄</span>
+                  </a>
+                }
+                @default {
+                  <img
+                    [src]="entry.item.thumbUrl || entry.item.imageUrl"
+                    [alt]="lang.pick(entry.item, 'caption')"
+                    loading="lazy" />
+                }
               }
-              @case ('file') {
-                <a class="file-tile" [href]="item.imageUrl" target="_blank" rel="noopener">📄</a>
+
+              @if (lang.pick(entry.item, 'caption')) {
+                <figcaption class="tile-overlay">
+                  <span class="tile-caption">{{ lang.pick(entry.item, 'caption') }}</span>
+                </figcaption>
               }
-              @default {
-                <img [src]="item.thumbUrl || item.imageUrl" [alt]="lang.pick(item, 'caption')" loading="lazy" />
-              }
-            }
-            @if (lang.pick(item, 'caption')) {
-              <figcaption>{{ lang.pick(item, 'caption') }}</figcaption>
-            }
+            </div>
           </figure>
         }
       </div>

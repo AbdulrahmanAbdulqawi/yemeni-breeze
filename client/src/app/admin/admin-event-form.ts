@@ -8,11 +8,11 @@ import { Lang } from '../core/language.service';
 import { EventInput, EventStatus } from '../core/models';
 import { ToastService } from './ui/toast.service';
 import { PageHeader } from './ui/page-header';
-import { LangTabs } from './ui/lang-tabs';
+import { LangSelect } from './ui/lang-select';
 
 @Component({
   selector: 'app-admin-event-form',
-  imports: [ReactiveFormsModule, TranslocoPipe, PageHeader, LangTabs],
+  imports: [ReactiveFormsModule, TranslocoPipe, PageHeader, LangSelect],
   template: `
     <app-page-header [heading]="(isNew() ? 'admin.events.new' : 'admin.events.edit') | transloco" />
 
@@ -31,7 +31,7 @@ import { LangTabs } from './ui/lang-tabs';
 
       <div class="lang-block">
         <div class="lang-block-head">
-          <app-lang-tabs [(active)]="contentLang" />
+          <app-lang-select [(active)]="contentLang" [label]="'admin.events.translation' | transloco" />
           @if (missingLangs().length) {
             <span class="lang-missing">
               {{ 'admin.events.emptyIn' | transloco }}: {{ missingLangs().join(', ') }}
@@ -254,10 +254,10 @@ export class AdminEventForm {
     const value = this.formValue();
     if (!value) return [];
     return [
-      ['English', value.titleEn],
-      ['Nederlands', value.titleNl],
-      ['العربية', value.titleAr]
-    ].filter(([, title]) => !String(title ?? '').trim()).map(([label]) => label as string);
+      ['EN', value.titleEn],
+      ['NL', value.titleNl],
+      ['AR', value.titleAr]
+    ].filter(([, title]) => !String(title ?? '').trim()).map(([code]) => code as string);
   });
 
   readonly form = this.fb.nonNullable.group({
