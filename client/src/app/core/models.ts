@@ -76,9 +76,18 @@ export interface CheckinResult {
 
 export type MediaType = 'image' | 'video' | 'file';
 
+export interface MediaFolderDto {
+  id: number;
+  name: string;
+  eventId: number | null;
+  sortOrder: number;
+  itemCount: number;
+}
+
 export interface GalleryItemDto {
   id: number;
   eventId: number | null;
+  folderId: number | null;
   imageUrl: string;
   thumbUrl: string | null;
   mediaType: MediaType;
@@ -97,6 +106,13 @@ export interface UploadedFile {
   url: string;
   kind: MediaType;
   contentType: string;
+}
+
+/** Emitted while a single file uploads: progress ticks, then one `done` with the stored media. */
+export interface UploadProgress {
+  percent: number;
+  done: boolean;
+  result: { url: string; thumbUrl: string | null; mediaType: MediaType } | null;
 }
 
 export type SiteSettings = Record<string, string>;

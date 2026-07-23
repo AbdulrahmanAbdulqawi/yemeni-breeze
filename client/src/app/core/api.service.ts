@@ -1,5 +1,6 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpEvent, HttpEventType } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
+import { map } from 'rxjs';
 import {
   CheckinResult,
   ContactMessageDto,
@@ -7,14 +8,34 @@ import {
   EventInput,
   GalleryItemDto,
   LoginResponse,
+  MediaFolderDto,
   RegisterRequest,
   RegistrationDto,
   RegistrationResult,
   RegistrationStatus,
   SiteSettings,
   UploadedFile,
+  UploadProgress,
   UploadResult
 } from './models';
+
+function toUploadProgress(event: HttpEvent<UploadResult | UploadedFile>, isImage: boolean): UploadProgress {
+  if (event.type === HttpEventType.UploadProgress) {
+    const percent = event.total ? Math.round((event.loaded / event.total) * 100) : 0;
+    // cap at 99 until the response lands — the server still has to resize/store
+    return { percent: Math.min(percent, 99), done: false, result: null };
+  }
+
+  if (event.type === HttpEventType.Response && event.body) {
+    const body = event.body;
+    const result = isImage
+      ? { url: (body as UploadResult).url, thumbUrl: (body as UploadResult).thumbUrl, mediaType: 'image' as const }
+      : { url: (body as UploadedFile).url, thumbUrl: null, mediaType: (body as UploadedFile).kind };
+    return { percent: 100, done: true, result };
+  }
+
+  return { percent: 0, done: false, result: null };
+}
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
@@ -116,6 +137,54 @@ export class ApiService {
     const form = new FormData();
     form.append('file', file);
     return this.http.post<UploadedFile>('/api/admin/uploads/file', form);
+  }
+
+  /**
+   * Uploads one file, emitting progress percentages then the final result.
+   * Images go through the resize pipeline; everything else is stored as-is.
+   */
+  adminUploadWithProgress(file: File) {
+    const isImage = file.type.startsWith('image/');
+    const url = isImage ? '/api/admin/uploads' : '/api/admin/uploads/file';
+    const form = new FormData();
+    form.append('file', file);
+
+    return this.http
+      .post<UploadResult | UploadedFile>(url, form, { reportProgress: true, observe: 'events' })
+      .pipe(map(event => toUploadProgress(event, isImage)));
+  }
+
+  // Folders
+  getFolders() {
+    return this.http.get<MediaFolderDto[]>('/api/folders');
+  }
+
+  adminCreateFolder(input: { name: string; eventId: number | null; sortOrder: number }) {
+    return this.http.post<MediaFolderDto>('/api/admin/folders', input);
+  }
+
+  adminUpdateFolder(id: number, input: { name: string; eventId: number | null; sortOrder: number }) {
+    return this.http.put<MediaFolderDto>(`/api/admin/folders/${id}`, input);
+  }
+
+  adminDeleteFolder(id: number) {
+    return this.http.delete(`/api/admin/folders/${id}`);
+  }
+
+  // Bulk gallery actions
+  adminBulkMove(ids: number[], folderId: number | null) {
+    return this.http.post<{ moved: number }>('/api/admin/gallery/bulk-move', { ids, folderId });
+  }
+
+  adminBulkDelete(ids: number[]) {
+    return this.http.post<{ deleted: number }>('/api/admin/gallery/bulk-delete', { ids });
+  }
+
+  adminBulkUpdateCaptions(
+    ids: number[],
+    captions: { captionEn?: string | null; captionNl?: string | null; captionAr?: string | null }
+  ) {
+    return this.http.post<GalleryItemDto[]>('/api/admin/gallery/bulk-update', { ids, ...captions });
   }
 
   getSettings() {

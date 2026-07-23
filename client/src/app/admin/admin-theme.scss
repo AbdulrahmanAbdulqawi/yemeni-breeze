@@ -1,0 +1,184 @@
+/* Admin-only visual layer. Scoped to .admin-shell so the public marketing
+   site keeps its serif/pill styling untouched. */
+.admin-shell {
+  --ad-bg: #f4f1ea;
+  --ad-surface: #fff;
+  --ad-border: #e4dcc9;
+  --ad-border-strong: #d3c7ac;
+  --ad-text: #3d2415;
+  --ad-muted: #7c6a5c;
+  --ad-radius: 10px;
+  --ad-gap: 1rem;
+
+  font-size: 0.94rem;
+  color: var(--ad-text);
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--yb-font-body);
+    color: var(--ad-text);
+    letter-spacing: -0.01em;
+  }
+
+  h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0;
+  }
+
+  h2 {
+    font-size: 1.15rem;
+    font-weight: 700;
+  }
+
+  h3 {
+    font-size: 1rem;
+    font-weight: 700;
+  }
+
+  /* Compact, squared buttons instead of the public site's large pills */
+  .btn {
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    border-width: 1.5px;
+
+    &:hover {
+      transform: none;
+    }
+  }
+
+  .btn-outline {
+    border-color: var(--ad-border-strong);
+    color: var(--ad-text);
+
+    &:hover {
+      background: var(--ad-bg);
+      color: var(--ad-text);
+      border-color: var(--yb-maroon);
+    }
+  }
+
+  .card {
+    border: 1px solid var(--ad-border);
+    box-shadow: none;
+    border-radius: var(--ad-radius);
+  }
+
+  .field {
+    margin-bottom: 0.9rem;
+
+    label {
+      font-size: 0.85rem;
+      color: var(--ad-muted);
+      font-weight: 600;
+    }
+
+    input,
+    textarea,
+    select {
+      font-size: 0.92rem;
+      padding: 0.5rem 0.7rem;
+      border-radius: 8px;
+      border-color: var(--ad-border-strong);
+    }
+  }
+
+  /* Denser tables with a light header instead of solid brown */
+  table.yb-table {
+    border: 1px solid var(--ad-border);
+    font-size: 0.92rem;
+
+    th,
+    td {
+      padding: 0.6rem 0.85rem;
+      border-bottom: 1px solid var(--ad-border);
+    }
+
+    th {
+      background: var(--ad-bg);
+      color: var(--ad-muted);
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      white-space: nowrap;
+    }
+
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover td {
+      background: #faf8f3;
+    }
+  }
+}
+
+/* ===== Shared admin bits (also scoped, so the public site is untouched) ===== */
+.admin-shell {
+  .ad-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    align-items: center;
+    margin-bottom: 1.1rem;
+  }
+
+  .ad-search {
+    flex: 1 1 220px;
+    max-width: 320px;
+    padding: 0.5rem 0.75rem;
+    font: inherit;
+    border: 1.5px solid var(--ad-border-strong);
+    border-radius: 8px;
+    background: var(--ad-surface);
+
+    &:focus {
+      outline: 2px solid var(--yb-blue);
+      border-color: var(--yb-blue);
+    }
+  }
+
+  .ad-select {
+    padding: 0.5rem 0.7rem;
+    font: inherit;
+    border: 1.5px solid var(--ad-border-strong);
+    border-radius: 8px;
+    background: var(--ad-surface);
+  }
+
+  .ad-sort {
+    background: none;
+    border: none;
+    font: inherit;
+    color: inherit;
+    letter-spacing: inherit;
+    text-transform: inherit;
+    cursor: pointer;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+
+    &:hover {
+      color: var(--yb-maroon);
+    }
+  }
+
+  .btn-link {
+    background: none;
+    border: none;
+    color: var(--yb-maroon);
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    text-decoration: underline;
+    padding: 0;
+
+    &.danger {
+      color: var(--yb-red);
+    }
+  }
+}
