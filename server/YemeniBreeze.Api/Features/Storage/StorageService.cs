@@ -82,8 +82,15 @@ public class StorageService
         {
             var path = LocalPath(key);
             Directory.CreateDirectory(Path.GetDirectoryName(path)!);
-            await using var file = File.Create(path);
-            await data.CopyToAsync(file, ct);
+            await using (var file = File.Create(path))
+                await data.CopyToAsync(file, ct);
+
+            // Local disk has no per-object metadata like S3 does, so content-type has to be
+            // inferred back from the file extension on read — that only works for keys that
+            // carry a real extension (e.g. "{name}.webp"). Extensionless keys (e.g. the
+            // "{name}-original" convention in ImageService) need it written down separately.
+            if (string.IsNullOrEmpty(Path.GetExtension(path)))
+                await File.WriteAllTextAsync(path + ".contenttype", contentType, ct);
         }
     }
 
@@ -104,7 +111,11 @@ public class StorageService
 
         var path = LocalPath(key);
         if (!File.Exists(path)) return null;
-        return new StoredObject(File.OpenRead(path), ContentTypes.FromExtension(Path.GetExtension(path)), null);
+
+        var contentType = File.Exists(path + ".contenttype")
+            ? await File.ReadAllTextAsync(path + ".contenttype", ct)
+            : ContentTypes.FromExtension(Path.GetExtension(path));
+        return new StoredObject(File.OpenRead(path), contentType, null);
     }
 
     /// <summary>Best-effort delete: never throws, so a storage hiccup can't block a DB delete/save.</summary>
@@ -125,6 +136,7 @@ public class StorageService
         {
             var path = LocalPath(key);
             if (File.Exists(path)) File.Delete(path);
+            if (File.Exists(path + ".contenttype")) File.Delete(path + ".contenttype");
         }
     }
 

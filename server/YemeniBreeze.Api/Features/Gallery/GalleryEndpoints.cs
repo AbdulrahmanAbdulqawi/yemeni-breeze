@@ -27,6 +27,8 @@ public static class GalleryEndpoints
     {
         if (ImageService.KeyFromUrl(item.ImageUrl) is { } key) await storage.DeleteAsync(key);
         if (ImageService.KeyFromUrl(item.ThumbUrl) is { } thumbKey) await storage.DeleteAsync(thumbKey);
+        if (ImageService.KeyFromUrl(ImageService.OriginalUrlFromUrl(item.ImageUrl)) is { } originalKey)
+            await storage.DeleteAsync(originalKey);
     }
 
     public static void MapGalleryEndpoints(this IEndpointRouteBuilder app)

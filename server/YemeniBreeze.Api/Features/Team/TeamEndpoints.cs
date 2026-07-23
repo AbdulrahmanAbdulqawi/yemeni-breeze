@@ -61,8 +61,7 @@ public static class TeamEndpoints
             member.Slug = await GenerateSlugAsync(member, db);
             await db.SaveChangesAsync();
 
-            if (oldPhotoUrl != member.PhotoUrl && ImageService.KeyFromUrl(oldPhotoUrl) is { } oldKey)
-                await storage.DeleteAsync(oldKey);
+            if (oldPhotoUrl != member.PhotoUrl) await DeletePhotoAsync(storage, oldPhotoUrl);
 
             return Results.Ok(member.ToDto());
         });
@@ -74,10 +73,18 @@ public static class TeamEndpoints
             db.TeamMembers.Remove(member);
             await db.SaveChangesAsync();
 
-            if (ImageService.KeyFromUrl(member.PhotoUrl) is { } key) await storage.DeleteAsync(key);
+            await DeletePhotoAsync(storage, member.PhotoUrl);
 
             return Results.NoContent();
         });
+    }
+
+    /// <summary>Deletes the resized photo and its derived original (see ImageService.OriginalUrlFromUrl).</summary>
+    private static async Task DeletePhotoAsync(StorageService storage, string? photoUrl)
+    {
+        if (ImageService.KeyFromUrl(photoUrl) is { } key) await storage.DeleteAsync(key);
+        if (ImageService.KeyFromUrl(ImageService.OriginalUrlFromUrl(photoUrl)) is { } originalKey)
+            await storage.DeleteAsync(originalKey);
     }
 
     private static void Apply(TeamMember member, TeamMemberInput input)

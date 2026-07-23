@@ -16,19 +16,19 @@ public static class UploadsEndpoints
 
     public static void MapUploadsEndpoints(this IEndpointRouteBuilder app)
     {
-        // Single image → resized to WebP (large + thumb)
+        // Single image → resized to WebP (large + thumb), original kept as-is for downloads
         app.MapPost("/api/admin/uploads", async (IFormFile file, ImageService images) =>
         {
             var error = ValidateImage(file);
             if (error is not null) return error;
 
             await using var stream = file.OpenReadStream();
-            return Results.Ok(await images.ProcessAsync(stream));
+            return Results.Ok(await images.ProcessAsync(stream, OriginalContentType(file)));
         })
         .RequireAuthorization()
         .DisableAntiforgery();
 
-        // Multiple images → resized to WebP
+        // Multiple images → resized to WebP, originals kept as-is for downloads
         app.MapPost("/api/admin/uploads/batch", async (IFormFileCollection files, ImageService images) =>
         {
             if (files.Count is 0 or > MaxBatchCount)
@@ -43,7 +43,7 @@ public static class UploadsEndpoints
             foreach (var file in files)
             {
                 await using var stream = file.OpenReadStream();
-                results.Add(await images.ProcessAsync(stream));
+                results.Add(await images.ProcessAsync(stream, OriginalContentType(file)));
             }
             return Results.Ok(results);
         })
@@ -98,6 +98,11 @@ public static class UploadsEndpoints
             return Results.BadRequest(new { message = "Only jpg, png, webp and gif images are allowed." });
         return null;
     }
+
+    private static string OriginalContentType(IFormFile file) =>
+        string.IsNullOrWhiteSpace(file.ContentType)
+            ? ContentTypes.FromExtension(Path.GetExtension(file.FileName))
+            : file.ContentType;
 
     // Keys are GUIDs we generate (hex + one extension); reject anything with path separators.
     private static bool IsSafeKey(string key) =>

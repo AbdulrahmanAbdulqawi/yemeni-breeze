@@ -98,8 +98,7 @@ public static class EventsEndpoints
 
             await db.SaveChangesAsync();
 
-            if (oldImageUrl != ev.ImageUrl && ImageService.KeyFromUrl(oldImageUrl) is { } oldKey)
-                await storage.DeleteAsync(oldKey);
+            if (oldImageUrl != ev.ImageUrl) await DeleteImageAsync(storage, oldImageUrl);
 
             return Results.Ok(ev.ToDto());
         });
@@ -111,10 +110,18 @@ public static class EventsEndpoints
             db.Events.Remove(ev);
             await db.SaveChangesAsync();
 
-            if (ImageService.KeyFromUrl(ev.ImageUrl) is { } key) await storage.DeleteAsync(key);
+            await DeleteImageAsync(storage, ev.ImageUrl);
 
             return Results.NoContent();
         });
+    }
+
+    /// <summary>Deletes the resized image and its derived original (see ImageService.OriginalUrlFromUrl).</summary>
+    private static async Task DeleteImageAsync(StorageService storage, string? imageUrl)
+    {
+        if (ImageService.KeyFromUrl(imageUrl) is { } key) await storage.DeleteAsync(key);
+        if (ImageService.KeyFromUrl(ImageService.OriginalUrlFromUrl(imageUrl)) is { } originalKey)
+            await storage.DeleteAsync(originalKey);
     }
 
     private static void Apply(Event ev, EventInput input)
