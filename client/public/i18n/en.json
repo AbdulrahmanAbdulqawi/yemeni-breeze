@@ -213,6 +213,7 @@
       "branding": "Site images",
       "heroImage": "Homepage hero photo",
       "aboutImage": "Our Story photo",
+      "removeImage": "Remove image",
       "dropTitle": "Drop photos here to upload",
       "dropOr": "or choose files:",
       "attachToEvent": "Attach to event:",

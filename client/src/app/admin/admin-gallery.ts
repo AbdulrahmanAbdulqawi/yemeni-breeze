@@ -21,6 +21,9 @@ import { EventDto, GalleryItemDto, MediaType, SiteSettings } from '../core/model
           <label>{{ 'admin.gallery.heroImage' | transloco }}</label>
           @if (settings()['heroImageUrl']; as url) {
             <img [src]="url" alt="" />
+            <button type="button" class="btn-link danger" (click)="removeBranding('heroImageUrl')">
+              {{ 'admin.gallery.removeImage' | transloco }}
+            </button>
           }
           <input type="file" accept="image/*" (change)="uploadBranding($event, 'heroImageUrl')" />
         </div>
@@ -28,6 +31,9 @@ import { EventDto, GalleryItemDto, MediaType, SiteSettings } from '../core/model
           <label>{{ 'admin.gallery.aboutImage' | transloco }}</label>
           @if (settings()['aboutImageUrl']; as url) {
             <img [src]="url" alt="" />
+            <button type="button" class="btn-link danger" (click)="removeBranding('aboutImageUrl')">
+              {{ 'admin.gallery.removeImage' | transloco }}
+            </button>
           }
           <input type="file" accept="image/*" (change)="uploadBranding($event, 'aboutImageUrl')" />
         </div>
@@ -323,6 +329,11 @@ export class AdminGallery {
     this.api.adminUpload(file).subscribe(result =>
       this.api.adminUpdateSettings({ [key]: result.url })
         .subscribe(settings => this.settings.set(settings)));
+  }
+
+  removeBranding(key: 'heroImageUrl' | 'aboutImageUrl') {
+    this.api.adminUpdateSettings({ [key]: '' })
+      .subscribe(settings => this.settings.set(settings));
   }
 
   remove(item: GalleryItemDto) {
