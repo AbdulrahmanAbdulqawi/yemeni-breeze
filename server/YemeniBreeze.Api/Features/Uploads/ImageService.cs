@@ -41,4 +41,11 @@ public class ImageService(StorageService storage)
     }
 
     public static string MediaUrl(string key) => $"/api/media/{key}";
+
+    private const string MediaUrlPrefix = "/api/media/";
+
+    public static string? KeyFromUrl(string? url) =>
+        !string.IsNullOrEmpty(url) && url.StartsWith(MediaUrlPrefix)
+            ? url[MediaUrlPrefix.Length..]
+            : null;
 }

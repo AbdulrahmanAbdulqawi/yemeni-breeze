@@ -59,39 +59,6 @@ public class StorageService
         !string.IsNullOrWhiteSpace(_options.AccessKey) &&
         !string.IsNullOrWhiteSpace(_options.SecretKey);
 
-    /// <summary>Temporary diagnostic: tries a bucket LIST under path-style and virtual-hosted addressing.</summary>
-    public async Task<object> DiagnoseAsync()
-    {
-        if (!UseS3) return new { s3 = false };
-
-        var cfg = new AmazonS3Config
-        {
-            ServiceURL = _options.Endpoint,
-            ForcePathStyle = true,
-            AuthenticationRegion = _options.Region
-        };
-        using var client = new AmazonS3Client(_options.AccessKey, _options.SecretKey, cfg);
-
-        // Presigned URLs use pure query-string SigV4 (no x-amz-content-sha256 / checksum headers).
-        // Testing these with plain curl isolates whether the problem is the SDK's request headers.
-        var presignedGet = client.GetPreSignedURL(new GetPreSignedUrlRequest
-        {
-            BucketName = _options.Bucket,
-            Key = "diag-test.txt",
-            Verb = HttpVerb.GET,
-            Expires = DateTime.UtcNow.AddMinutes(20)
-        });
-        var presignedPut = client.GetPreSignedURL(new GetPreSignedUrlRequest
-        {
-            BucketName = _options.Bucket,
-            Key = "diag-test.txt",
-            Verb = HttpVerb.PUT,
-            ContentType = "text/plain",
-            Expires = DateTime.UtcNow.AddMinutes(20)
-        });
-        return new { endpoint = _options.Endpoint, region = _options.Region, bucket = _options.Bucket, presignedGet, presignedPut };
-    }
-
     public async Task PutAsync(string key, Stream data, string contentType, CancellationToken ct = default)
     {
         if (_s3 is not null)
@@ -138,6 +105,27 @@ public class StorageService
         var path = LocalPath(key);
         if (!File.Exists(path)) return null;
         return new StoredObject(File.OpenRead(path), ContentTypes.FromExtension(Path.GetExtension(path)), null);
+    }
+
+    /// <summary>Best-effort delete: never throws, so a storage hiccup can't block a DB delete/save.</summary>
+    public async Task DeleteAsync(string key, CancellationToken ct = default)
+    {
+        if (_s3 is not null)
+        {
+            try
+            {
+                await _s3.DeleteObjectAsync(_options.Bucket, key, ct);
+            }
+            catch (AmazonS3Exception ex)
+            {
+                _logger.LogWarning(ex, "StorageService: failed to delete S3 object '{Key}'", key);
+            }
+        }
+        else
+        {
+            var path = LocalPath(key);
+            if (File.Exists(path)) File.Delete(path);
+        }
     }
 
     private string LocalPath(string key)

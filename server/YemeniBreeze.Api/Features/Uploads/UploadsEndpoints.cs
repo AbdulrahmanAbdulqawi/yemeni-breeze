@@ -1,4 +1,3 @@
-using Amazon.S3;
 using YemeniBreeze.Api.Features.Storage;
 
 namespace YemeniBreeze.Api.Features.Uploads;
@@ -23,28 +22,11 @@ public static class UploadsEndpoints
             var error = ValidateImage(file);
             if (error is not null) return error;
 
-            try
-            {
-                await using var stream = file.OpenReadStream();
-                return Results.Ok(await images.ProcessAsync(stream));
-            }
-            catch (AmazonS3Exception ex)
-            {
-                return Results.Json(new
-                {
-                    message = "S3 upload failed",
-                    errorCode = ex.ErrorCode,
-                    statusCode = (int)ex.StatusCode,
-                    detail = ex.Message
-                }, statusCode: 502);
-            }
+            await using var stream = file.OpenReadStream();
+            return Results.Ok(await images.ProcessAsync(stream));
         })
         .RequireAuthorization()
         .DisableAntiforgery();
-
-        // Temporary S3 diagnostic
-        app.MapGet("/api/admin/uploads/diag", (StorageService storage) => storage.DiagnoseAsync())
-            .RequireAuthorization();
 
         // Multiple images → resized to WebP
         app.MapPost("/api/admin/uploads/batch", async (IFormFileCollection files, ImageService images) =>

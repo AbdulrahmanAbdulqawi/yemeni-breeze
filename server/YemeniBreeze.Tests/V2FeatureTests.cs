@@ -229,6 +229,93 @@ public class V2FeatureTests : IClassFixture<ApiFactory>
         Assert.True(response.StatusCode is HttpStatusCode.BadRequest or HttpStatusCode.NotFound);
     }
 
+    // --- Storage cleanup on delete/replace ---
+
+    [Fact]
+    public async Task Deleting_Gallery_Item_Removes_Its_Media_From_Storage()
+    {
+        await AuthenticateAsync();
+        var uploaded = await UploadSingleImageAsync();
+
+        var createResponse = await _client.PostAsJsonAsync("/api/admin/gallery", new
+        {
+            EventId = (int?)null,
+            ImageUrl = uploaded.Url,
+            ThumbUrl = uploaded.ThumbUrl,
+            MediaType = "image",
+            CaptionEn = "", CaptionNl = "", CaptionAr = "",
+            SortOrder = 0
+        });
+        createResponse.EnsureSuccessStatusCode();
+        var item = await createResponse.Content.ReadFromJsonAsync<GalleryItemRow>();
+
+        Assert.Equal(HttpStatusCode.OK, (await _client.GetAsync(uploaded.Url)).StatusCode);
+
+        var deleteResponse = await _client.DeleteAsync($"/api/admin/gallery/{item!.Id}");
+        Assert.Equal(HttpStatusCode.NoContent, deleteResponse.StatusCode);
+
+        Assert.Equal(HttpStatusCode.NotFound, (await _client.GetAsync(uploaded.Url)).StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, (await _client.GetAsync(uploaded.ThumbUrl)).StatusCode);
+    }
+
+    [Fact]
+    public async Task Replacing_Event_Cover_Image_Deletes_The_Old_One_From_Storage()
+    {
+        await AuthenticateAsync();
+        var (eventId, slug) = await CreateEventAsync(capacity: 10);
+
+        var oldImage = await UploadSingleImageAsync();
+        var setOld = await _client.PutAsJsonAsync($"/api/admin/events/{eventId}", EventPayload(slug, oldImage.Url));
+        setOld.EnsureSuccessStatusCode();
+        Assert.Equal(HttpStatusCode.OK, (await _client.GetAsync(oldImage.Url)).StatusCode);
+
+        var newImage = await UploadSingleImageAsync();
+        var setNew = await _client.PutAsJsonAsync($"/api/admin/events/{eventId}", EventPayload(slug, newImage.Url));
+        setNew.EnsureSuccessStatusCode();
+
+        Assert.Equal(HttpStatusCode.NotFound, (await _client.GetAsync(oldImage.Url)).StatusCode);
+        Assert.Equal(HttpStatusCode.OK, (await _client.GetAsync(newImage.Url)).StatusCode);
+    }
+
+    [Fact]
+    public async Task Deleting_Event_Removes_Its_Cover_Image_From_Storage()
+    {
+        await AuthenticateAsync();
+        var (eventId, slug) = await CreateEventAsync(capacity: 10);
+
+        var image = await UploadSingleImageAsync();
+        var setImage = await _client.PutAsJsonAsync($"/api/admin/events/{eventId}", EventPayload(slug, image.Url));
+        setImage.EnsureSuccessStatusCode();
+
+        var deleteResponse = await _client.DeleteAsync($"/api/admin/events/{eventId}");
+        Assert.Equal(HttpStatusCode.NoContent, deleteResponse.StatusCode);
+
+        Assert.Equal(HttpStatusCode.NotFound, (await _client.GetAsync(image.Url)).StatusCode);
+    }
+
+    private async Task<UploadResult> UploadSingleImageAsync()
+    {
+        using var content = new MultipartFormDataContent();
+        var part = new ByteArrayContent(CreatePng(800, 600));
+        part.Headers.ContentType = new MediaTypeHeaderValue("image/png");
+        content.Add(part, "file", "photo.png");
+        var response = await _client.PostAsync("/api/admin/uploads", content);
+        response.EnsureSuccessStatusCode();
+        return (await response.Content.ReadFromJsonAsync<UploadResult>())!;
+    }
+
+    private static object EventPayload(string slug, string? imageUrl) => new
+    {
+        Slug = slug,
+        TitleEn = "Cover Test", TitleNl = "Cover Test", TitleAr = "Cover Test",
+        DescriptionEn = "", DescriptionNl = "", DescriptionAr = "",
+        Date = new DateOnly(2026, 12, 1), StartTime = "10:00", EndTime = "12:00",
+        Location = "Amsterdam", Capacity = 10, ImageUrl = imageUrl,
+        Status = "Published", IsRegistrationOpen = true
+    };
+
+    private record GalleryItemRow(int Id);
+
     private record UploadedFileResult(string Url, string Kind, string ContentType);
 
     private static byte[] CreatePng(int width, int height)

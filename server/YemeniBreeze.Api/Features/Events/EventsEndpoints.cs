@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using YemeniBreeze.Api.Data;
 using YemeniBreeze.Api.Domain;
+using YemeniBreeze.Api.Features.Storage;
+using YemeniBreeze.Api.Features.Uploads;
 
 namespace YemeniBreeze.Api.Features.Events;
 
@@ -76,7 +78,7 @@ public static class EventsEndpoints
             return Results.Created($"/api/events/{ev.Slug}", ev.ToDto());
         });
 
-        admin.MapPut("/{id:int}", async (int id, EventInput input, AppDbContext db) =>
+        admin.MapPut("/{id:int}", async (int id, EventInput input, AppDbContext db, StorageService storage) =>
         {
             var ev = await db.Events.Include(e => e.Registrations)
                 .FirstOrDefaultAsync(e => e.Id == id);
@@ -84,17 +86,25 @@ public static class EventsEndpoints
             if (await db.Events.AnyAsync(e => e.Slug == input.Slug && e.Id != id))
                 return Results.Conflict(new { message = "An event with this slug already exists." });
 
+            var oldImageUrl = ev.ImageUrl;
             Apply(ev, input);
             await db.SaveChangesAsync();
+
+            if (oldImageUrl != ev.ImageUrl && ImageService.KeyFromUrl(oldImageUrl) is { } oldKey)
+                await storage.DeleteAsync(oldKey);
+
             return Results.Ok(ev.ToDto());
         });
 
-        admin.MapDelete("/{id:int}", async (int id, AppDbContext db) =>
+        admin.MapDelete("/{id:int}", async (int id, AppDbContext db, StorageService storage) =>
         {
             var ev = await db.Events.FindAsync(id);
             if (ev is null) return Results.NotFound();
             db.Events.Remove(ev);
             await db.SaveChangesAsync();
+
+            if (ImageService.KeyFromUrl(ev.ImageUrl) is { } key) await storage.DeleteAsync(key);
+
             return Results.NoContent();
         });
     }

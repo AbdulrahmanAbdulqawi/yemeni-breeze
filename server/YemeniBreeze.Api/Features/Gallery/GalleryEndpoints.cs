@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using YemeniBreeze.Api.Data;
 using YemeniBreeze.Api.Domain;
+using YemeniBreeze.Api.Features.Storage;
+using YemeniBreeze.Api.Features.Uploads;
 
 namespace YemeniBreeze.Api.Features.Gallery;
 
@@ -59,12 +61,16 @@ public static class GalleryEndpoints
             return Results.Ok(ToDto(item));
         });
 
-        admin.MapDelete("/{id:int}", async (int id, AppDbContext db) =>
+        admin.MapDelete("/{id:int}", async (int id, AppDbContext db, StorageService storage) =>
         {
             var item = await db.GalleryItems.FindAsync(id);
             if (item is null) return Results.NotFound();
             db.GalleryItems.Remove(item);
             await db.SaveChangesAsync();
+
+            if (ImageService.KeyFromUrl(item.ImageUrl) is { } key) await storage.DeleteAsync(key);
+            if (ImageService.KeyFromUrl(item.ThumbUrl) is { } thumbKey) await storage.DeleteAsync(thumbKey);
+
             return Results.NoContent();
         });
     }
