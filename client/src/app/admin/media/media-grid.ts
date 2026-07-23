@@ -15,28 +15,86 @@ export interface CaptionEdit {
   selector: 'app-media-grid',
   imports: [FormsModule, TranslocoPipe, LangSelect],
   template: `
-    @if (selectedIds().size > 0) {
-      <div class="bulk-bar">
-        <strong>{{ selectedIds().size }}</strong>
-        <span>{{ 'admin.media.selected' | transloco }}</span>
-
-        <select class="ad-select" [(ngModel)]="moveTarget" (ngModelChange)="onMove($event)">
-          <option [ngValue]="undefined">{{ 'admin.media.moveTo' | transloco }}…</option>
-          <option [ngValue]="null">{{ 'admin.media.unfiled' | transloco }}</option>
-          @for (folder of folders(); track folder.id) {
-            <option [ngValue]="folder.id">{{ folder.name }}</option>
+    @if (items().length) {
+      <div class="grid-toolbar" [class.active]="selectedIds().size > 0">
+        <span class="toolbar-count">
+          @if (selectedIds().size) {
+            <strong>{{ selectedIds().size }}</strong> / {{ items().length }}
+            {{ 'admin.media.selected' | transloco }}
+          } @else {
+            {{ items().length }} {{ 'admin.media.items' | transloco }}
           }
-        </select>
+        </span>
 
-        <button type="button" class="btn-link" (click)="captionsOpen.set(!captionsOpen())">
-          {{ 'admin.media.editCaptions' | transloco }}
-        </button>
-        <button type="button" class="btn-link danger" (click)="requestBulkDelete()">
-          {{ 'admin.media.bulkDelete' | transloco }}
-        </button>
-        <button type="button" class="btn-link" (click)="clearSelection()">
-          {{ 'admin.media.clearSelection' | transloco }}
-        </button>
+        @if (selectedIds().size < items().length) {
+          <button
+            type="button"
+            class="icon-btn"
+            (click)="selectAll()"
+            [title]="'admin.media.selectAll' | transloco"
+            [attr.aria-label]="'admin.media.selectAll' | transloco">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <rect x="3" y="3" width="18" height="18" rx="4" />
+              <path d="m8 12 3 3 6-6" />
+            </svg>
+          </button>
+        }
+
+        @if (selectedIds().size > 0) {
+          <span class="icon-select">
+            <svg viewBox="0 0 24 24" aria-hidden="true" class="select-icon">
+              <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z" />
+            </svg>
+            <select
+              class="ad-select"
+              [(ngModel)]="moveTarget"
+              (ngModelChange)="onMove($event)"
+              [title]="'admin.media.moveTo' | transloco"
+              [attr.aria-label]="'admin.media.moveTo' | transloco">
+              <option [ngValue]="undefined">{{ 'admin.media.moveTo' | transloco }}…</option>
+              <option [ngValue]="null">{{ 'admin.media.unfiled' | transloco }}</option>
+              @for (folder of folders(); track folder.id) {
+                <option [ngValue]="folder.id">{{ folder.name }}</option>
+              }
+            </select>
+          </span>
+
+          <button
+            type="button"
+            class="icon-btn"
+            (click)="captionsOpen.set(!captionsOpen())"
+            [title]="'admin.media.editCaptions' | transloco"
+            [attr.aria-label]="'admin.media.editCaptions' | transloco">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 20h9" />
+              <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L8 18l-4 1 1-4Z" />
+            </svg>
+          </button>
+          <button
+            type="button"
+            class="icon-btn danger"
+            (click)="requestBulkDelete()"
+            [title]="'admin.media.bulkDelete' | transloco"
+            [attr.aria-label]="'admin.media.bulkDelete' | transloco">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M3 6h18" />
+              <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+              <path d="m19 6-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+              <path d="M10 11v6M14 11v6" />
+            </svg>
+          </button>
+          <button
+            type="button"
+            class="icon-btn"
+            (click)="clearSelection()"
+            [title]="'admin.media.clearSelection' | transloco"
+            [attr.aria-label]="'admin.media.clearSelection' | transloco">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M18 6 6 18" />
+              <path d="M6 6l12 12" />
+            </svg>
+          </button>
+        }
       </div>
 
       @if (captionsOpen()) {
@@ -99,24 +157,115 @@ export interface CaptionEdit {
     </div>
   `,
   styles: `
-    .bulk-bar {
+    .grid-toolbar {
       display: flex;
       flex-wrap: wrap;
       align-items: center;
       gap: 0.7rem;
-      background: var(--yb-brown);
-      color: var(--yb-cream);
-      padding: 0.6rem 0.9rem;
+      background: var(--ad-surface, #fff);
+      border: 1px solid var(--ad-border, #e4dcc9);
+      color: var(--ad-text, #3d2415);
+      padding: 0.55rem 0.9rem;
       border-radius: var(--ad-radius, 10px);
       margin-bottom: 0.9rem;
       font-size: 0.9rem;
+      transition: background 0.15s ease, color 0.15s ease;
 
       .btn-link {
-        color: var(--yb-yellow);
+        color: var(--yb-maroon);
 
         &.danger {
-          color: #ffb4a8;
+          color: var(--yb-red);
         }
+      }
+
+      /* Once something is selected, the bar carries the same weight as
+         other destructive/bulk-action surfaces in the studio. */
+      &.active {
+        background: var(--yb-brown);
+        border-color: var(--yb-brown);
+        color: var(--yb-cream);
+
+        .btn-link {
+          color: var(--yb-yellow);
+
+          &.danger {
+            color: #ffb4a8;
+          }
+        }
+
+        .icon-btn {
+          color: var(--yb-cream);
+
+          &:hover {
+            background: rgb(253 249 234 / 0.15);
+          }
+
+          &.danger {
+            color: #ffb4a8;
+          }
+        }
+
+        .icon-select {
+          color: var(--yb-cream);
+        }
+      }
+    }
+
+    .toolbar-count {
+      font-weight: 600;
+    }
+
+    /* Icon-only actions — labelled for assistive tech and mouse users via
+       title/aria-label rather than visible text, to keep the bar compact. */
+    .icon-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      padding: 0;
+      border: none;
+      border-radius: 7px;
+      background: none;
+      color: var(--yb-maroon);
+      cursor: pointer;
+
+      svg {
+        width: 17px;
+        height: 17px;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 1.9;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+
+      &:hover {
+        background: color-mix(in srgb, currentColor 12%, transparent);
+      }
+
+      &.danger {
+        color: var(--yb-red);
+      }
+    }
+
+    .icon-select {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      color: var(--yb-maroon);
+
+      .select-icon {
+        width: 16px;
+        height: 16px;
+        flex: none;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 1.8;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        opacity: 0.8;
       }
     }
 
@@ -292,6 +441,10 @@ export class MediaGrid {
     else ids.add(item.id);
     this.lastClickedId = item.id;
     this.selectedIds.set(ids);
+  }
+
+  selectAll() {
+    this.selectedIds.set(new Set(this.items().map(i => i.id)));
   }
 
   requestBulkDelete() {
