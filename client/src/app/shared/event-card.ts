@@ -283,11 +283,16 @@ import { EventDto } from '../core/models';
         }
       }
 
-      &:hover .cta-default {
+      /* Selectors repeat the .cta-swap ancestor so specificity matches (and
+         beats) the base ".cta-swap .cta-hover { opacity: 0 }" rule above —
+         Angular's per-component [_ngcontent] attribute is appended to every
+         class in a rule, so a shorter hover selector here would otherwise
+         lose the specificity tie and never show the hover text. */
+      &:hover .cta-swap .cta-default {
         opacity: 0;
       }
 
-      &:hover .cta-hover {
+      &:hover .cta-swap .cta-hover {
         opacity: 1;
       }
 

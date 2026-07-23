@@ -121,9 +121,14 @@ img {
 
   /* Deepen toward the brand's espresso brown on hover, rather than
      shifting to --yb-red — that's reserved for error/alert states and
-     read as a jarring clash against the warm brown/gold palette. */
+     read as a jarring clash against the warm brown/gold palette.
+     Color is repeated here (not just background) because when this class
+     sits on an <a>, the global `a:hover { color: --yb-blue }` below is
+     otherwise more specific than a plain `.btn-primary` color rule and
+     wins on hover, turning the label blue. */
   &:hover {
     background: var(--yb-brown);
+    color: var(--yb-cream);
   }
 }
 
@@ -157,6 +162,7 @@ img {
 
   &:hover {
     background: var(--yb-yellow);
+    color: var(--yb-brown);
   }
 }
 
