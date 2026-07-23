@@ -72,4 +72,18 @@ public class ImageService(StorageService storage)
         var stem = Path.GetFileNameWithoutExtension(key);
         return MediaUrl($"{stem}{OriginalSuffix}");
     }
+
+    /// <summary>
+    /// Derives the thumbnail's media URL from a processed large-image URL
+    /// (e.g. "/api/media/{name}.webp" → "/api/media/{name}-thumb.webp"). ProcessAsync
+    /// always generates a thumb for every upload, so entities that only store the large
+    /// URL (Event.ImageUrl, TeamMember.PhotoUrl) use this to clean it up on delete/replace.
+    /// Only valid for the *large* image URL.
+    /// </summary>
+    public static string? ThumbUrlFromUrl(string? url)
+    {
+        if (KeyFromUrl(url) is not { } key) return null;
+        var stem = Path.GetFileNameWithoutExtension(key);
+        return MediaUrl($"{stem}-thumb.webp");
+    }
 }

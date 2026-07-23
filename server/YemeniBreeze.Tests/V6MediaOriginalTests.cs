@@ -143,6 +143,43 @@ public class V6MediaOriginalTests : IClassFixture<ApiFactory>
         Assert.Equal(HttpStatusCode.NotFound, (await _client.GetAsync(photo.OriginalUrl)).StatusCode);
     }
 
+    // --- Thumbnail cleanup for Event/Team (which have no ThumbUrl column) ---
+
+    [Fact]
+    public async Task Deleting_Event_Also_Removes_The_Cover_Thumbnail()
+    {
+        await AuthenticateAsync();
+        var slug = $"v7-event-thumb-{Guid.NewGuid():N}";
+        var image = await UploadSingleImageAsync();
+        Assert.Equal(HttpStatusCode.OK, (await _client.GetAsync(image.ThumbUrl)).StatusCode);
+
+        var created = await _client.PostAsJsonAsync("/api/admin/events", EventPayload(slug, image.Url));
+        created.EnsureSuccessStatusCode();
+        var eventId = (await created.Content.ReadFromJsonAsync<EventRow>())!.Id;
+
+        var deleted = await _client.DeleteAsync($"/api/admin/events/{eventId}");
+        Assert.Equal(HttpStatusCode.NoContent, deleted.StatusCode);
+
+        Assert.Equal(HttpStatusCode.NotFound, (await _client.GetAsync(image.ThumbUrl)).StatusCode);
+    }
+
+    [Fact]
+    public async Task Deleting_Team_Member_Also_Removes_The_Photo_Thumbnail()
+    {
+        await AuthenticateAsync();
+        var photo = await UploadSingleImageAsync();
+        Assert.Equal(HttpStatusCode.OK, (await _client.GetAsync(photo.ThumbUrl)).StatusCode);
+
+        var created = await _client.PostAsJsonAsync("/api/admin/team", TeamPayload(photo.Url));
+        created.EnsureSuccessStatusCode();
+        var memberId = (await created.Content.ReadFromJsonAsync<TeamRow>())!.Id;
+
+        var deleted = await _client.DeleteAsync($"/api/admin/team/{memberId}");
+        Assert.Equal(HttpStatusCode.NoContent, deleted.StatusCode);
+
+        Assert.Equal(HttpStatusCode.NotFound, (await _client.GetAsync(photo.ThumbUrl)).StatusCode);
+    }
+
     private static object TeamPayload(string? photoUrl) => new
     {
         Name = "V6 Test Person",

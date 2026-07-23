@@ -116,10 +116,13 @@ public static class EventsEndpoints
         });
     }
 
-    /// <summary>Deletes the resized image and its derived original (see ImageService.OriginalUrlFromUrl).</summary>
+    /// <summary>Deletes the resized image and its derived thumbnail + original — Event has no
+    /// ThumbUrl column, but ProcessAsync always generates a thumb, so it must be cleaned up too.</summary>
     private static async Task DeleteImageAsync(StorageService storage, string? imageUrl)
     {
         if (ImageService.KeyFromUrl(imageUrl) is { } key) await storage.DeleteAsync(key);
+        if (ImageService.KeyFromUrl(ImageService.ThumbUrlFromUrl(imageUrl)) is { } thumbKey)
+            await storage.DeleteAsync(thumbKey);
         if (ImageService.KeyFromUrl(ImageService.OriginalUrlFromUrl(imageUrl)) is { } originalKey)
             await storage.DeleteAsync(originalKey);
     }

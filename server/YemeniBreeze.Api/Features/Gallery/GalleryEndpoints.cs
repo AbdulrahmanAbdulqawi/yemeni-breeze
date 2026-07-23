@@ -10,6 +10,8 @@ public record GalleryItemDto(
     int Id, int? EventId, int? FolderId, string ImageUrl, string? ThumbUrl, string MediaType,
     string CaptionEn, string CaptionNl, string CaptionAr, int SortOrder);
 
+public record GalleryPageDto(List<GalleryItemDto> Items, int Total);
+
 public record GalleryItemInput(
     int? EventId, int? FolderId, string ImageUrl, string? ThumbUrl, string? MediaType,
     string CaptionEn, string CaptionNl, string CaptionAr, int SortOrder);
@@ -36,6 +38,26 @@ public static class GalleryEndpoints
         app.MapGet("/api/gallery", async (AppDbContext db) =>
             (await db.GalleryItems.OrderBy(g => g.SortOrder).ThenByDescending(g => g.Id).ToListAsync())
             .Select(ToDto));
+
+        // Paginated variant for the public gallery grid. Separate from /api/gallery,
+        // which event-detail.ts still relies on returning the full unpaginated array.
+        app.MapGet("/api/gallery/page", async (int? folderId, int? skip, int? take, AppDbContext db, HttpContext ctx) =>
+        {
+            var pageSkip = Math.Max(0, skip ?? 0);
+            var pageTake = Math.Clamp(take ?? 50, 1, 100);
+
+            var query = db.GalleryItems.AsQueryable();
+            if (folderId is { } id) query = query.Where(g => g.FolderId == id);
+
+            var total = await query.CountAsync();
+            var items = await query
+                .OrderBy(g => g.SortOrder).ThenByDescending(g => g.Id)
+                .Skip(pageSkip).Take(pageTake)
+                .ToListAsync();
+
+            ctx.Response.Headers.CacheControl = "public, max-age=30";
+            return new GalleryPageDto(items.Select(ToDto).ToList(), total);
+        });
 
         var admin = app.MapGroup("/api/admin/gallery").RequireAuthorization();
 

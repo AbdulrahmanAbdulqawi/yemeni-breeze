@@ -79,10 +79,13 @@ public static class TeamEndpoints
         });
     }
 
-    /// <summary>Deletes the resized photo and its derived original (see ImageService.OriginalUrlFromUrl).</summary>
+    /// <summary>Deletes the resized photo and its derived thumbnail + original — TeamMember has no
+    /// ThumbUrl column, but ProcessAsync always generates a thumb, so it must be cleaned up too.</summary>
     private static async Task DeletePhotoAsync(StorageService storage, string? photoUrl)
     {
         if (ImageService.KeyFromUrl(photoUrl) is { } key) await storage.DeleteAsync(key);
+        if (ImageService.KeyFromUrl(ImageService.ThumbUrlFromUrl(photoUrl)) is { } thumbKey)
+            await storage.DeleteAsync(thumbKey);
         if (ImageService.KeyFromUrl(ImageService.OriginalUrlFromUrl(photoUrl)) is { } originalKey)
             await storage.DeleteAsync(originalKey);
     }
