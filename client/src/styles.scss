@@ -200,18 +200,8 @@ img {
   }
 
   h1 {
-    display: inline-block;
     font-size: clamp(2rem, 4.5vw, 3rem);
-    margin: 0;
-
-    &::after {
-      content: '';
-      display: block;
-      width: 64px;
-      height: 3px;
-      background: var(--yb-gold);
-      margin: 0.9rem auto 0;
-    }
+    margin: 0 0 1rem;
   }
 
   &::before {

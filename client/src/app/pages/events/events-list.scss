@@ -1,3 +1,9 @@
+.events-intro {
+  max-width: 640px;
+  margin: 0 auto;
+  opacity: 0.94;
+}
+
 .events-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));

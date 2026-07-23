@@ -29,16 +29,6 @@
   color: var(--yb-cream);
   font-size: clamp(2rem, 5vw, 3.2rem);
   margin: 1.4rem 0 0.6rem;
-  display: inline-block;
-
-  &::after {
-    content: '';
-    display: block;
-    width: 64px;
-    height: 3px;
-    background: var(--yb-gold);
-    margin: 0.9rem auto 0;
-  }
 }
 
 .hero-subtitle {
