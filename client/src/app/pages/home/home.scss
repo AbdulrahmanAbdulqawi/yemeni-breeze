@@ -45,16 +45,6 @@
   flex-wrap: wrap;
 }
 
-.btn-outline-cream {
-  color: var(--yb-cream);
-  border-color: var(--yb-cream);
-
-  &:hover {
-    background: var(--yb-cream);
-    color: var(--yb-brown);
-  }
-}
-
 .pillars-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));

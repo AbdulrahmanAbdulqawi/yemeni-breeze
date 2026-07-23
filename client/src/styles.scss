@@ -119,8 +119,11 @@ img {
   background: var(--yb-maroon);
   color: var(--yb-cream);
 
+  /* Deepen toward the brand's espresso brown on hover, rather than
+     shifting to --yb-red — that's reserved for error/alert states and
+     read as a jarring clash against the warm brown/gold palette. */
   &:hover {
-    background: var(--yb-red);
+    background: var(--yb-brown);
   }
 }
 
@@ -132,6 +135,19 @@ img {
   &:hover {
     background: var(--yb-maroon);
     color: var(--yb-cream);
+  }
+}
+
+/* .btn-outline reads as maroon-on-light; on a dark hero/section that has
+   no contrast, so outline buttons there add this modifier instead of a
+   one-off local variant. */
+.btn-outline-cream {
+  color: var(--yb-cream);
+  border-color: var(--yb-cream);
+
+  &:hover {
+    background: var(--yb-cream);
+    color: var(--yb-brown);
   }
 }
 
@@ -184,10 +200,9 @@ img {
   }
 }
 
-/* ===== Page hero — dune silhouette + wave transition, shared by every
-   simple page hero (Events/About/Contact/Gallery). A gold accent line sits
-   under the heading; a soft cream wave replaces the old hard colour cut
-   into the section below. ===== */
+/* ===== Page hero — wave transition, shared by every simple page hero
+   (Events/About/Contact/Gallery). A soft cream wave replaces the old hard
+   colour cut into the section below. ===== */
 .page-hero {
   position: relative;
   overflow: hidden;
@@ -202,22 +217,6 @@ img {
   h1 {
     font-size: clamp(2rem, 4.5vw, 3rem);
     margin: 0 0 1rem;
-  }
-
-  &::before {
-    content: '';
-    position: absolute;
-    z-index: 0;
-    inset-inline: 0;
-    inset-block-end: 44px;
-    height: 45%;
-    pointer-events: none;
-    background-image:
-      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 200' preserveAspectRatio='none'%3E%3Cpath d='M0,200 L0,130 C80,90 160,150 240,120 C320,90 400,140 480,110 C540,90 570,100 600,95 L600,200 Z' fill='%23ffffff' fill-opacity='0.06'/%3E%3C/svg%3E"),
-      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 200' preserveAspectRatio='none'%3E%3Cpath d='M0,200 L0,160 C100,120 200,175 300,150 C400,125 480,170 600,140 L600,200 Z' fill='%23000000' fill-opacity='0.12'/%3E%3C/svg%3E");
-    background-repeat: no-repeat, no-repeat;
-    background-size: 100% 100%, 100% 100%;
-    background-position: bottom, bottom;
   }
 
   &::after {

@@ -82,7 +82,14 @@ import { EventDto } from '../core/models';
               </div>
             }
             <a [routerLink]="['/events', event().slug]" class="btn btn-primary ec-cta">
-              {{ (event().isRegistrationOpen ? (event().spotsLeft > 0 ? 'events.register' : 'events.joinWaitlist') : 'events.details') | transloco }}
+              @if (event().isRegistrationOpen && event().spotsLeft > 0) {
+                <span class="cta-swap">
+                  <span class="cta-default">{{ 'events.register' | transloco }}</span>
+                  <span class="cta-hover">{{ 'events.form.submit' | transloco }}</span>
+                </span>
+              } @else {
+                {{ (event().isRegistrationOpen ? 'events.joinWaitlist' : 'events.details') | transloco }}
+              }
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M5 12h14M13 6l6 6-6 6" />
               </svg>
@@ -256,6 +263,33 @@ import { EventDto } from '../core/models';
       display: inline-flex;
       align-items: center;
       gap: 0.5rem;
+
+      /* "Register" previews the wording of the form it leads to on hover,
+         swapping to the exact label the submit button itself uses.
+         Both labels sit in the same grid cell so the wider one ("Confirm
+         registration") sets the box size and nothing reflows on hover. */
+      .cta-swap {
+        position: relative;
+        display: inline-grid;
+
+        span {
+          grid-area: 1 / 1;
+          transition: opacity 0.15s ease;
+          white-space: nowrap;
+        }
+
+        .cta-hover {
+          opacity: 0;
+        }
+      }
+
+      &:hover .cta-default {
+        opacity: 0;
+      }
+
+      &:hover .cta-hover {
+        opacity: 1;
+      }
 
       svg {
         width: 16px;
