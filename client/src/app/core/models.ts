@@ -97,6 +97,11 @@ export interface GalleryItemDto {
   sortOrder: number;
 }
 
+export interface GalleryPageDto {
+  items: GalleryItemDto[];
+  total: number;
+}
+
 export interface UploadResult {
   url: string;
   thumbUrl: string;

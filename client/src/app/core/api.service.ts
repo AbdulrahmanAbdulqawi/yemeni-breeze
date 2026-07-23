@@ -1,4 +1,4 @@
-import { HttpClient, HttpEvent, HttpEventType } from '@angular/common/http';
+import { HttpClient, HttpEvent, HttpEventType, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { map } from 'rxjs';
 import {
@@ -10,6 +10,7 @@ import {
   EventDto,
   EventInput,
   GalleryItemDto,
+  GalleryPageDto,
   LoginResponse,
   MediaFolderDto,
   RegisterRequest,
@@ -61,6 +62,14 @@ export class ApiService {
 
   getGallery() {
     return this.http.get<GalleryItemDto[]>('/api/gallery');
+  }
+
+  getGalleryPage(params: { folderId: number | null; skip: number; take: number }) {
+    let httpParams = new HttpParams()
+      .set('skip', params.skip)
+      .set('take', params.take);
+    if (params.folderId !== null) httpParams = httpParams.set('folderId', params.folderId);
+    return this.http.get<GalleryPageDto>('/api/gallery/page', { params: httpParams });
   }
 
   sendContact(request: { name: string; email: string; subject: string; message: string }) {

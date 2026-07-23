@@ -128,7 +128,9 @@
     "download": "Download",
     "previous": "Previous photo",
     "next": "Next photo",
-    "close": "Close"
+    "close": "Close",
+    "loadMore": "Load more",
+    "loading": "Loading…"
   },
   "contact": {
     "title": "Contact",

@@ -128,7 +128,9 @@
     "download": "Downloaden",
     "previous": "Vorige foto",
     "next": "Volgende foto",
-    "close": "Sluiten"
+    "close": "Sluiten",
+    "loadMore": "Meer laden",
+    "loading": "Laden…"
   },
   "contact": {
     "title": "Contact",

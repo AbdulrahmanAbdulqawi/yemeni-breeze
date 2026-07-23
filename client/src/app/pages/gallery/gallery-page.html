@@ -74,6 +74,14 @@
         </a>
       </div>
     }
+
+    @if (hasMore()) {
+      <div class="load-more">
+        <button type="button" class="btn btn-outline" (click)="loadMore()" [disabled]="loading()">
+          {{ (loading() ? 'gallery.loading' : 'gallery.loadMore') | transloco }}
+        </button>
+      </div>
+    }
   </div>
 </section>
 

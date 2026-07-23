@@ -3,6 +3,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { ApiService } from '../../core/api.service';
 import { CmsPipe } from '../../core/cms.pipe';
+import { GalleryCacheService } from '../../core/gallery-cache.service';
 import { LanguageService } from '../../core/language.service';
 import { originalUrl } from '../../core/media-url';
 import { GalleryItemDto, MediaFolderDto } from '../../core/models';
@@ -13,6 +14,8 @@ import { GalleryItemDto, MediaFolderDto } from '../../core/models';
  */
 const LAYOUT = ['wide', 'tall', 'square', 'pano', 'half', 'half'] as const;
 
+const PAGE_SIZE = 50;
+
 @Component({
   selector: 'app-gallery-page',
   imports: [TranslocoPipe, CmsPipe],
@@ -21,31 +24,73 @@ const LAYOUT = ['wide', 'tall', 'square', 'pano', 'half', 'half'] as const;
 })
 export class GalleryPage {
   private api = inject(ApiService);
+  private cache = inject(GalleryCacheService);
   readonly lang = inject(LanguageService);
 
-  readonly items = toSignal(this.api.getGallery(), { initialValue: [] as GalleryItemDto[] });
   readonly folders = toSignal(this.api.getFolders(), { initialValue: [] as MediaFolderDto[] });
 
   /** null = show everything, otherwise a folder id. */
   readonly activeFolder = signal<number | null>(null);
 
-  /** Only folders that actually hold something are worth offering as a filter. */
-  readonly filters = computed(() => {
-    const used = new Set(this.items().map(i => i.folderId).filter(id => id !== null));
-    return this.folders().filter(f => used.has(f.id));
-  });
+  /** Accumulated items for the active filter — grows as "Load more" fetches pages. */
+  readonly items = signal<GalleryItemDto[]>([]);
+  readonly total = signal(0);
+  readonly loading = signal(false);
+  readonly hasMore = computed(() => this.items().length < this.total());
 
-  readonly visible = computed(() => {
-    const folderId = this.activeFolder();
-    const items = folderId === null
-      ? this.items()
-      : this.items().filter(i => i.folderId === folderId);
+  /** Only non-empty folders are worth offering as a filter. ItemCount from /api/folders
+   *  is a full per-folder count, independent of pagination. */
+  readonly filters = computed(() => this.folders().filter(f => f.itemCount > 0));
 
-    return items.map((item, index) => ({ item, shape: LAYOUT[index % LAYOUT.length] }));
-  });
+  readonly visible = computed(() =>
+    this.items().map((item, index) => ({ item, shape: LAYOUT[index % LAYOUT.length] })));
+
+  constructor() {
+    this.loadFolder(null);
+  }
 
   select(folderId: number | null) {
+    if (folderId === this.activeFolder()) return;
     this.activeFolder.set(folderId);
+    this.closeLightbox();
+    this.loadFolder(folderId);
+  }
+
+  /** Loads the first page of a folder from cache if present, else from the API. */
+  private loadFolder(folderId: number | null) {
+    const cached = this.cache.get(folderId);
+    if (cached) {
+      this.items.set(cached.items);
+      this.total.set(cached.total);
+      return;
+    }
+    this.items.set([]);
+    this.total.set(0);
+    this.fetchPage(folderId, 0);
+  }
+
+  loadMore() {
+    if (this.loading() || !this.hasMore()) return;
+    this.fetchPage(this.activeFolder(), this.items().length);
+  }
+
+  private fetchPage(folderId: number | null, skip: number) {
+    this.loading.set(true);
+    this.api.getGalleryPage({ folderId, skip, take: PAGE_SIZE }).subscribe({
+      next: page => {
+        // Guard against a stale response landing after the user switched filters.
+        if (folderId !== this.activeFolder()) {
+          this.loading.set(false);
+          return;
+        }
+        const merged = skip === 0 ? page.items : [...this.items(), ...page.items];
+        this.items.set(merged);
+        this.total.set(page.total);
+        this.cache.set(folderId, { items: merged, total: page.total });
+        this.loading.set(false);
+      },
+      error: () => this.loading.set(false)
+    });
   }
 
   // --- Lightbox: image-only subset of the currently visible tiles, navigable by index ---

@@ -181,6 +181,12 @@
   }
 }
 
+.load-more {
+  display: flex;
+  justify-content: center;
+  margin-top: 2.5rem;
+}
+
 /* ===== Lightbox ===== */
 .lightbox {
   position: fixed;
