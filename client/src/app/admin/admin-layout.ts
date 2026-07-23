@@ -56,6 +56,24 @@ import { ToastHost } from './ui/toast-host';
               <span class="nav-count">{{ unread() }}</span>
             }
           </a>
+
+          <a routerLink="/admin/content" routerLinkActive="active" (click)="navOpen.set(false)">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4 4h16v16H4z" />
+              <path d="M8 9h8M8 13h8M8 17h5" />
+            </svg>
+            {{ 'admin.nav.content' | transloco }}
+          </a>
+
+          <a routerLink="/admin/team" routerLinkActive="active" (click)="navOpen.set(false)">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="9" cy="8" r="3" />
+              <path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6" />
+              <circle cx="17" cy="9" r="2.4" />
+              <path d="M21 20c0-2.6-1.8-4.8-4.2-5.6" />
+            </svg>
+            {{ 'admin.nav.team' | transloco }}
+          </a>
         </nav>
 
         <div class="admin-sidebar-footer">

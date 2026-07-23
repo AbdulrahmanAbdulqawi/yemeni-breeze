@@ -78,12 +78,8 @@
     "socialText": "We believe the most powerful response to hatred is not argument — it is experience. When a Dutch person has cooked Yemeni food with their own hands, written a message of love to a stranger in a camp, heard the oud played, and shared coffee at the same table — they do not see refugees the same way anymore. That is our method. And it works.",
     "teamTitle": "The Team",
     "teamNote": "We are actively growing. If you are Yemeni and living in the Netherlands, or if you share our vision, we welcome you to reach out and become part of Yemeni Breeze.",
-    "roleFounder": "Founder & Executive Director",
-    "roleCoFounder": "Co-Founder & Co-Director",
-    "roleBrand": "Brand & Digital Manager",
-    "roleFood": "Food Director & Head of Operations",
-    "roleProgram": "Program Coordinator & General Manager",
-    "joinCta": "Join the movement"
+    "joinCta": "Join the movement",
+    "backToTeam": "Back to the team"
   },
   "events": {
     "title": "Events",
@@ -160,6 +156,8 @@
       "media": "Media",
       "gallery": "Gallery",
       "messages": "Messages",
+      "content": "Content",
+      "team": "Team",
       "logout": "Log out",
       "viewSite": "View site"
     },
@@ -304,6 +302,37 @@
       "filterAll": "All statuses",
       "noResults": "No results match your search.",
       "saved": "Saved"
+    },
+    "content": {
+      "title": "Content",
+      "subtitle": "Edit the marketing copy shown across the public site, in all three languages.",
+      "save": "Save changes",
+      "groups": {
+        "home": "Home",
+        "about": "Our Story",
+        "events": "Events",
+        "gallery": "Gallery",
+        "contact": "Contact",
+        "footer": "Footer"
+      }
+    },
+    "team": {
+      "title": "Team",
+      "subtitle": "Manage who appears on the Our Story team grid, with an optional public bio page.",
+      "add": "Add team member",
+      "name": "Name",
+      "role": "Role",
+      "bio": "Bio (optional)",
+      "bioHint": "A public bio page is created automatically once any bio text is filled in — leave all three blank to keep this member off the public web.",
+      "photo": "Photo",
+      "sortOrder": "Sort order",
+      "hasBio": "Bio page",
+      "yes": "Yes",
+      "no": "No",
+      "save": "Save",
+      "cancel": "Cancel",
+      "empty": "No team members yet.",
+      "confirmDelete": "Remove this team member?"
     }
   },
   "language": "Language"

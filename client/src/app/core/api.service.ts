@@ -4,6 +4,9 @@ import { map } from 'rxjs';
 import {
   CheckinResult,
   ContactMessageDto,
+  ContentBlockDto,
+  ContentBlockInput,
+  ContentDict,
   EventDto,
   EventInput,
   GalleryItemDto,
@@ -14,6 +17,8 @@ import {
   RegistrationResult,
   RegistrationStatus,
   SiteSettings,
+  TeamMemberDto,
+  TeamMemberInput,
   UploadedFile,
   UploadProgress,
   UploadResult
@@ -202,5 +207,43 @@ export class ApiService {
   adminCheckinById(eventId: number, registrationId: number) {
     return this.http.post<CheckinResult>(
       `/api/admin/events/${eventId}/registrations/${registrationId}/checkin`, {});
+  }
+
+  // Content blocks
+  getContent(lang: string) {
+    return this.http.get<ContentDict>(`/api/content?lang=${lang}`);
+  }
+
+  adminGetContent() {
+    return this.http.get<ContentBlockDto[]>('/api/admin/content');
+  }
+
+  adminUpdateContent(values: Record<string, ContentBlockInput>) {
+    return this.http.put<ContentBlockDto[]>('/api/admin/content', values);
+  }
+
+  // Team
+  getTeam() {
+    return this.http.get<TeamMemberDto[]>('/api/team');
+  }
+
+  getTeamMember(slug: string) {
+    return this.http.get<TeamMemberDto>(`/api/team/${slug}`);
+  }
+
+  adminGetTeam() {
+    return this.http.get<TeamMemberDto[]>('/api/admin/team');
+  }
+
+  adminCreateTeamMember(input: TeamMemberInput) {
+    return this.http.post<TeamMemberDto>('/api/admin/team', input);
+  }
+
+  adminUpdateTeamMember(id: number, input: TeamMemberInput) {
+    return this.http.put<TeamMemberDto>(`/api/admin/team/${id}`, input);
+  }
+
+  adminDeleteTeamMember(id: number) {
+    return this.http.delete(`/api/admin/team/${id}`);
   }
 }

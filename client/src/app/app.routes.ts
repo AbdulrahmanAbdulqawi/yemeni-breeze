@@ -12,7 +12,8 @@ export const routes: Routes = [
       { path: 'events', loadComponent: () => import('./pages/events/events-list').then(m => m.EventsList) },
       { path: 'events/:slug', loadComponent: () => import('./pages/events/event-detail').then(m => m.EventDetail) },
       { path: 'gallery', loadComponent: () => import('./pages/gallery/gallery-page').then(m => m.GalleryPage) },
-      { path: 'contact', loadComponent: () => import('./pages/contact/contact-page').then(m => m.ContactPage) }
+      { path: 'contact', loadComponent: () => import('./pages/contact/contact-page').then(m => m.ContactPage) },
+      { path: 'team/:slug', loadComponent: () => import('./pages/team/team-member-page').then(m => m.TeamMemberPage) }
     ]
   },
   {
@@ -32,7 +33,9 @@ export const routes: Routes = [
       { path: 'events/:id', loadComponent: () => import('./admin/admin-event-form').then(m => m.AdminEventForm) },
       { path: 'media', loadComponent: () => import('./admin/media/media-studio').then(m => m.MediaStudio) },
       { path: 'gallery', redirectTo: 'media', pathMatch: 'full' },
-      { path: 'messages', loadComponent: () => import('./admin/admin-messages').then(m => m.AdminMessages) }
+      { path: 'messages', loadComponent: () => import('./admin/admin-messages').then(m => m.AdminMessages) },
+      { path: 'content', loadComponent: () => import('./admin/content/admin-content').then(m => m.AdminContent) },
+      { path: 'team', loadComponent: () => import('./admin/team/admin-team').then(m => m.AdminTeam) }
     ]
   },
   { path: '**', redirectTo: '' }

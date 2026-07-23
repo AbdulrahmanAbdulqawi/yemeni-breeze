@@ -78,12 +78,8 @@
     "socialText": "Wij geloven dat het krachtigste antwoord op haat geen discussie is — maar ervaring. Als een Nederlander met eigen handen Jemenitisch eten heeft gekookt, een liefdevolle boodschap heeft geschreven aan een vreemde in een AZC, de oud heeft horen spelen en koffie heeft gedeeld aan dezelfde tafel — dan kijkt diegene nooit meer op dezelfde manier naar vluchtelingen. Dat is onze methode. En die werkt.",
     "teamTitle": "Het team",
     "teamNote": "We groeien actief. Ben je Jemeniet en woon je in Nederland, of deel je onze visie? Neem contact op en word onderdeel van Yemeni Breeze.",
-    "roleFounder": "Oprichter & Directeur",
-    "roleCoFounder": "Mede-oprichter & Co-directeur",
-    "roleBrand": "Brand & Digital Manager",
-    "roleFood": "Food Director & Hoofd Operations",
-    "roleProgram": "Programmacoördinator & General Manager",
-    "joinCta": "Sluit je aan"
+    "joinCta": "Sluit je aan",
+    "backToTeam": "Terug naar het team"
   },
   "events": {
     "title": "Evenementen",
@@ -160,6 +156,8 @@
       "media": "Media",
       "gallery": "Galerij",
       "messages": "Berichten",
+      "content": "Inhoud",
+      "team": "Team",
       "logout": "Uitloggen",
       "viewSite": "Bekijk site"
     },
@@ -304,6 +302,37 @@
       "filterAll": "Alle statussen",
       "noResults": "Geen resultaten voor je zoekopdracht.",
       "saved": "Opgeslagen"
+    },
+    "content": {
+      "title": "Inhoud",
+      "subtitle": "Bewerk de teksten op de publieke site, in alle drie de talen.",
+      "save": "Wijzigingen opslaan",
+      "groups": {
+        "home": "Home",
+        "about": "Ons verhaal",
+        "events": "Evenementen",
+        "gallery": "Galerij",
+        "contact": "Contact",
+        "footer": "Footer"
+      }
+    },
+    "team": {
+      "title": "Team",
+      "subtitle": "Beheer wie op de teampagina van Ons verhaal staat, met een optionele publieke biopagina.",
+      "add": "Teamlid toevoegen",
+      "name": "Naam",
+      "role": "Functie",
+      "bio": "Bio (optioneel)",
+      "bioHint": "Er wordt automatisch een publieke biopagina aangemaakt zodra er biotekst is ingevuld — laat alle drie leeg om dit teamlid niet online te tonen.",
+      "photo": "Foto",
+      "sortOrder": "Volgorde",
+      "hasBio": "Biopagina",
+      "yes": "Ja",
+      "no": "Nee",
+      "save": "Opslaan",
+      "cancel": "Annuleren",
+      "empty": "Nog geen teamleden.",
+      "confirmDelete": "Dit teamlid verwijderen?"
     }
   },
   "language": "Taal"

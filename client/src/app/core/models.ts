@@ -132,3 +132,44 @@ export interface LoginResponse {
   email: string;
   expiresAt: string;
 }
+
+export type ContentDict = Record<string, string>;
+
+export interface ContentBlockDto {
+  key: string;
+  valueEn: string;
+  valueNl: string;
+  valueAr: string;
+}
+
+export interface ContentBlockInput {
+  en: string;
+  nl: string;
+  ar: string;
+}
+
+export interface TeamMemberDto {
+  id: number;
+  name: string;
+  roleEn: string;
+  roleNl: string;
+  roleAr: string;
+  photoUrl: string | null;
+  bioEn: string | null;
+  bioNl: string | null;
+  bioAr: string | null;
+  slug: string | null;
+  sortOrder: number;
+}
+
+export interface TeamMemberInput {
+  name: string;
+  roleEn: string;
+  roleNl: string;
+  roleAr: string;
+  photoUrl: string | null;
+  bioEn: string | null;
+  bioNl: string | null;
+  bioAr: string | null;
+  sortOrder: number;
+}
