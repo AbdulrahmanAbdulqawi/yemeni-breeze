@@ -7,17 +7,27 @@ using YemeniBreeze.Api.Features.Uploads;
 namespace YemeniBreeze.Api.Features.Gallery;
 
 public record GalleryItemDto(
-    int Id, int? EventId, string ImageUrl, string? ThumbUrl, string MediaType,
+    int Id, int? EventId, int? FolderId, string ImageUrl, string? ThumbUrl, string MediaType,
     string CaptionEn, string CaptionNl, string CaptionAr, int SortOrder);
 
 public record GalleryItemInput(
-    int? EventId, string ImageUrl, string? ThumbUrl, string? MediaType,
+    int? EventId, int? FolderId, string ImageUrl, string? ThumbUrl, string? MediaType,
     string CaptionEn, string CaptionNl, string CaptionAr, int SortOrder);
+
+public record BulkIdsInput(int[] Ids);
+public record BulkMoveInput(int[] Ids, int? FolderId);
+public record BulkCaptionInput(int[] Ids, string? CaptionEn, string? CaptionNl, string? CaptionAr);
 
 public static class GalleryEndpoints
 {
     private static GalleryItemDto ToDto(GalleryItem g) =>
-        new(g.Id, g.EventId, g.ImageUrl, g.ThumbUrl, g.MediaType, g.CaptionEn, g.CaptionNl, g.CaptionAr, g.SortOrder);
+        new(g.Id, g.EventId, g.FolderId, g.ImageUrl, g.ThumbUrl, g.MediaType, g.CaptionEn, g.CaptionNl, g.CaptionAr, g.SortOrder);
+
+    private static async Task DeleteMediaAsync(StorageService storage, GalleryItem item)
+    {
+        if (ImageService.KeyFromUrl(item.ImageUrl) is { } key) await storage.DeleteAsync(key);
+        if (ImageService.KeyFromUrl(item.ThumbUrl) is { } thumbKey) await storage.DeleteAsync(thumbKey);
+    }
 
     public static void MapGalleryEndpoints(this IEndpointRouteBuilder app)
     {
@@ -32,6 +42,7 @@ public static class GalleryEndpoints
             var item = new GalleryItem
             {
                 EventId = input.EventId,
+                FolderId = input.FolderId,
                 ImageUrl = input.ImageUrl,
                 ThumbUrl = input.ThumbUrl,
                 MediaType = input.MediaType ?? "image",
@@ -50,6 +61,7 @@ public static class GalleryEndpoints
             var item = await db.GalleryItems.FindAsync(id);
             if (item is null) return Results.NotFound();
             item.EventId = input.EventId;
+            item.FolderId = input.FolderId;
             item.ImageUrl = input.ImageUrl;
             item.ThumbUrl = input.ThumbUrl;
             item.MediaType = input.MediaType ?? item.MediaType;
@@ -68,10 +80,45 @@ public static class GalleryEndpoints
             db.GalleryItems.Remove(item);
             await db.SaveChangesAsync();
 
-            if (ImageService.KeyFromUrl(item.ImageUrl) is { } key) await storage.DeleteAsync(key);
-            if (ImageService.KeyFromUrl(item.ThumbUrl) is { } thumbKey) await storage.DeleteAsync(thumbKey);
+            await DeleteMediaAsync(storage, item);
 
             return Results.NoContent();
+        });
+
+        admin.MapPost("/bulk-delete", async (BulkIdsInput input, AppDbContext db, StorageService storage) =>
+        {
+            var items = await db.GalleryItems.Where(g => input.Ids.Contains(g.Id)).ToListAsync();
+            if (items.Count == 0) return Results.Ok(new { deleted = 0 });
+
+            db.GalleryItems.RemoveRange(items);
+            await db.SaveChangesAsync();
+
+            foreach (var item in items) await DeleteMediaAsync(storage, item);
+
+            return Results.Ok(new { deleted = items.Count });
+        });
+
+        admin.MapPost("/bulk-move", async (BulkMoveInput input, AppDbContext db) =>
+        {
+            if (input.FolderId is { } folderId && !await db.MediaFolders.AnyAsync(f => f.Id == folderId))
+                return Results.BadRequest(new { message = "Folder not found." });
+
+            var moved = await db.GalleryItems.Where(g => input.Ids.Contains(g.Id))
+                .ExecuteUpdateAsync(s => s.SetProperty(g => g.FolderId, input.FolderId));
+            return Results.Ok(new { moved });
+        });
+
+        admin.MapPost("/bulk-update", async (BulkCaptionInput input, AppDbContext db) =>
+        {
+            var items = await db.GalleryItems.Where(g => input.Ids.Contains(g.Id)).ToListAsync();
+            foreach (var item in items)
+            {
+                if (input.CaptionEn is not null) item.CaptionEn = input.CaptionEn;
+                if (input.CaptionNl is not null) item.CaptionNl = input.CaptionNl;
+                if (input.CaptionAr is not null) item.CaptionAr = input.CaptionAr;
+            }
+            await db.SaveChangesAsync();
+            return Results.Ok(items.Select(ToDto));
         });
     }
 }

@@ -75,6 +75,10 @@ public static class EventsEndpoints
             Apply(ev, input);
             db.Events.Add(ev);
             await db.SaveChangesAsync();
+
+            db.MediaFolders.Add(new MediaFolder { Name = ev.TitleEn, EventId = ev.Id });
+            await db.SaveChangesAsync();
+
             return Results.Created($"/api/events/{ev.Slug}", ev.ToDto());
         });
 
@@ -88,6 +92,10 @@ public static class EventsEndpoints
 
             var oldImageUrl = ev.ImageUrl;
             Apply(ev, input);
+
+            var folder = await db.MediaFolders.FirstOrDefaultAsync(f => f.EventId == ev.Id);
+            if (folder is not null) folder.Name = ev.TitleEn;
+
             await db.SaveChangesAsync();
 
             if (oldImageUrl != ev.ImageUrl && ImageService.KeyFromUrl(oldImageUrl) is { } oldKey)

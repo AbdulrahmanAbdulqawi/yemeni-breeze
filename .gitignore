@@ -5,6 +5,9 @@ client/dist/
 client/.angular/
 node_modules/
 
+# Locally uploaded media (disk-fallback storage; prod uses Hetzner S3)
+server/YemeniBreeze.Api/wwwroot/uploads/
+
 # Local databases & logs
 *.db
 *.db-shm

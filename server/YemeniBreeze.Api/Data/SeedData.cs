@@ -98,5 +98,16 @@ public static class SeedData
                 });
             await db.SaveChangesAsync();
         }
+
+        // Every event gets a media folder (covers events seeded before folders existed).
+        var unfoldered = await db.Events
+            .Where(e => !db.MediaFolders.Any(f => f.EventId == e.Id))
+            .ToListAsync();
+        if (unfoldered.Count > 0)
+        {
+            db.MediaFolders.AddRange(unfoldered.Select(e =>
+                new MediaFolder { Name = e.TitleEn, EventId = e.Id }));
+            await db.SaveChangesAsync();
+        }
     }
 }

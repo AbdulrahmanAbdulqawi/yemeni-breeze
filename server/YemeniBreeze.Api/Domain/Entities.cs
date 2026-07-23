@@ -52,11 +52,22 @@ public class Registration
     public string Language { get; set; } = "en";
 }
 
+public class MediaFolder
+{
+    public int Id { get; set; }
+    public string Name { get; set; } = "";
+    public int? EventId { get; set; }
+    public Event? Event { get; set; }
+    public int SortOrder { get; set; }
+}
+
 public class GalleryItem
 {
     public int Id { get; set; }
     public int? EventId { get; set; }
     public Event? Event { get; set; }
+    public int? FolderId { get; set; }
+    public MediaFolder? Folder { get; set; }
     public string ImageUrl { get; set; } = "";
     public string? ThumbUrl { get; set; }
     public string MediaType { get; set; } = "image"; // image | video | file

@@ -237,15 +237,8 @@ public class V2FeatureTests : IClassFixture<ApiFactory>
         await AuthenticateAsync();
         var uploaded = await UploadSingleImageAsync();
 
-        var createResponse = await _client.PostAsJsonAsync("/api/admin/gallery", new
-        {
-            EventId = (int?)null,
-            ImageUrl = uploaded.Url,
-            ThumbUrl = uploaded.ThumbUrl,
-            MediaType = "image",
-            CaptionEn = "", CaptionNl = "", CaptionAr = "",
-            SortOrder = 0
-        });
+        var createResponse = await _client.PostAsJsonAsync("/api/admin/gallery",
+            GalleryPayload(uploaded.Url, uploaded.ThumbUrl));
         createResponse.EnsureSuccessStatusCode();
         var item = await createResponse.Content.ReadFromJsonAsync<GalleryItemRow>();
 
@@ -293,6 +286,174 @@ public class V2FeatureTests : IClassFixture<ApiFactory>
         Assert.Equal(HttpStatusCode.NotFound, (await _client.GetAsync(image.Url)).StatusCode);
     }
 
+    // --- Folders & bulk actions (V3) ---
+
+    [Fact]
+    public async Task Folder_Crud_Roundtrips()
+    {
+        await AuthenticateAsync();
+
+        var created = await _client.PostAsJsonAsync("/api/admin/folders",
+            new { Name = "  Venue Shots  ", EventId = (int?)null, SortOrder = 2 });
+        Assert.Equal(HttpStatusCode.Created, created.StatusCode);
+        var folder = await created.Content.ReadFromJsonAsync<FolderRow>();
+        Assert.Equal("Venue Shots", folder!.Name); // trimmed
+        Assert.Equal(0, folder.ItemCount);
+
+        var renamed = await _client.PutAsJsonAsync($"/api/admin/folders/{folder.Id}",
+            new { Name = "Venue", EventId = (int?)null, SortOrder = 5 });
+        renamed.EnsureSuccessStatusCode();
+        Assert.Equal("Venue", (await renamed.Content.ReadFromJsonAsync<FolderRow>())!.Name);
+
+        var listed = await _client.GetFromJsonAsync<List<FolderRow>>("/api/folders");
+        Assert.Contains(listed!, f => f.Id == folder.Id && f.Name == "Venue");
+
+        Assert.Equal(HttpStatusCode.NoContent,
+            (await _client.DeleteAsync($"/api/admin/folders/{folder.Id}")).StatusCode);
+        Assert.DoesNotContain(await _client.GetFromJsonAsync<List<FolderRow>>("/api/folders") ?? [],
+            f => f.Id == folder.Id);
+    }
+
+    [Fact]
+    public async Task Folder_Rejects_Blank_Name()
+    {
+        await AuthenticateAsync();
+        var response = await _client.PostAsJsonAsync("/api/admin/folders",
+            new { Name = "   ", EventId = (int?)null, SortOrder = 0 });
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task Creating_Event_Creates_A_Matching_Folder()
+    {
+        await AuthenticateAsync();
+        var slug = $"folder-event-{Guid.NewGuid():N}";
+
+        var created = await _client.PostAsJsonAsync("/api/admin/events", EventPayload(slug, null));
+        created.EnsureSuccessStatusCode();
+
+        var folders = await _client.GetFromJsonAsync<List<FolderRow>>("/api/folders");
+        Assert.Contains(folders!, f => f.Name == "Cover Test" && f.EventId is not null);
+    }
+
+    [Fact]
+    public async Task Deleting_A_Folder_Keeps_Its_Media_As_Unfiled()
+    {
+        await AuthenticateAsync();
+
+        var folderResponse = await _client.PostAsJsonAsync("/api/admin/folders",
+            new { Name = "Temp", EventId = (int?)null, SortOrder = 0 });
+        var folder = await folderResponse.Content.ReadFromJsonAsync<FolderRow>();
+
+        var uploaded = await UploadSingleImageAsync();
+        var itemResponse = await _client.PostAsJsonAsync("/api/admin/gallery",
+            GalleryPayload(uploaded.Url, uploaded.ThumbUrl, folder!.Id));
+        var item = await itemResponse.Content.ReadFromJsonAsync<GalleryItemRow>();
+        Assert.Equal(folder.Id, item!.FolderId);
+
+        await _client.DeleteAsync($"/api/admin/folders/{folder.Id}");
+
+        // media survives, just unfiled — and the file is still served
+        var rows = await _client.GetFromJsonAsync<List<GalleryItemRow>>("/api/gallery");
+        Assert.Null(rows!.Single(r => r.Id == item.Id).FolderId);
+        Assert.Equal(HttpStatusCode.OK, (await _client.GetAsync(uploaded.Url)).StatusCode);
+    }
+
+    [Fact]
+    public async Task Bulk_Move_Reassigns_Folder()
+    {
+        await AuthenticateAsync();
+
+        var folderResponse = await _client.PostAsJsonAsync("/api/admin/folders",
+            new { Name = "Bulk Target", EventId = (int?)null, SortOrder = 0 });
+        var folder = await folderResponse.Content.ReadFromJsonAsync<FolderRow>();
+
+        var ids = new List<int>();
+        for (var i = 0; i < 2; i++)
+        {
+            var uploaded = await UploadSingleImageAsync();
+            var response = await _client.PostAsJsonAsync("/api/admin/gallery",
+                GalleryPayload(uploaded.Url, uploaded.ThumbUrl));
+            ids.Add((await response.Content.ReadFromJsonAsync<GalleryItemRow>())!.Id);
+        }
+
+        var move = await _client.PostAsJsonAsync("/api/admin/gallery/bulk-move",
+            new { Ids = ids.ToArray(), FolderId = folder!.Id });
+        move.EnsureSuccessStatusCode();
+
+        var rows = await _client.GetFromJsonAsync<List<GalleryItemRow>>("/api/gallery");
+        Assert.All(ids, id => Assert.Equal(folder.Id, rows!.Single(r => r.Id == id).FolderId));
+    }
+
+    [Fact]
+    public async Task Bulk_Move_Rejects_Unknown_Folder()
+    {
+        await AuthenticateAsync();
+        var response = await _client.PostAsJsonAsync("/api/admin/gallery/bulk-move",
+            new { Ids = new[] { 1 }, FolderId = 999999 });
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task Bulk_Delete_Removes_All_Selected_Media_From_Storage()
+    {
+        await AuthenticateAsync();
+
+        var ids = new List<int>();
+        var urls = new List<(string Url, string Thumb)>();
+        for (var i = 0; i < 3; i++)
+        {
+            var uploaded = await UploadSingleImageAsync();
+            urls.Add((uploaded.Url, uploaded.ThumbUrl));
+            var response = await _client.PostAsJsonAsync("/api/admin/gallery",
+                GalleryPayload(uploaded.Url, uploaded.ThumbUrl));
+            ids.Add((await response.Content.ReadFromJsonAsync<GalleryItemRow>())!.Id);
+        }
+
+        foreach (var (url, thumb) in urls)
+        {
+            Assert.Equal(HttpStatusCode.OK, (await _client.GetAsync(url)).StatusCode);
+            Assert.Equal(HttpStatusCode.OK, (await _client.GetAsync(thumb)).StatusCode);
+        }
+
+        var delete = await _client.PostAsJsonAsync("/api/admin/gallery/bulk-delete",
+            new { Ids = ids.ToArray() });
+        delete.EnsureSuccessStatusCode();
+
+        foreach (var (url, thumb) in urls)
+        {
+            Assert.Equal(HttpStatusCode.NotFound, (await _client.GetAsync(url)).StatusCode);
+            Assert.Equal(HttpStatusCode.NotFound, (await _client.GetAsync(thumb)).StatusCode);
+        }
+
+        var rows = await _client.GetFromJsonAsync<List<GalleryItemRow>>("/api/gallery");
+        Assert.DoesNotContain(rows!, r => ids.Contains(r.Id));
+    }
+
+    [Fact]
+    public async Task Bulk_Update_Sets_Captions_On_Selected_Items()
+    {
+        await AuthenticateAsync();
+
+        var ids = new List<int>();
+        for (var i = 0; i < 2; i++)
+        {
+            var uploaded = await UploadSingleImageAsync();
+            var response = await _client.PostAsJsonAsync("/api/admin/gallery",
+                GalleryPayload(uploaded.Url, uploaded.ThumbUrl));
+            ids.Add((await response.Content.ReadFromJsonAsync<GalleryItemRow>())!.Id);
+        }
+
+        var update = await _client.PostAsJsonAsync("/api/admin/gallery/bulk-update",
+            new { Ids = ids.ToArray(), CaptionEn = "Sofra 2026", CaptionNl = (string?)null, CaptionAr = (string?)null });
+        update.EnsureSuccessStatusCode();
+
+        var rows = await _client.GetFromJsonAsync<List<GalleryCaptionRow>>("/api/gallery");
+        Assert.All(ids, id => Assert.Equal("Sofra 2026", rows!.Single(r => r.Id == id).CaptionEn));
+    }
+
+    private record GalleryCaptionRow(int Id, string CaptionEn, string CaptionNl, string CaptionAr);
+
     private async Task<UploadResult> UploadSingleImageAsync()
     {
         using var content = new MultipartFormDataContent();
@@ -314,7 +475,19 @@ public class V2FeatureTests : IClassFixture<ApiFactory>
         Status = "Published", IsRegistrationOpen = true
     };
 
-    private record GalleryItemRow(int Id);
+    private static object GalleryPayload(string imageUrl, string? thumbUrl, int? folderId = null) => new
+    {
+        EventId = (int?)null,
+        FolderId = folderId,
+        ImageUrl = imageUrl,
+        ThumbUrl = thumbUrl,
+        MediaType = "image",
+        CaptionEn = "", CaptionNl = "", CaptionAr = "",
+        SortOrder = 0
+    };
+
+    private record GalleryItemRow(int Id, int? FolderId);
+    private record FolderRow(int Id, string Name, int? EventId, int SortOrder, int ItemCount);
 
     private record UploadedFileResult(string Url, string Kind, string ContentType);
 

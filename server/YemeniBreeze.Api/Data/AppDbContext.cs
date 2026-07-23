@@ -11,6 +11,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<Event> Events => Set<Event>();
     public DbSet<Registration> Registrations => Set<Registration>();
     public DbSet<GalleryItem> GalleryItems => Set<GalleryItem>();
+    public DbSet<MediaFolder> MediaFolders => Set<MediaFolder>();
     public DbSet<ContactMessage> ContactMessages => Set<ContactMessage>();
     public DbSet<SiteSetting> SiteSettings => Set<SiteSetting>();
 
@@ -50,11 +51,24 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
             s.Property(x => x.Value).HasMaxLength(1000);
         });
 
+        builder.Entity<MediaFolder>(f =>
+        {
+            f.Property(x => x.Name).HasMaxLength(200);
+            f.HasOne(x => x.Event)
+                .WithMany()
+                .HasForeignKey(x => x.EventId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
         builder.Entity<GalleryItem>(g =>
         {
             g.HasOne(x => x.Event)
                 .WithMany()
                 .HasForeignKey(x => x.EventId)
+                .OnDelete(DeleteBehavior.SetNull);
+            g.HasOne(x => x.Folder)
+                .WithMany()
+                .HasForeignKey(x => x.FolderId)
                 .OnDelete(DeleteBehavior.SetNull);
         });
 
