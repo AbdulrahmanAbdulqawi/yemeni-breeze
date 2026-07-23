@@ -157,7 +157,7 @@
       "viewSite": "View site"
     },
     "events": {
-      "title": "Events",
+      "title": "Title",
       "new": "New event",
       "edit": "Edit",
       "delete": "Delete",
@@ -186,7 +186,9 @@
       "sectionDetails": "Details",
       "sectionSchedule": "Schedule",
       "sectionMedia": "Media",
-      "sectionPublishing": "Publishing"
+      "sectionPublishing": "Publishing",
+      "description": "Description",
+      "emptyIn": "Still empty in"
     },
     "registrations": {
       "title": "Registrations",

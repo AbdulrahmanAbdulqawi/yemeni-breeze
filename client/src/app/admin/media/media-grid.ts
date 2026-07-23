@@ -1,7 +1,9 @@
-import { Component, computed, input, output, signal } from '@angular/core';
+import { Component, input, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { Lang } from '../../core/language.service';
 import { GalleryItemDto, MediaFolderDto } from '../../core/models';
+import { LangTabs } from '../ui/lang-tabs';
 
 export interface CaptionEdit {
   captionEn?: string | null;
@@ -11,7 +13,7 @@ export interface CaptionEdit {
 
 @Component({
   selector: 'app-media-grid',
-  imports: [FormsModule, TranslocoPipe],
+  imports: [FormsModule, TranslocoPipe, LangTabs],
   template: `
     @if (selectedIds().size > 0) {
       <div class="bulk-bar">
@@ -39,10 +41,19 @@ export interface CaptionEdit {
 
       @if (captionsOpen()) {
         <form class="caption-form card" (ngSubmit)="applyCaptions()">
+          <app-lang-tabs [(active)]="captionLang" />
           <div class="caption-fields">
-            <input [(ngModel)]="captionEn" name="captionEn" placeholder="Caption (English)" />
-            <input [(ngModel)]="captionNl" name="captionNl" placeholder="Bijschrift (Nederlands)" />
-            <input [(ngModel)]="captionAr" name="captionAr" placeholder="التعليق (عربي)" dir="rtl" />
+            @switch (captionLang()) {
+              @case ('nl') {
+                <input [(ngModel)]="captionNl" name="captionNl" placeholder="Bijschrift" />
+              }
+              @case ('ar') {
+                <input [(ngModel)]="captionAr" name="captionAr" placeholder="التعليق" dir="rtl" />
+              }
+              @default {
+                <input [(ngModel)]="captionEn" name="captionEn" placeholder="Caption" />
+              }
+            }
           </div>
           <button type="submit" class="btn btn-primary">
             {{ 'admin.media.applyCaptions' | transloco }}
@@ -254,6 +265,7 @@ export class MediaGrid {
 
   readonly selectedIds = signal<Set<number>>(new Set());
   readonly captionsOpen = signal(false);
+  readonly captionLang = signal<Lang>('en');
 
   moveTarget: number | null | undefined = undefined;
   captionEn = '';

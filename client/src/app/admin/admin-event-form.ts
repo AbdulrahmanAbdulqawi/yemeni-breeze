@@ -1,15 +1,18 @@
-import { Component, effect, inject, input, signal } from '@angular/core';
+import { Component, computed, effect, inject, input, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { ApiService } from '../core/api.service';
+import { Lang } from '../core/language.service';
 import { EventInput, EventStatus } from '../core/models';
 import { ToastService } from './ui/toast.service';
 import { PageHeader } from './ui/page-header';
+import { LangTabs } from './ui/lang-tabs';
 
 @Component({
   selector: 'app-admin-event-form',
-  imports: [ReactiveFormsModule, TranslocoPipe, PageHeader],
+  imports: [ReactiveFormsModule, TranslocoPipe, PageHeader, LangTabs],
   template: `
     <app-page-header [heading]="(isNew() ? 'admin.events.new' : 'admin.events.edit') | transloco" />
 
@@ -26,32 +29,48 @@ import { PageHeader } from './ui/page-header';
         </div>
       </div>
 
-      <div class="grid-3">
-        <div class="field">
-          <label for="titleEn">{{ 'admin.events.titleEn' | transloco }}</label>
-          <input id="titleEn" formControlName="titleEn" />
+      <div class="lang-block">
+        <div class="lang-block-head">
+          <app-lang-tabs [(active)]="contentLang" />
+          @if (missingLangs().length) {
+            <span class="lang-missing">
+              {{ 'admin.events.emptyIn' | transloco }}: {{ missingLangs().join(', ') }}
+            </span>
+          }
         </div>
-        <div class="field">
-          <label for="titleNl">{{ 'admin.events.titleNl' | transloco }}</label>
-          <input id="titleNl" formControlName="titleNl" />
-        </div>
-        <div class="field">
-          <label for="titleAr">{{ 'admin.events.titleAr' | transloco }}</label>
-          <input id="titleAr" formControlName="titleAr" dir="rtl" />
-        </div>
-      </div>
 
-      <div class="field">
-        <label for="descriptionEn">{{ 'admin.events.descriptionEn' | transloco }}</label>
-        <textarea id="descriptionEn" formControlName="descriptionEn" rows="4"></textarea>
-      </div>
-      <div class="field">
-        <label for="descriptionNl">{{ 'admin.events.descriptionNl' | transloco }}</label>
-        <textarea id="descriptionNl" formControlName="descriptionNl" rows="4"></textarea>
-      </div>
-      <div class="field">
-        <label for="descriptionAr">{{ 'admin.events.descriptionAr' | transloco }}</label>
-        <textarea id="descriptionAr" formControlName="descriptionAr" rows="4" dir="rtl"></textarea>
+        @switch (contentLang()) {
+          @case ('nl') {
+            <div class="field">
+              <label for="titleNl">{{ 'admin.events.title' | transloco }}</label>
+              <input id="titleNl" formControlName="titleNl" />
+            </div>
+            <div class="field">
+              <label for="descriptionNl">{{ 'admin.events.description' | transloco }}</label>
+              <textarea id="descriptionNl" formControlName="descriptionNl" rows="5"></textarea>
+            </div>
+          }
+          @case ('ar') {
+            <div class="field">
+              <label for="titleAr">{{ 'admin.events.title' | transloco }}</label>
+              <input id="titleAr" formControlName="titleAr" dir="rtl" />
+            </div>
+            <div class="field">
+              <label for="descriptionAr">{{ 'admin.events.description' | transloco }}</label>
+              <textarea id="descriptionAr" formControlName="descriptionAr" rows="5" dir="rtl"></textarea>
+            </div>
+          }
+          @default {
+            <div class="field">
+              <label for="titleEn">{{ 'admin.events.title' | transloco }}</label>
+              <input id="titleEn" formControlName="titleEn" />
+            </div>
+            <div class="field">
+              <label for="descriptionEn">{{ 'admin.events.description' | transloco }}</label>
+              <textarea id="descriptionEn" formControlName="descriptionEn" rows="5"></textarea>
+            </div>
+          }
+        }
       </div>
 
       <h2 class="form-section">{{ 'admin.events.sectionSchedule' | transloco }}</h2>
@@ -146,6 +165,28 @@ import { PageHeader } from './ui/page-header';
       align-items: flex-start;
     }
 
+    .lang-block {
+      border: 1px solid var(--ad-border, #e4dcc9);
+      border-radius: var(--ad-radius, 10px);
+      padding: 0.9rem 1rem 0.2rem;
+      background: #fdfcf9;
+      margin-bottom: 1rem;
+    }
+
+    .lang-block-head {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      flex-wrap: wrap;
+      margin-bottom: 0.9rem;
+    }
+
+    .lang-missing {
+      font-size: 0.8rem;
+      color: var(--yb-orange);
+      font-weight: 600;
+    }
+
     .uploading-note {
       font-size: 0.85rem;
       color: var(--ad-muted, #7c6a5c);
@@ -206,6 +247,18 @@ export class AdminEventForm {
   readonly saving = signal(false);
   readonly uploading = signal(false);
   readonly error = signal<string | null>(null);
+  readonly contentLang = signal<Lang>('en');
+
+  /** Languages whose title is still blank — surfaced so a translation isn't missed. */
+  readonly missingLangs = computed(() => {
+    const value = this.formValue();
+    if (!value) return [];
+    return [
+      ['English', value.titleEn],
+      ['Nederlands', value.titleNl],
+      ['العربية', value.titleAr]
+    ].filter(([, title]) => !String(title ?? '').trim()).map(([label]) => label as string);
+  });
 
   readonly form = this.fb.nonNullable.group({
     slug: ['', Validators.required],
@@ -223,6 +276,11 @@ export class AdminEventForm {
     imageUrl: [null as string | null],
     status: ['Draft' as EventStatus],
     isRegistrationOpen: [false]
+  });
+
+  /** Live form value, so the "still empty in…" hint tracks typing. */
+  private readonly formValue = toSignal(this.form.valueChanges, {
+    initialValue: this.form.getRawValue()
   });
 
   constructor() {

@@ -157,7 +157,7 @@
       "viewSite": "عرض الموقع"
     },
     "events": {
-      "title": "الفعاليات",
+      "title": "العنوان",
       "new": "فعالية جديدة",
       "edit": "تعديل",
       "delete": "حذف",
@@ -186,7 +186,9 @@
       "sectionDetails": "التفاصيل",
       "sectionSchedule": "الجدول",
       "sectionMedia": "الوسائط",
-      "sectionPublishing": "النشر"
+      "sectionPublishing": "النشر",
+      "description": "الوصف",
+      "emptyIn": "ما زال فارغًا في"
     },
     "registrations": {
       "title": "التسجيلات",

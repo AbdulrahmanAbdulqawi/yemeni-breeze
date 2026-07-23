@@ -4,6 +4,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { filter } from 'rxjs';
 import { AuthService } from '../core/auth.service';
 import { ApiService } from '../core/api.service';
+import { Lang, LanguageService } from '../core/language.service';
 import { ConfirmDialog } from './ui/confirm-dialog';
 import { ToastHost } from './ui/toast-host';
 
@@ -12,12 +13,6 @@ import { ToastHost } from './ui/toast-host';
   imports: [RouterOutlet, RouterLink, RouterLinkActive, TranslocoPipe, ConfirmDialog, ToastHost],
   template: `
     <div class="admin-shell" [class.nav-open]="navOpen()">
-      <button class="nav-toggle" type="button" (click)="navOpen.set(!navOpen())" aria-label="Menu">
-        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
-          <path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none" />
-        </svg>
-      </button>
-
       @if (navOpen()) {
         <div class="nav-scrim" (click)="navOpen.set(false)"></div>
       }
@@ -68,9 +63,35 @@ import { ToastHost } from './ui/toast-host';
         </div>
       </aside>
 
-      <main class="admin-main">
-        <router-outlet />
-      </main>
+      <div class="admin-content">
+        <header class="admin-topbar">
+          <button class="nav-toggle" type="button" (click)="navOpen.set(!navOpen())" aria-label="Menu">
+            <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+              <path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none" />
+            </svg>
+          </button>
+
+          <img src="/assets/logo.png" alt="" class="topbar-logo" />
+          <span class="topbar-title">Yemeni Breeze</span>
+
+          <div class="topbar-right">
+            <span class="lang-switch">
+              @for (l of languages; track l.code) {
+                <button
+                  type="button"
+                  class="lang-btn"
+                  [class.active]="lang.current() === l.code"
+                  (click)="lang.set(l.code)">{{ l.label }}</button>
+              }
+            </span>
+            <a routerLink="/" class="topbar-link">{{ 'admin.nav.viewSite' | transloco }}</a>
+          </div>
+        </header>
+
+        <main class="admin-main">
+          <router-outlet />
+        </main>
+      </div>
 
       <app-toast-host />
       <app-confirm-dialog />
@@ -78,23 +99,94 @@ import { ToastHost } from './ui/toast-host';
   `,
   styles: `
     .admin-shell {
-      display: grid;
-      grid-template-columns: 232px 1fr;
       min-height: 100vh;
       background: var(--ad-bg);
     }
 
+    /* Sidebar is pinned full-height; only the content column scrolls. */
+    .admin-content {
+      margin-inline-start: 232px;
+      min-width: 0;
+    }
+
+    .admin-topbar {
+      position: sticky;
+      inset-block-start: 0;
+      z-index: 30;
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      background: #fff;
+      border-bottom: 1px solid var(--ad-border);
+      padding: 0.55rem 1.4rem;
+      min-height: 54px;
+    }
+
+    .topbar-logo {
+      height: 30px;
+    }
+
+    .topbar-title {
+      font-weight: 700;
+      font-family: var(--yb-font-heading);
+      color: var(--yb-maroon);
+      letter-spacing: 0.02em;
+    }
+
+    .topbar-right {
+      margin-inline-start: auto;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .topbar-link {
+      font-size: 0.86rem;
+      color: var(--ad-muted);
+      text-decoration: none;
+
+      &:hover {
+        color: var(--yb-maroon);
+      }
+    }
+
+    .lang-switch {
+      display: inline-flex;
+      gap: 0.15rem;
+      background: var(--ad-bg);
+      border: 1px solid var(--ad-border);
+      border-radius: 8px;
+      padding: 0.15rem;
+    }
+
+    .lang-btn {
+      font: inherit;
+      font-size: 0.8rem;
+      font-weight: 700;
+      border: none;
+      background: none;
+      color: var(--ad-muted);
+      padding: 0.25rem 0.6rem;
+      border-radius: 6px;
+      cursor: pointer;
+
+      &:hover {
+        color: var(--yb-maroon);
+      }
+
+      &.active {
+        background: var(--yb-maroon);
+        color: #fff;
+      }
+    }
+
     .nav-toggle {
       display: none;
-      position: fixed;
-      inset-block-start: 0.7rem;
-      inset-inline-start: 0.7rem;
-      z-index: 40;
-      background: var(--yb-brown);
-      color: var(--yb-cream);
+      background: none;
+      color: var(--yb-brown);
       border: none;
       border-radius: 8px;
-      padding: 0.45rem;
+      padding: 0.3rem;
       cursor: pointer;
     }
 
@@ -107,6 +199,11 @@ import { ToastHost } from './ui/toast-host';
     }
 
     .admin-sidebar {
+      position: fixed;
+      inset-block: 0;
+      inset-inline-start: 0;
+      width: 232px;
+      overflow-y: auto;
       background: var(--yb-brown);
       color: var(--yb-cream);
       padding: 1.3rem 0.9rem;
@@ -224,25 +321,21 @@ import { ToastHost } from './ui/toast-host';
     }
 
     @media (max-width: 860px) {
-      .admin-shell {
-        grid-template-columns: 1fr;
-      }
-
       .nav-toggle {
         display: block;
       }
 
-      .admin-sidebar {
-        position: fixed;
-        inset-block: 0;
-        inset-inline-start: 0;
-        width: 240px;
-        transform: translateX(-102%);
-        transition: transform 0.2s ease;
-        overflow-y: auto;
+      .admin-content {
+        margin-inline-start: 0;
       }
 
-      [dir='rtl'] .admin-sidebar {
+      .admin-sidebar {
+        transform: translateX(-102%);
+        transition: transform 0.2s ease;
+      }
+
+      /* Arabic: the drawer lives on the right, so it slides out that way */
+      :host-context([dir='rtl']) .admin-sidebar {
         transform: translateX(102%);
       }
 
@@ -254,8 +347,12 @@ import { ToastHost } from './ui/toast-host';
         display: block;
       }
 
+      .admin-topbar {
+        padding-inline: 0.8rem;
+      }
+
       .admin-main {
-        padding: 3.6rem 1.1rem 2.5rem;
+        padding: 1.2rem 1.1rem 2.5rem;
       }
     }
   `
@@ -266,8 +363,15 @@ export class AdminLayout {
   private router = inject(Router);
 
   readonly auth = this.auth$;
+  readonly lang = inject(LanguageService);
   readonly navOpen = signal(false);
   readonly unread = signal(0);
+
+  readonly languages: { code: Lang; label: string }[] = [
+    { code: 'en', label: 'EN' },
+    { code: 'nl', label: 'NL' },
+    { code: 'ar', label: 'ع' }
+  ];
 
   constructor() {
     this.loadUnread();

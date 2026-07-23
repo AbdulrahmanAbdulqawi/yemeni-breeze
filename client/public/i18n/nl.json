@@ -157,7 +157,7 @@
       "viewSite": "Bekijk site"
     },
     "events": {
-      "title": "Evenementen",
+      "title": "Titel",
       "new": "Nieuw evenement",
       "edit": "Bewerken",
       "delete": "Verwijderen",
@@ -186,7 +186,9 @@
       "sectionDetails": "Gegevens",
       "sectionSchedule": "Planning",
       "sectionMedia": "Media",
-      "sectionPublishing": "Publicatie"
+      "sectionPublishing": "Publicatie",
+      "description": "Omschrijving",
+      "emptyIn": "Nog leeg in"
     },
     "registrations": {
       "title": "Inschrijvingen",
