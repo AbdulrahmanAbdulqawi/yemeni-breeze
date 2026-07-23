@@ -2,6 +2,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { ApiService } from '../../core/api.service';
+import { CmsPipe } from '../../core/cms.pipe';
 import { LanguageService } from '../../core/language.service';
 import { GalleryItemDto, MediaFolderDto } from '../../core/models';
 
@@ -13,7 +14,7 @@ const LAYOUT = ['wide', 'tall', 'square', 'pano', 'half', 'half'] as const;
 
 @Component({
   selector: 'app-gallery-page',
-  imports: [TranslocoPipe],
+  imports: [TranslocoPipe, CmsPipe],
   templateUrl: './gallery-page.html',
   styleUrl: './gallery-page.scss'
 })

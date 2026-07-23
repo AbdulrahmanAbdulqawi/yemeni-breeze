@@ -1,7 +1,7 @@
 import { DOCUMENT } from '@angular/common';
 import { Injectable, inject, signal } from '@angular/core';
 import { TranslocoService } from '@jsverse/transloco';
-import { EventDto, GalleryItemDto } from './models';
+import { EventDto, GalleryItemDto, TeamMemberDto } from './models';
 
 export type Lang = 'en' | 'nl' | 'ar';
 const LANG_KEY = 'yb_lang';
@@ -27,7 +27,10 @@ export class LanguageService {
   }
 
   /** Pick the localized field from a DB entity holding En/Nl/Ar columns. */
-  pick(entity: EventDto | GalleryItemDto, base: 'title' | 'description' | 'caption'): string {
+  pick(
+    entity: EventDto | GalleryItemDto | TeamMemberDto,
+    base: 'title' | 'description' | 'caption' | 'role' | 'bio'
+  ): string {
     const suffix = this.current() === 'nl' ? 'Nl' : this.current() === 'ar' ? 'Ar' : 'En';
     const record = entity as unknown as Record<string, string>;
     return record[base + suffix] || record[base + 'En'] || '';

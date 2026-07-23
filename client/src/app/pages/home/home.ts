@@ -1,14 +1,14 @@
 import { Component, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
-import { TranslocoPipe } from '@jsverse/transloco';
 import { map } from 'rxjs';
 import { ApiService } from '../../core/api.service';
+import { CmsPipe } from '../../core/cms.pipe';
 import { EventCard } from '../../shared/event-card';
 
 @Component({
   selector: 'app-home',
-  imports: [RouterLink, TranslocoPipe, EventCard],
+  imports: [RouterLink, CmsPipe, EventCard],
   templateUrl: './home.html',
   styleUrl: './home.scss'
 })

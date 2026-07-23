@@ -2,10 +2,11 @@ import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { ApiService } from '../../core/api.service';
+import { CmsPipe } from '../../core/cms.pipe';
 
 @Component({
   selector: 'app-contact-page',
-  imports: [ReactiveFormsModule, TranslocoPipe],
+  imports: [ReactiveFormsModule, TranslocoPipe, CmsPipe],
   templateUrl: './contact-page.html',
   styleUrl: './contact-page.scss'
 })

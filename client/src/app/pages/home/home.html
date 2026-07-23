@@ -4,11 +4,11 @@
   }
   <div class="container hero-inner">
     <img src="/assets/logo.png" alt="Yemeni Breeze — نسمات اليمن" class="hero-logo" />
-    <h1 class="hero-title">{{ 'home.heroTitle' | transloco }}</h1>
-    <p class="hero-subtitle">{{ 'home.heroSubtitle' | transloco }}</p>
+    <h1 class="hero-title">{{ 'home.heroTitle' | cms }}</h1>
+    <p class="hero-subtitle">{{ 'home.heroSubtitle' | cms }}</p>
     <div class="hero-actions">
-      <a routerLink="/events" class="btn btn-cream">{{ 'home.heroCta' | transloco }}</a>
-      <a routerLink="/about" class="btn btn-outline btn-outline-cream">{{ 'home.heroSecondary' | transloco }}</a>
+      <a routerLink="/events" class="btn btn-cream">{{ 'home.heroCta' | cms }}</a>
+      <a routerLink="/about" class="btn btn-outline btn-outline-cream">{{ 'home.heroSecondary' | cms }}</a>
     </div>
   </div>
 </section>
@@ -17,41 +17,41 @@
   <div class="container pillars-grid">
     <div class="pillar">
       <span class="pillar-dot" style="background: var(--yb-blue)"></span>
-      <h3>{{ 'home.connect' | transloco }}</h3>
-      <p>{{ 'home.connectText' | transloco }}</p>
+      <h3>{{ 'home.connect' | cms }}</h3>
+      <p>{{ 'home.connectText' | cms }}</p>
     </div>
     <div class="pillar">
       <span class="pillar-dot" style="background: var(--yb-orange)"></span>
-      <h3>{{ 'home.showcase' | transloco }}</h3>
-      <p>{{ 'home.showcaseText' | transloco }}</p>
+      <h3>{{ 'home.showcase' | cms }}</h3>
+      <p>{{ 'home.showcaseText' | cms }}</p>
     </div>
     <div class="pillar">
       <span class="pillar-dot" style="background: var(--yb-green)"></span>
-      <h3>{{ 'home.build' | transloco }}</h3>
-      <p>{{ 'home.buildText' | transloco }}</p>
+      <h3>{{ 'home.build' | cms }}</h3>
+      <p>{{ 'home.buildText' | cms }}</p>
     </div>
   </div>
 </section>
 
 <section class="section section-dark stats">
   <div class="container">
-    <h2 class="section-title">{{ 'home.statsTitle' | transloco }}</h2>
+    <h2 class="section-title">{{ 'home.statsTitle' | cms }}</h2>
     <div class="stats-grid">
       <div class="stat">
-        <span class="stat-number">650+</span>
-        <span class="stat-label">{{ 'home.statAttendees' | transloco }}</span>
+        <span class="stat-number">{{ 'home.statAttendeesValue' | cms }}</span>
+        <span class="stat-label">{{ 'home.statAttendees' | cms }}</span>
       </div>
       <div class="stat">
-        <span class="stat-number">600K+</span>
-        <span class="stat-label">{{ 'home.statViews' | transloco }}</span>
+        <span class="stat-number">{{ 'home.statViewsValue' | cms }}</span>
+        <span class="stat-label">{{ 'home.statViews' | cms }}</span>
       </div>
       <div class="stat">
-        <span class="stat-number">3</span>
-        <span class="stat-label">{{ 'home.statEvents' | transloco }}</span>
+        <span class="stat-number">{{ 'home.statEventsValue' | cms }}</span>
+        <span class="stat-label">{{ 'home.statEvents' | cms }}</span>
       </div>
       <div class="stat">
-        <span class="stat-number">350</span>
-        <span class="stat-label">{{ 'home.statMeals' | transloco }}</span>
+        <span class="stat-number">{{ 'home.statMealsValue' | cms }}</span>
+        <span class="stat-label">{{ 'home.statMeals' | cms }}</span>
       </div>
     </div>
   </div>
@@ -60,7 +60,7 @@
 @if (nextEvent(); as event) {
   <section class="section next-event">
     <div class="container">
-      <h2 class="section-title">{{ 'home.upcomingTitle' | transloco }}</h2>
+      <h2 class="section-title">{{ 'home.upcomingTitle' | cms }}</h2>
       <div class="next-event-card">
         <app-event-card [event]="event" variant="upcoming" />
       </div>
@@ -70,7 +70,7 @@
 
 <section class="section mission-strip">
   <div class="container">
-    <h2 class="section-title">{{ 'home.missionTitle' | transloco }}</h2>
-    <p class="mission-text">{{ 'home.missionText' | transloco }}</p>
+    <h2 class="section-title">{{ 'home.missionTitle' | cms }}</h2>
+    <p class="mission-text">{{ 'home.missionText' | cms }}</p>
   </div>
 </section>

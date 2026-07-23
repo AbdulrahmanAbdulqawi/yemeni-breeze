@@ -1,0 +1,40 @@
+.team-hero {
+  text-align: center;
+}
+
+.team-hero-photo,
+.team-hero-photo-placeholder {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  margin: 0 auto 1.2rem;
+  object-fit: cover;
+}
+
+.team-hero-photo-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--yb-maroon);
+  color: var(--yb-cream);
+  font-family: var(--yb-font-heading);
+  font-size: 3rem;
+}
+
+.team-hero-role {
+  color: var(--yb-gold);
+  font-weight: 600;
+  margin: 0;
+}
+
+.team-bio {
+  max-width: 720px;
+  margin: 0 auto;
+  font-size: 1.08rem;
+  white-space: pre-line;
+}
+
+.team-back {
+  text-align: center;
+  margin-top: 1.5rem;
+}

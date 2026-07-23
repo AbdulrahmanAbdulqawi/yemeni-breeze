@@ -2,13 +2,14 @@ import { Component, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { ApiService } from '../../core/api.service';
+import { CmsPipe } from '../../core/cms.pipe';
 import { LanguageService } from '../../core/language.service';
 import { EventDto } from '../../core/models';
 import { EventCard } from '../../shared/event-card';
 
 @Component({
   selector: 'app-events-list',
-  imports: [TranslocoPipe, EventCard],
+  imports: [TranslocoPipe, CmsPipe, EventCard],
   templateUrl: './events-list.html',
   styleUrl: './events-list.scss'
 })
