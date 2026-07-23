@@ -35,7 +35,7 @@
       </div>
 
       @if (ev.isRegistrationOpen) {
-        <div class="detail-form card">
+        <div class="detail-form card card-form">
           @if (result() === null) {
             <h2>{{ (ev.spotsLeft > 0 ? 'events.form.title' : 'events.form.waitlistTitle') | transloco }}</h2>
             <p class="detail-spots">

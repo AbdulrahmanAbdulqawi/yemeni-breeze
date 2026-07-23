@@ -8,7 +8,7 @@
 <section class="section">
   <div class="container contact-grid">
     <div class="contact-side">
-      <div class="card side-card">
+      <div class="card card-content side-card">
         <span class="icon-badge">
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <path d="M8.5 14.5 4 19M15.5 14.5 20 19M12 3v6M8 9h8l2 5.5a4 4 0 0 1-3.8 5.5H9.8A4 4 0 0 1 6 14.5Z" />
@@ -17,7 +17,7 @@
         <h3>{{ 'contact.partnership' | transloco }}</h3>
         <p>{{ 'contact.partnershipText' | transloco }}</p>
       </div>
-      <div class="card side-card">
+      <div class="card card-content side-card">
         <span class="icon-badge">
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <path d="M20.8 8.6c0 4.5-8.8 10.4-8.8 10.4S3.2 13.1 3.2 8.6a4.6 4.6 0 0 1 8.8-1.9a4.6 4.6 0 0 1 8.8 1.9Z" />
@@ -26,7 +26,7 @@
         <h3>{{ 'contact.volunteer' | transloco }}</h3>
         <p>{{ 'contact.volunteerText' | transloco }}</p>
       </div>
-      <div class="card side-card">
+      <div class="card card-content side-card">
         <span class="icon-badge">
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <rect x="3" y="3" width="18" height="18" rx="5" />
@@ -41,7 +41,7 @@
       </div>
     </div>
 
-    <div class="card contact-form">
+    <div class="card card-form contact-form">
       @if (!sent()) {
         <form [formGroup]="form" (ngSubmit)="submit()">
           <div class="field">

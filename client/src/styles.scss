@@ -301,6 +301,18 @@ img {
   overflow: hidden;
 }
 
+/* Shared padding scale for .card content, so similar cards read as the
+   same family instead of each page inventing its own numbers.
+   - content: a simple icon/heading/text card (contact info, values)
+   - form: a card that wraps a <form> and needs more breathing room */
+.card-content {
+  padding: 1.5rem;
+}
+
+.card-form {
+  padding: 2rem;
+}
+
 /* ===== Forms ===== */
 .field {
   display: flex;

@@ -29,7 +29,7 @@
     <h2 class="section-title">{{ 'about.valuesTitle' | transloco }}</h2>
     <div class="values-grid">
       @for (value of values; track value.key) {
-        <div class="value-card card">
+        <div class="value-card card card-content">
           <span class="value-dot" [style.background]="value.color"></span>
           <h3>{{ 'about.value' + value.key | transloco }}</h3>
           <p>{{ 'about.value' + value.key + 'Text' | transloco }}</p>
