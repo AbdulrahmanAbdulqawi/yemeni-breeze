@@ -1,17 +1,3 @@
-/* ===== Hero — same treatment as every other page's dark hero ===== */
-.gallery-hero {
-  background: var(--yb-brown);
-  color: var(--yb-cream);
-  padding: 3rem 0;
-  text-align: center;
-}
-
-.gallery-hero h1 {
-  color: var(--yb-cream);
-  font-size: clamp(2rem, 4.5vw, 3rem);
-  margin: 0 0 1.2rem;
-}
-
 .hero-intro {
   font-size: 1.0625rem;
   line-height: 1.7;

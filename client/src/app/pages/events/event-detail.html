@@ -3,9 +3,18 @@
     <div class="container">
       <h1>{{ lang.pick(ev, 'title') }}</h1>
       <p class="detail-meta">
-        <span>📅 {{ 'events.date' | transloco }}: {{ ev.date | localizedDate: 'full' }}</span>
-        <span>🕓 {{ 'events.time' | transloco }}: {{ ev.startTime }}–{{ ev.endTime }}</span>
-        <span>📍 {{ 'events.location' | transloco }}: {{ ev.location }}</span>
+        <span>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M3 10h18M8 3v4M16 3v4" /></svg>
+          {{ ev.date | localizedDate: 'full' }}
+        </span>
+        <span>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 3" /></svg>
+          {{ ev.startTime }}–{{ ev.endTime }}
+        </span>
+        <span>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s7-6.1 7-11.5A7 7 0 0 0 5 9.5C5 14.9 12 21 12 21Z" /><circle cx="12" cy="9.5" r="2.3" /></svg>
+          {{ ev.location }}
+        </span>
       </p>
     </div>
   </section>
@@ -14,18 +23,14 @@
     <div class="container detail-grid">
       <div class="detail-info">
         @if (ev.imageUrl) {
-          <img [src]="ev.imageUrl" [alt]="lang.pick(ev, 'title')" class="detail-img arch" />
+          <img [src]="ev.imageUrl" [alt]="lang.pick(ev, 'title')" class="detail-img" />
         }
         <p class="detail-desc">{{ lang.pick(ev, 'description') }}</p>
 
-        @if (ev.isRegistrationOpen) {
-          @if (ev.spotsLeft > 0) {
-            <p class="capacity-badge open">✓ {{ ev.spotsLeft }} {{ 'events.spotsLeft' | transloco }}</p>
-          } @else {
-            <p class="capacity-badge waitlist">{{ 'events.waitlistOpen' | transloco }}</p>
-          }
-        } @else {
-          <p class="capacity-badge closed">{{ 'events.registrationClosed' | transloco }}</p>
+        @if (!ev.isRegistrationOpen) {
+          <p class="detail-spots">
+            <strong class="closed">{{ 'events.registrationClosed' | transloco }}</strong>
+          </p>
         }
       </div>
 
@@ -33,6 +38,14 @@
         <div class="detail-form card">
           @if (result() === null) {
             <h2>{{ (ev.spotsLeft > 0 ? 'events.form.title' : 'events.form.waitlistTitle') | transloco }}</h2>
+            <p class="detail-spots">
+              @if (ev.spotsLeft > 0) {
+                <strong>{{ ev.spotsLeft }} {{ 'events.spotsLeft' | transloco }}</strong>
+              } @else {
+                <strong class="waitlist">{{ 'events.waitlistOpen' | transloco }}</strong>
+              }
+              <span>{{ 'events.reservationRequired' | transloco }}</span>
+            </p>
             @if (ev.spotsLeft <= 0) {
               <p class="waitlist-note">{{ 'events.form.waitlistNote' | transloco }}</p>
             }
@@ -66,7 +79,7 @@
               @if (errorKey(); as key) {
                 <p class="error-text">{{ key | transloco }}</p>
               }
-              <button class="btn btn-primary" type="submit" [disabled]="submitting()">
+              <button class="btn btn-primary btn-arrow" type="submit" [disabled]="submitting()">
                 {{ (submitting() ? 'events.form.submitting' : 'events.form.submit') | transloco }}
               </button>
             </form>

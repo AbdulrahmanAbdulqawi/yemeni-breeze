@@ -12,6 +12,23 @@
   gap: 1.4rem;
   font-weight: 600;
   opacity: 0.95;
+
+  span {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  svg {
+    width: 17px;
+    height: 17px;
+    flex: none;
+    fill: none;
+    stroke: var(--yb-gold);
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
 }
 
 .detail-grid {
@@ -28,6 +45,8 @@
 .detail-img {
   width: 100%;
   margin-bottom: 1.4rem;
+  border-radius: var(--yb-radius);
+  display: block;
 }
 
 .detail-desc {
@@ -35,31 +54,33 @@
   white-space: pre-line;
 }
 
-.capacity-badge {
-  display: inline-block;
-  font-weight: 700;
-  padding: 0.4rem 1.1rem;
-  border-radius: 999px;
+.detail-spots {
+  display: flex;
+  flex-direction: column;
+  margin: 0 0 1.2rem;
+  line-height: 1.35;
 
-  &.open {
-    background: #e2f4e5;
-    color: #1d7c2e;
+  strong {
+    color: var(--yb-green);
+    font-size: 1rem;
+
+    &.waitlist {
+      color: var(--yb-orange);
+    }
+
+    &.closed {
+      color: var(--yb-maroon);
+    }
   }
 
-  &.waitlist {
-    background: #fdf0d7;
-    color: #a86b0e;
-  }
-
-  &.closed {
-    background: #f6dad6;
-    color: var(--yb-maroon);
+  span {
+    font-size: 0.85rem;
+    color: var(--ad-muted, #52443f);
   }
 }
 
 .detail-form {
   padding: 2rem;
-  border-top: 6px solid var(--yb-orange);
   position: sticky;
   top: 90px;
 }

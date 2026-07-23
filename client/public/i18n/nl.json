@@ -117,7 +117,11 @@
       "waitlistedText": "Het evenement zit momenteel vol, maar plannen veranderen — we mailen je zodra er een plek vrijkomt.",
       "duplicate": "Dit e-mailadres is al ingeschreven voor dit evenement.",
       "genericError": "Er ging iets mis. Probeer het opnieuw."
-    }
+    },
+    "featured": "Uitgelicht",
+    "limitedAvailability": "Beperkt beschikbaar",
+    "reservationRequired": "Reservering vereist",
+    "viewGallery": "Bekijk album"
   },
   "gallery": {
     "title": "Galerij",

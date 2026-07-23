@@ -184,6 +184,119 @@ img {
   }
 }
 
+/* ===== Page hero — dune silhouette + wave transition, shared by every
+   simple page hero (Events/About/Contact/Gallery). A gold accent line sits
+   under the heading; a soft cream wave replaces the old hard colour cut
+   into the section below. ===== */
+.page-hero {
+  position: relative;
+  overflow: hidden;
+  padding-block: 3rem calc(3rem + 44px);
+  text-align: center;
+
+  .container {
+    position: relative;
+    z-index: 1;
+  }
+
+  h1 {
+    display: inline-block;
+    font-size: clamp(2rem, 4.5vw, 3rem);
+    margin: 0;
+
+    &::after {
+      content: '';
+      display: block;
+      width: 64px;
+      height: 3px;
+      background: var(--yb-gold);
+      margin: 0.9rem auto 0;
+    }
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+    z-index: 0;
+    inset-inline: 0;
+    inset-block-end: 44px;
+    height: 45%;
+    pointer-events: none;
+    background-image:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 200' preserveAspectRatio='none'%3E%3Cpath d='M0,200 L0,130 C80,90 160,150 240,120 C320,90 400,140 480,110 C540,90 570,100 600,95 L600,200 Z' fill='%23ffffff' fill-opacity='0.06'/%3E%3C/svg%3E"),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 200' preserveAspectRatio='none'%3E%3Cpath d='M0,200 L0,160 C100,120 200,175 300,150 C400,125 480,170 600,140 L600,200 Z' fill='%23000000' fill-opacity='0.12'/%3E%3C/svg%3E");
+    background-repeat: no-repeat, no-repeat;
+    background-size: 100% 100%, 100% 100%;
+    background-position: bottom, bottom;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    z-index: 0;
+    inset-inline: 0;
+    inset-block-end: -1px;
+    height: 44px;
+    background: var(--yb-cream-light);
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 80' preserveAspectRatio='none'%3E%3Cpath d='M0,40 C240,80 480,0 720,40 C960,80 1200,0 1440,40 L1440,80 L0,80 Z'/%3E%3C/svg%3E");
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 80' preserveAspectRatio='none'%3E%3Cpath d='M0,40 C240,80 480,0 720,40 C960,80 1200,0 1440,40 L1440,80 L0,80 Z'/%3E%3C/svg%3E");
+    -webkit-mask-size: 100% 100%;
+    mask-size: 100% 100%;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+  }
+}
+
+/* Small arrow that trails a button/link label; hover nudges it forward,
+   and in RTL it swaps direction rather than mirroring the glyph. */
+.btn-arrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  &::after {
+    content: '→';
+    display: inline-block;
+    transition: transform 0.15s ease;
+  }
+
+  &:hover::after {
+    transform: translateX(3px);
+  }
+
+  [dir='rtl'] &::after {
+    content: '←';
+  }
+
+  [dir='rtl'] &:hover::after {
+    transform: translateX(-3px);
+  }
+}
+
+/* Icon badge used on cards that pair a small circular accent with a heading
+   (contact info cards, values grid) instead of a plain colour bar. */
+.icon-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--yb-cream);
+  color: var(--yb-maroon);
+  margin-bottom: 0.9rem;
+
+  svg {
+    width: 22px;
+    height: 22px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+}
+
 /* ===== Qamariya arch (signature brand shape) ===== */
 .arch {
   border-start-start-radius: var(--yb-arch-radius);

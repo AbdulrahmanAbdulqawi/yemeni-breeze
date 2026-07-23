@@ -1,15 +1,14 @@
 import { Component, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { LocalizedDatePipe } from '../../core/localized-date.pipe';
-import { RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { ApiService } from '../../core/api.service';
 import { LanguageService } from '../../core/language.service';
 import { EventDto } from '../../core/models';
+import { EventCard } from '../../shared/event-card';
 
 @Component({
   selector: 'app-events-list',
-  imports: [RouterLink, TranslocoPipe, LocalizedDatePipe],
+  imports: [TranslocoPipe, EventCard],
   templateUrl: './events-list.html',
   styleUrl: './events-list.scss'
 })

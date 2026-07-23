@@ -1,21 +1,19 @@
 import { Component, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { LocalizedDatePipe } from '../../core/localized-date.pipe';
 import { RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { map } from 'rxjs';
 import { ApiService } from '../../core/api.service';
-import { LanguageService } from '../../core/language.service';
+import { EventCard } from '../../shared/event-card';
 
 @Component({
   selector: 'app-home',
-  imports: [RouterLink, TranslocoPipe, LocalizedDatePipe],
+  imports: [RouterLink, TranslocoPipe, EventCard],
   templateUrl: './home.html',
   styleUrl: './home.scss'
 })
 export class Home {
   private api = inject(ApiService);
-  readonly lang = inject(LanguageService);
 
   readonly nextEvent = toSignal(
     this.api.getEvents().pipe(

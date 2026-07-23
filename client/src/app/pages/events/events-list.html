@@ -1,4 +1,4 @@
-<section class="section-dark page-head">
+<section class="section-dark page-head page-hero">
   <div class="container">
     <h1>{{ 'events.title' | transloco }}</h1>
   </div>
@@ -10,34 +10,7 @@
       <h2 class="section-title">{{ 'events.upcoming' | transloco }}</h2>
       <div class="events-grid">
         @for (event of upcoming(); track event.id) {
-          <article class="card event-card upcoming-card">
-            @if (event.imageUrl) {
-              <img [src]="event.imageUrl" [alt]="lang.pick(event, 'title')" class="event-img" />
-            } @else {
-              <div class="event-img event-img-placeholder">
-                <img src="/assets/logo.png" alt="" />
-              </div>
-            }
-            <div class="event-body">
-              <h3>{{ lang.pick(event, 'title') }}</h3>
-              <p class="event-meta">
-                📅 {{ event.date | localizedDate: 'long' }} · 🕓 {{ event.startTime }}–{{ event.endTime }}<br />
-                📍 {{ event.location }}
-              </p>
-              @if (event.isRegistrationOpen) {
-                @if (event.spotsLeft > 0) {
-                  <p class="event-capacity">{{ event.spotsLeft }} {{ 'events.spotsLeft' | transloco }}</p>
-                } @else {
-                  <p class="event-capacity waitlist">{{ 'events.waitlistOpen' | transloco }}</p>
-                }
-              } @else {
-                <p class="event-capacity closed">{{ 'events.registrationClosed' | transloco }}</p>
-              }
-              <a [routerLink]="['/events', event.slug]" class="btn btn-primary">
-                {{ (event.isRegistrationOpen ? (event.spotsLeft > 0 ? 'events.register' : 'events.joinWaitlist') : 'events.details') | transloco }}
-              </a>
-            </div>
-          </article>
+          <app-event-card [event]="event" variant="upcoming" />
         }
       </div>
     }
@@ -46,20 +19,7 @@
       <h2 class="section-title past-title">{{ 'events.past' | transloco }}</h2>
       <div class="events-grid">
         @for (event of past(); track event.id) {
-          <article class="card event-card">
-            @if (event.imageUrl) {
-              <img [src]="event.imageUrl" [alt]="lang.pick(event, 'title')" class="event-img" />
-            } @else {
-              <div class="event-img event-img-placeholder past">
-                <img src="/assets/logo.png" alt="" />
-              </div>
-            }
-            <div class="event-body">
-              <h3>{{ lang.pick(event, 'title') }}</h3>
-              <p class="event-meta">📅 {{ event.date | localizedDate: 'long' }} · 📍 {{ event.location }}</p>
-              <p class="event-desc">{{ lang.pick(event, 'description') }}</p>
-            </div>
-          </article>
+          <app-event-card [event]="event" variant="past" />
         }
       </div>
     }

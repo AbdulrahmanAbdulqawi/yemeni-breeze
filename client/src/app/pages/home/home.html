@@ -61,17 +61,8 @@
   <section class="section next-event">
     <div class="container">
       <h2 class="section-title">{{ 'home.upcomingTitle' | transloco }}</h2>
-      <div class="card next-event-card">
-        <div class="next-event-body">
-          <h3>{{ lang.pick(event, 'title') }}</h3>
-          <p class="next-event-meta">
-            📅 {{ event.date | localizedDate: 'long' }} · 🕓 {{ event.startTime }}–{{ event.endTime }} · 📍 {{ event.location }}
-          </p>
-          <p class="next-event-desc">{{ lang.pick(event, 'description') }}</p>
-          <a [routerLink]="['/events', event.slug]" class="btn btn-primary">
-            {{ (event.spotsLeft > 0 ? 'events.register' : 'events.joinWaitlist') | transloco }}
-          </a>
-        </div>
+      <div class="next-event-card">
+        <app-event-card [event]="event" variant="upcoming" />
       </div>
     </div>
   </section>

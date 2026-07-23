@@ -117,7 +117,11 @@
       "waitlistedText": "The event is currently full, but plans change — we will email you as soon as a spot opens up.",
       "duplicate": "This email is already registered for this event.",
       "genericError": "Something went wrong. Please try again."
-    }
+    },
+    "featured": "Featured",
+    "limitedAvailability": "Limited availability",
+    "reservationRequired": "Reservation required",
+    "viewGallery": "View gallery"
   },
   "gallery": {
     "title": "Gallery",
