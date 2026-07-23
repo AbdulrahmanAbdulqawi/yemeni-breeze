@@ -18,14 +18,19 @@ import { Lang, LanguageService } from './language.service';
         <circle cx="12" cy="12" r="9" />
         <path d="M3 12h18M12 3a15 15 0 0 1 0 18a15 15 0 0 1 0-18" />
       </svg>
-      <select
-        [ngModel]="lang.current()"
-        (ngModelChange)="lang.set($event)"
-        [attr.aria-label]="transloco.translate('language')">
-        @for (option of options; track option) {
-          <option [ngValue]="option">{{ option.toUpperCase() }}</option>
-        }
-      </select>
+      <span class="select-wrap">
+        <select
+          [ngModel]="lang.current()"
+          (ngModelChange)="lang.set($event)"
+          [attr.aria-label]="transloco.translate('language')">
+          @for (option of options; track option) {
+            <option [ngValue]="option">{{ option.toUpperCase() }}</option>
+          }
+        </select>
+        <svg class="select-chevron" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="m6 9 6 6 6-6" />
+        </svg>
+      </span>
     </label>
   `,
   styles: `
@@ -47,22 +52,36 @@ import { Lang, LanguageService } from './language.service';
       opacity: 0.75;
     }
 
+    .select-wrap {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+    }
+
     select {
+      /* appearance: none drops the browser's own grey dropdown chrome so
+         the brand chevron (an inherited-colour SVG, not baked into a data
+         URI) is the only arrow shown. */
+      appearance: none;
       font: inherit;
       font-size: 0.82rem;
       font-weight: 700;
       letter-spacing: 0.04em;
       color: inherit;
-      background: transparent;
-      border: 1.5px solid currentColor;
+      background-color: color-mix(in srgb, currentColor 10%, transparent);
+      border: 1.5px solid color-mix(in srgb, currentColor 40%, transparent);
       border-radius: 8px;
-      padding: 0.25rem 0.4rem;
+      padding: 0.25rem 1.6rem 0.25rem 0.55rem;
       cursor: pointer;
-      /* the border is decorative; keep it lighter than the text */
-      border-color: color-mix(in srgb, currentColor 40%, transparent);
+      accent-color: var(--yb-maroon);
+
+      [dir='rtl'] & {
+        padding: 0.25rem 0.55rem 0.25rem 1.6rem;
+      }
 
       &:hover {
         border-color: color-mix(in srgb, currentColor 70%, transparent);
+        background-color: color-mix(in srgb, currentColor 16%, transparent);
       }
 
       &:focus-visible {
@@ -71,12 +90,32 @@ import { Lang, LanguageService } from './language.service';
       }
     }
 
-    /* The popup list is drawn by the OS, so it needs explicit colours
-       rather than the inherited (possibly light-on-dark) ones. */
+    .select-chevron {
+      position: absolute;
+      inset-inline-end: 0.45rem;
+      width: 11px;
+      height: 11px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      pointer-events: none;
+      opacity: 0.85;
+    }
+
+    /* The popup list itself is drawn by the OS and can't inherit the header's
+       colour, so it gets the site's paper/ink pairing explicitly instead of
+       falling back to a plain white system default. */
     option {
       color: var(--yb-brown-deep);
-      background: #fff;
+      background: var(--yb-cream);
       font-weight: 600;
+    }
+
+    option:checked {
+      color: var(--yb-maroon);
+      background: var(--yb-yellow);
     }
 
     .sr-only {

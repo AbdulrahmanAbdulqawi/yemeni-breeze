@@ -1,44 +1,23 @@
-/* ===== Hero ===== */
+/* ===== Hero — same treatment as every other page's dark hero ===== */
 .gallery-hero {
-  position: relative;
-  overflow: hidden;
-  background: var(--yb-brown-soft);
+  background: var(--yb-brown);
   color: var(--yb-cream);
-  padding: var(--yb-section-padding) 0;
-}
-
-/* Faint arabesque wash so the flat brown reads as a surface, not a block */
-.hero-texture {
-  position: absolute;
-  inset: 0;
-  opacity: 0.14;
-  pointer-events: none;
-  background-image:
-    radial-gradient(circle at 20% 30%, var(--yb-gold) 0 1.5px, transparent 2px),
-    radial-gradient(circle at 70% 70%, var(--yb-gold) 0 1.5px, transparent 2px);
-  background-size: 46px 46px, 62px 62px;
-}
-
-.hero-inner {
-  position: relative;
-  z-index: 1;
+  padding: 3rem 0;
   text-align: center;
 }
 
 .gallery-hero h1 {
-  color: var(--yb-gold);
-  font-size: clamp(2rem, 5vw, 3rem);
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  margin: 0 0 1.4rem;
+  color: var(--yb-cream);
+  font-size: clamp(2rem, 4.5vw, 3rem);
+  margin: 0 0 1.2rem;
 }
 
 .hero-intro {
-  font-size: 1.125rem;
-  line-height: 1.75;
+  font-size: 1.0625rem;
+  line-height: 1.7;
   color: rgb(253 249 234 / 0.82);
   max-width: 46rem;
-  margin: 0 auto 2.6rem;
+  margin: 0 auto 2rem;
 }
 
 /* ===== Filter bar ===== */
