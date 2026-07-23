@@ -14,14 +14,7 @@
       <a routerLink="/gallery" routerLinkActive="active" (click)="closeMenu()">{{ 'nav.gallery' | transloco }}</a>
       <a routerLink="/contact" routerLinkActive="active" (click)="closeMenu()">{{ 'nav.contact' | transloco }}</a>
 
-      <span class="lang-switch">
-        @for (l of languages; track l.code) {
-          <button
-            class="lang-btn"
-            [class.active]="lang.current() === l.code"
-            (click)="setLang(l.code); closeMenu()">{{ l.label }}</button>
-        }
-      </span>
+      <app-language-switcher class="lang-switch" />
     </nav>
   </div>
 </header>

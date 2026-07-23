@@ -4,13 +4,17 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { filter } from 'rxjs';
 import { AuthService } from '../core/auth.service';
 import { ApiService } from '../core/api.service';
-import { Lang, LanguageService } from '../core/language.service';
+import { LanguageService } from '../core/language.service';
+import { LanguageSwitcher } from '../core/language-switcher';
 import { ConfirmDialog } from './ui/confirm-dialog';
 import { ToastHost } from './ui/toast-host';
 
 @Component({
   selector: 'app-admin-layout',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, TranslocoPipe, ConfirmDialog, ToastHost],
+  imports: [
+    RouterOutlet, RouterLink, RouterLinkActive, TranslocoPipe,
+    ConfirmDialog, ToastHost, LanguageSwitcher
+  ],
   template: `
     <div class="admin-shell" [class.nav-open]="navOpen()">
       @if (navOpen()) {
@@ -75,15 +79,7 @@ import { ToastHost } from './ui/toast-host';
           <span class="topbar-title">Yemeni Breeze</span>
 
           <div class="topbar-right">
-            <span class="lang-switch">
-              @for (l of languages; track l.code) {
-                <button
-                  type="button"
-                  class="lang-btn"
-                  [class.active]="lang.current() === l.code"
-                  (click)="lang.set(l.code)">{{ l.label }}</button>
-              }
-            </span>
+            <app-language-switcher />
             <a routerLink="/" class="topbar-link">{{ 'admin.nav.viewSite' | transloco }}</a>
           </div>
         </header>
@@ -147,36 +143,6 @@ import { ToastHost } from './ui/toast-host';
 
       &:hover {
         color: var(--yb-maroon);
-      }
-    }
-
-    .lang-switch {
-      display: inline-flex;
-      gap: 0.15rem;
-      background: var(--ad-bg);
-      border: 1px solid var(--ad-border);
-      border-radius: 8px;
-      padding: 0.15rem;
-    }
-
-    .lang-btn {
-      font: inherit;
-      font-size: 0.8rem;
-      font-weight: 700;
-      border: none;
-      background: none;
-      color: var(--ad-muted);
-      padding: 0.25rem 0.6rem;
-      border-radius: 6px;
-      cursor: pointer;
-
-      &:hover {
-        color: var(--yb-maroon);
-      }
-
-      &.active {
-        background: var(--yb-maroon);
-        color: #fff;
       }
     }
 
@@ -366,12 +332,6 @@ export class AdminLayout {
   readonly lang = inject(LanguageService);
   readonly navOpen = signal(false);
   readonly unread = signal(0);
-
-  readonly languages: { code: Lang; label: string }[] = [
-    { code: 'en', label: 'EN' },
-    { code: 'nl', label: 'NL' },
-    { code: 'ar', label: 'ع' }
-  ];
 
   constructor() {
     this.loadUnread();

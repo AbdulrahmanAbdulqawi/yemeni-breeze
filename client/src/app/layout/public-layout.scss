@@ -1,5 +1,8 @@
 .site-header {
   background: var(--yb-brown);
+  /* Establish the text colour for the dark bar so children inherit it
+     instead of falling back to the dark body colour. */
+  color: var(--yb-cream);
   position: sticky;
   top: 0;
   z-index: 50;
@@ -64,24 +67,7 @@
 
 .lang-switch {
   display: inline-flex;
-  gap: 0.25rem;
   margin-inline-start: 0.6rem;
-}
-
-.lang-btn {
-  background: transparent;
-  border: 1.5px solid var(--yb-cream);
-  color: var(--yb-cream);
-  border-radius: 8px;
-  padding: 0.15rem 0.55rem;
-  font-weight: 700;
-  cursor: pointer;
-
-  &.active,
-  &:hover {
-    background: var(--yb-cream);
-    color: var(--yb-brown);
-  }
 }
 
 @media (max-width: 860px) {
