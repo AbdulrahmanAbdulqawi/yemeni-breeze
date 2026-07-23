@@ -1,36 +1,57 @@
 import { Component, computed, effect, inject, input, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
-import { TranslocoPipe } from '@jsverse/transloco';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { ApiService } from '../core/api.service';
 import { RegistrationDto, RegistrationStatus } from '../core/models';
+import { ToastService } from './ui/toast.service';
+import { PageHeader } from './ui/page-header';
+import { EmptyState, Spinner } from './ui/state-views';
 
 @Component({
   selector: 'app-admin-registrations',
-  imports: [TranslocoPipe, DatePipe, RouterLink],
+  imports: [TranslocoPipe, DatePipe, RouterLink, FormsModule, PageHeader, EmptyState, Spinner],
   template: `
-    <div class="admin-head">
-      <h1>{{ 'admin.registrations.title' | transloco }}</h1>
-      <div class="head-actions">
-        <a routerLink="/admin/events" class="btn btn-outline">←</a>
-        <a [routerLink]="['/admin/events', eventId(), 'checkin']" class="btn btn-primary">
-          {{ 'admin.checkin.title' | transloco }}
-        </a>
-        <button class="btn btn-primary" (click)="exportCsv()">
-          {{ 'admin.registrations.exportCsv' | transloco }}
-        </button>
-      </div>
-    </div>
+    <app-page-header [heading]="'admin.registrations.title' | transloco">
+      <a routerLink="/admin/events" class="btn btn-outline">←</a>
+      <a [routerLink]="['/admin/events', eventId(), 'checkin']" class="btn btn-primary">
+        {{ 'admin.checkin.title' | transloco }}
+      </a>
+      <button class="btn btn-primary" (click)="exportCsv()">
+        {{ 'admin.registrations.exportCsv' | transloco }}
+      </button>
+    </app-page-header>
 
-    <p class="summary">
+    <div class="stats">
       <span class="badge badge-confirmed">{{ confirmedSeats() }} ✓</span>
       <span class="badge badge-waitlisted">{{ waitlistedSeats() }} ⏳</span>
-    </p>
+      <span class="checked-ratio">
+        {{ 'admin.checkin.checkedIn' | transloco }}: <strong>{{ checkedInCount() }}</strong> / {{ confirmedRows() }}
+      </span>
+    </div>
 
-    @if (registrations().length) {
+    <div class="ad-toolbar">
+      <input
+        class="ad-search"
+        type="search"
+        [ngModel]="query()"
+        (ngModelChange)="query.set($event)"
+        [placeholder]="'admin.common.search' | transloco" />
+      <select class="ad-select" [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)">
+        <option value="">{{ 'admin.common.filterAll' | transloco }}</option>
+        <option value="Confirmed">Confirmed</option>
+        <option value="Waitlisted">Waitlisted</option>
+        <option value="Cancelled">Cancelled</option>
+      </select>
+    </div>
+
+    @if (loading()) {
+      <app-spinner />
+    } @else if (visible().length) {
       <div class="table-wrap">
-        <table class="yb-table">
+        <table class="yb-table sticky">
           <thead>
             <tr>
               <th>{{ 'admin.registrations.name' | transloco }}</th>
@@ -45,7 +66,7 @@ import { RegistrationDto, RegistrationStatus } from '../core/models';
             </tr>
           </thead>
           <tbody>
-            @for (registration of registrations(); track registration.id) {
+            @for (registration of visible(); track registration.id) {
               <tr>
                 <td>{{ registration.fullName }}</td>
                 <td>{{ registration.email }}</td>
@@ -61,7 +82,7 @@ import { RegistrationDto, RegistrationStatus } from '../core/models';
                     <span class="badge badge-confirmed">✓ {{ registration.checkedInAt | date: 'HH:mm' }}</span>
                   }
                 </td>
-                <td class="note-cell">{{ registration.note }}</td>
+                <td class="note-cell" [title]="registration.note">{{ registration.note }}</td>
                 <td>{{ registration.createdAt | date: 'short' }}</td>
                 <td class="actions">
                   @if (registration.status !== 'Confirmed') {
@@ -81,29 +102,25 @@ import { RegistrationDto, RegistrationStatus } from '../core/models';
         </table>
       </div>
     } @else {
-      <p>{{ 'admin.registrations.empty' | transloco }}</p>
+      <app-empty-state [message]="'admin.registrations.empty' | transloco" />
     }
   `,
   styles: `
-    .admin-head {
+    .stats {
       display: flex;
-      justify-content: space-between;
       align-items: center;
+      gap: 0.8rem;
       margin-bottom: 1rem;
+      flex-wrap: wrap;
     }
 
-    .head-actions {
-      display: flex;
-      gap: 0.7rem;
-    }
-
-    .summary {
-      display: flex;
-      gap: 0.7rem;
+    .checked-ratio {
+      font-size: 0.9rem;
+      color: var(--ad-muted, #7c6a5c);
     }
 
     .note-cell {
-      max-width: 220px;
+      max-width: 200px;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -115,27 +132,24 @@ import { RegistrationDto, RegistrationStatus } from '../core/models';
       gap: 0.6rem;
     }
 
-    .btn-link {
-      background: none;
-      border: none;
-      color: var(--yb-maroon);
-      font-weight: 600;
-      cursor: pointer;
-      text-decoration: underline;
-      padding: 0;
-
-      &.danger {
-        color: var(--yb-red);
-      }
+    table.sticky thead th {
+      position: sticky;
+      top: 0;
+      z-index: 1;
     }
   `
 })
 export class AdminRegistrations {
   private api = inject(ApiService);
   private http = inject(HttpClient);
+  private toasts = inject(ToastService);
+  private transloco = inject(TranslocoService);
 
   readonly eventId = input.required<string>();
   readonly registrations = signal<RegistrationDto[]>([]);
+  readonly loading = signal(true);
+  readonly query = signal('');
+  readonly statusFilter = signal('');
 
   readonly confirmedSeats = computed(() =>
     this.registrations()
@@ -147,17 +161,46 @@ export class AdminRegistrations {
       .filter(r => r.status === 'Waitlisted')
       .reduce((sum, r) => sum + r.guestsCount, 0));
 
+  readonly confirmedRows = computed(() =>
+    this.registrations().filter(r => r.status === 'Confirmed').length);
+
+  readonly checkedInCount = computed(() =>
+    this.registrations().filter(r => r.checkedInAt).length);
+
+  readonly visible = computed(() => {
+    const q = this.query().trim().toLowerCase();
+    const status = this.statusFilter();
+    return this.registrations()
+      .filter(r => !status || r.status === status)
+      .filter(r => !q || `${r.fullName} ${r.email} ${r.phone ?? ''}`.toLowerCase().includes(q));
+  });
+
   constructor() {
     effect(() => this.load(+this.eventId()));
   }
 
   load(eventId: number) {
-    this.api.adminGetRegistrations(eventId).subscribe(rows => this.registrations.set(rows));
+    this.loading.set(true);
+    this.api.adminGetRegistrations(eventId).subscribe({
+      next: rows => {
+        this.registrations.set(rows);
+        this.loading.set(false);
+      },
+      error: () => {
+        this.loading.set(false);
+        this.toasts.error(this.transloco.translate('admin.media.genericError'));
+      }
+    });
   }
 
   setStatus(registration: RegistrationDto, status: RegistrationStatus) {
-    this.api.adminSetRegistrationStatus(+this.eventId(), registration.id, status)
-      .subscribe(() => this.load(+this.eventId()));
+    this.api.adminSetRegistrationStatus(+this.eventId(), registration.id, status).subscribe({
+      next: () => {
+        this.toasts.success(this.transloco.translate('admin.common.saved'));
+        this.load(+this.eventId());
+      },
+      error: () => this.toasts.error(this.transloco.translate('admin.media.genericError'))
+    });
   }
 
   exportCsv() {

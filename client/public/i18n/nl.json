@@ -182,7 +182,11 @@
       "save": "Opslaan",
       "cancel": "Annuleren",
       "confirmed": "Bevestigd",
-      "waitlisted": "Wachtlijst"
+      "waitlisted": "Wachtlijst",
+      "sectionDetails": "Gegevens",
+      "sectionSchedule": "Planning",
+      "sectionMedia": "Media",
+      "sectionPublishing": "Publicatie"
     },
     "registrations": {
       "title": "Inschrijvingen",
@@ -235,7 +239,10 @@
       "received": "Ontvangen",
       "markRead": "Markeer gelezen",
       "delete": "Verwijderen",
-      "empty": "Geen berichten."
+      "empty": "Geen berichten.",
+      "unreadOnly": "Alleen ongelezen",
+      "readOnly": "Alleen gelezen",
+      "confirmDelete": "Dit bericht verwijderen?"
     },
     "media": {
       "title": "Media",

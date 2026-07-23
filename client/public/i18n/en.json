@@ -182,7 +182,11 @@
       "save": "Save",
       "cancel": "Cancel",
       "confirmed": "Confirmed",
-      "waitlisted": "Waitlisted"
+      "waitlisted": "Waitlisted",
+      "sectionDetails": "Details",
+      "sectionSchedule": "Schedule",
+      "sectionMedia": "Media",
+      "sectionPublishing": "Publishing"
     },
     "registrations": {
       "title": "Registrations",
@@ -235,7 +239,10 @@
       "received": "Received",
       "markRead": "Mark read",
       "delete": "Delete",
-      "empty": "No messages."
+      "empty": "No messages.",
+      "unreadOnly": "Unread only",
+      "readOnly": "Read only",
+      "confirmDelete": "Delete this message?"
     },
     "media": {
       "title": "Media",

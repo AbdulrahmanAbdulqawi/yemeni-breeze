@@ -43,22 +43,48 @@ import { AuthService } from '../core/auth.service';
     }
 
     .login-card {
-      width: min(420px, 100%);
-      padding: 2.5rem;
+      width: min(400px, 100%);
+      padding: 2.2rem;
       text-align: center;
-      border-top: 6px solid var(--yb-orange);
+      background: #fff;
+      border-top: 5px solid var(--yb-orange);
+
+      h1 {
+        font-family: var(--yb-font-body);
+        font-size: 1.3rem;
+        color: #3d2415;
+        margin-bottom: 1.4rem;
+      }
 
       form {
         text-align: start;
       }
+
+      .field label {
+        font-size: 0.85rem;
+        color: #7c6a5c;
+      }
+
+      .field input {
+        font-size: 0.95rem;
+        padding: 0.55rem 0.75rem;
+        border-radius: 8px;
+      }
     }
 
     .login-logo {
-      height: 110px;
+      height: 92px;
     }
 
     .login-btn {
       width: 100%;
+      border-radius: 8px;
+      padding: 0.6rem;
+      margin-top: 0.4rem;
+
+      &:hover {
+        transform: none;
+      }
     }
   `
 })

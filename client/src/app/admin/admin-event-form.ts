@@ -1,17 +1,20 @@
 import { Component, effect, inject, input, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { TranslocoPipe } from '@jsverse/transloco';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { ApiService } from '../core/api.service';
 import { EventInput, EventStatus } from '../core/models';
+import { ToastService } from './ui/toast.service';
+import { PageHeader } from './ui/page-header';
 
 @Component({
   selector: 'app-admin-event-form',
-  imports: [ReactiveFormsModule, TranslocoPipe],
+  imports: [ReactiveFormsModule, TranslocoPipe, PageHeader],
   template: `
-    <h1>{{ (isNew() ? 'admin.events.new' : 'admin.events.edit') | transloco }}</h1>
+    <app-page-header [heading]="(isNew() ? 'admin.events.new' : 'admin.events.edit') | transloco" />
 
     <form class="card event-form" [formGroup]="form" (ngSubmit)="save()">
+      <h2 class="form-section">{{ 'admin.events.sectionDetails' | transloco }}</h2>
       <div class="grid-2">
         <div class="field">
           <label for="slug">{{ 'admin.events.slug' | transloco }}</label>
@@ -51,6 +54,7 @@ import { EventInput, EventStatus } from '../core/models';
         <textarea id="descriptionAr" formControlName="descriptionAr" rows="4" dir="rtl"></textarea>
       </div>
 
+      <h2 class="form-section">{{ 'admin.events.sectionSchedule' | transloco }}</h2>
       <div class="grid-4">
         <div class="field">
           <label for="date">{{ 'admin.events.date' | transloco }}</label>
@@ -70,6 +74,7 @@ import { EventInput, EventStatus } from '../core/models';
         </div>
       </div>
 
+      <h2 class="form-section">{{ 'admin.events.sectionPublishing' | transloco }}</h2>
       <div class="grid-2">
         <div class="field">
           <label for="status">{{ 'admin.events.status' | transloco }}</label>
@@ -87,14 +92,18 @@ import { EventInput, EventStatus } from '../core/models';
         </div>
       </div>
 
-      <div class="field">
+      <h2 class="form-section">{{ 'admin.events.sectionMedia' | transloco }}</h2>
+      <div class="field cover-field">
         <label>{{ 'admin.events.image' | transloco }}</label>
-        @if (form.controls.imageUrl.value) {
-          <img [src]="form.controls.imageUrl.value" class="image-preview" alt="" />
+        @if (form.controls.imageUrl.value; as cover) {
+          <img [src]="cover" class="image-preview" alt="" />
+          <button type="button" class="btn-link danger" (click)="clearImage()">
+            {{ 'admin.gallery.removeImage' | transloco }}
+          </button>
         }
-        <input type="file" accept="image/*" (change)="upload($event)" />
+        <input type="file" accept="image/*" (change)="upload($event)" [disabled]="uploading()" />
         @if (uploading()) {
-          <span>…</span>
+          <span class="uploading-note">{{ 'admin.media.uploading' | transloco }}…</span>
         }
       </div>
 
@@ -114,8 +123,32 @@ import { EventInput, EventStatus } from '../core/models';
   `,
   styles: `
     .event-form {
-      padding: 2rem;
+      padding: 1.6rem 1.8rem 1.8rem;
       max-width: 900px;
+      background: #fff;
+    }
+
+    .form-section {
+      margin: 1.6rem 0 0.9rem;
+      padding-bottom: 0.4rem;
+      border-bottom: 1px solid var(--ad-border, #e4dcc9);
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--ad-muted, #7c6a5c);
+
+      &:first-child {
+        margin-top: 0;
+      }
+    }
+
+    .cover-field {
+      align-items: flex-start;
+    }
+
+    .uploading-note {
+      font-size: 0.85rem;
+      color: var(--ad-muted, #7c6a5c);
     }
 
     .grid-2,
@@ -165,6 +198,8 @@ export class AdminEventForm {
   private api = inject(ApiService);
   private router = inject(Router);
   private fb = inject(FormBuilder);
+  private toasts = inject(ToastService);
+  private transloco = inject(TranslocoService);
 
   readonly id = input<string>();
   readonly isNew = signal(true);
@@ -204,16 +239,26 @@ export class AdminEventForm {
   }
 
   upload(input: Event) {
-    const file = (input.target as HTMLInputElement).files?.[0];
+    const target = input.target as HTMLInputElement;
+    const file = target.files?.[0];
+    target.value = '';
     if (!file) return;
+
     this.uploading.set(true);
     this.api.adminUpload(file).subscribe({
       next: result => {
         this.form.controls.imageUrl.setValue(result.url);
         this.uploading.set(false);
       },
-      error: () => this.uploading.set(false)
+      error: () => {
+        this.uploading.set(false);
+        this.toasts.error(this.transloco.translate('admin.media.genericError'));
+      }
     });
+  }
+
+  clearImage() {
+    this.form.controls.imageUrl.setValue(null);
   }
 
   save() {

@@ -182,7 +182,11 @@
       "save": "حفظ",
       "cancel": "إلغاء",
       "confirmed": "مؤكد",
-      "waitlisted": "قائمة الانتظار"
+      "waitlisted": "قائمة الانتظار",
+      "sectionDetails": "التفاصيل",
+      "sectionSchedule": "الجدول",
+      "sectionMedia": "الوسائط",
+      "sectionPublishing": "النشر"
     },
     "registrations": {
       "title": "التسجيلات",
@@ -235,7 +239,10 @@
       "received": "تاريخ الاستلام",
       "markRead": "وضع علامة مقروء",
       "delete": "حذف",
-      "empty": "لا توجد رسائل."
+      "empty": "لا توجد رسائل.",
+      "unreadOnly": "غير المقروءة فقط",
+      "readOnly": "المقروءة فقط",
+      "confirmDelete": "حذف هذه الرسالة؟"
     },
     "media": {
       "title": "الوسائط",

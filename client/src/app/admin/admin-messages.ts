@@ -1,24 +1,45 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
-import { TranslocoPipe } from '@jsverse/transloco';
+import { FormsModule } from '@angular/forms';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { ApiService } from '../core/api.service';
 import { ContactMessageDto } from '../core/models';
+import { ConfirmService } from './ui/confirm.service';
+import { ToastService } from './ui/toast.service';
+import { PageHeader } from './ui/page-header';
+import { EmptyState, Spinner } from './ui/state-views';
 
 @Component({
   selector: 'app-admin-messages',
-  imports: [TranslocoPipe, DatePipe],
+  imports: [TranslocoPipe, DatePipe, FormsModule, PageHeader, EmptyState, Spinner],
   template: `
-    <h1>{{ 'admin.messages.title' | transloco }}</h1>
+    <app-page-header [heading]="'admin.messages.title' | transloco" [subtitle]="subtitle()" />
 
-    @if (messages().length) {
+    <div class="ad-toolbar">
+      <input
+        class="ad-search"
+        type="search"
+        [ngModel]="query()"
+        (ngModelChange)="query.set($event)"
+        [placeholder]="'admin.common.search' | transloco" />
+      <select class="ad-select" [ngModel]="readFilter()" (ngModelChange)="readFilter.set($event)">
+        <option value="">{{ 'admin.common.filterAll' | transloco }}</option>
+        <option value="unread">{{ 'admin.messages.unreadOnly' | transloco }}</option>
+        <option value="read">{{ 'admin.messages.readOnly' | transloco }}</option>
+      </select>
+    </div>
+
+    @if (loading()) {
+      <app-spinner />
+    } @else if (visible().length) {
       <div class="messages-list">
-        @for (message of messages(); track message.id) {
-          <div class="card message-card" [class.unread]="!message.isRead">
-            <div class="message-head">
+        @for (message of visible(); track message.id) {
+          <article class="card message-card" [class.unread]="!message.isRead">
+            <header class="message-head">
               <strong>{{ message.name }}</strong>
               <a [href]="'mailto:' + message.email">{{ message.email }}</a>
               <span class="date">{{ message.createdAt | date: 'medium' }}</span>
-            </div>
+            </header>
             @if (message.subject) {
               <p class="subject">{{ message.subject }}</p>
             }
@@ -33,26 +54,27 @@ import { ContactMessageDto } from '../core/models';
                 {{ 'admin.messages.delete' | transloco }}
               </button>
             </div>
-          </div>
+          </article>
         }
       </div>
     } @else {
-      <p>{{ 'admin.messages.empty' | transloco }}</p>
+      <app-empty-state [message]="'admin.messages.empty' | transloco" />
     }
   `,
   styles: `
     .messages-list {
       display: flex;
       flex-direction: column;
-      gap: 1rem;
-      max-width: 800px;
+      gap: 0.9rem;
+      max-width: 820px;
     }
 
     .message-card {
-      padding: 1.2rem 1.5rem;
+      padding: 1.1rem 1.3rem;
+      background: #fff;
 
       &.unread {
-        border-inline-start: 5px solid var(--yb-orange);
+        border-inline-start: 4px solid var(--yb-orange);
       }
     }
 
@@ -65,7 +87,7 @@ import { ContactMessageDto } from '../core/models';
       .date {
         margin-inline-start: auto;
         opacity: 0.65;
-        font-size: 0.88rem;
+        font-size: 0.85rem;
       }
     }
 
@@ -83,40 +105,75 @@ import { ContactMessageDto } from '../core/models';
       display: flex;
       gap: 0.8rem;
     }
-
-    .btn-link {
-      background: none;
-      border: none;
-      color: var(--yb-maroon);
-      font-weight: 600;
-      cursor: pointer;
-      text-decoration: underline;
-      padding: 0;
-
-      &.danger {
-        color: var(--yb-red);
-      }
-    }
   `
 })
 export class AdminMessages {
   private api = inject(ApiService);
+  private confirm = inject(ConfirmService);
+  private toasts = inject(ToastService);
+  private transloco = inject(TranslocoService);
 
   readonly messages = signal<ContactMessageDto[]>([]);
+  readonly loading = signal(true);
+  readonly query = signal('');
+  readonly readFilter = signal('');
+
+  readonly unreadCount = computed(() => this.messages().filter(m => !m.isRead).length);
+  readonly subtitle = computed(() => `${this.unreadCount()} / ${this.messages().length}`);
+
+  readonly visible = computed(() => {
+    const q = this.query().trim().toLowerCase();
+    const filter = this.readFilter();
+    return this.messages()
+      .filter(m => !filter || (filter === 'unread' ? !m.isRead : m.isRead))
+      .filter(m => !q || `${m.name} ${m.email} ${m.subject} ${m.message}`.toLowerCase().includes(q))
+      .slice()
+      // unread first, then newest
+      .sort((a, b) =>
+        Number(a.isRead) - Number(b.isRead) ||
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  });
 
   constructor() {
     this.load();
   }
 
   load() {
-    this.api.adminGetMessages().subscribe(messages => this.messages.set(messages));
+    this.loading.set(true);
+    this.api.adminGetMessages().subscribe({
+      next: messages => {
+        this.messages.set(messages);
+        this.loading.set(false);
+      },
+      error: () => {
+        this.loading.set(false);
+        this.toasts.error(this.transloco.translate('admin.media.genericError'));
+      }
+    });
   }
 
   markRead(message: ContactMessageDto) {
-    this.api.adminMarkMessageRead(message.id).subscribe(() => this.load());
+    this.api.adminMarkMessageRead(message.id).subscribe({
+      next: () => this.load(),
+      error: () => this.toasts.error(this.transloco.translate('admin.media.genericError'))
+    });
   }
 
-  remove(message: ContactMessageDto) {
-    this.api.adminDeleteMessage(message.id).subscribe(() => this.load());
+  async remove(message: ContactMessageDto) {
+    const ok = await this.confirm.ask({
+      message: this.transloco.translate('admin.messages.confirmDelete'),
+      confirmLabel: this.transloco.translate('admin.messages.delete'),
+      cancelLabel: this.transloco.translate('admin.media.cancel'),
+      danger: true
+    });
+    if (!ok) return;
+
+    this.api.adminDeleteMessage(message.id).subscribe({
+      next: () => {
+        this.toasts.success(this.transloco.translate('admin.media.deleted'));
+        this.load();
+      },
+      error: () => this.toasts.error(this.transloco.translate('admin.media.genericError'))
+    });
   }
 }
