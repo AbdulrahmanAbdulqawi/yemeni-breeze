@@ -1,0 +1,92 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# A new push supersedes the run still going for the same ref.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  server:
+    name: server (.NET 10)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      # No packages.lock.json, so setup-dotnet's own cache can't be used.
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('server/**/*.csproj') }}
+          restore-keys: nuget-${{ runner.os }}-
+
+      # The test project references the API, so this covers both.
+      - name: Restore
+        run: dotnet restore server/YemeniBreeze.Tests/YemeniBreeze.Tests.csproj
+
+      - name: Build
+        run: dotnet build server/YemeniBreeze.Tests/YemeniBreeze.Tests.csproj -c Release --no-restore
+
+      - name: Test
+        run: >
+          dotnet test server/YemeniBreeze.Tests/YemeniBreeze.Tests.csproj
+          -c Release --no-build
+          --logger "trx;LogFileName=test-results.trx"
+          --results-directory "${{ runner.temp }}/test-results"
+
+      - name: Upload test results
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: dotnet-test-results
+          path: ${{ runner.temp }}/test-results
+          if-no-files-found: ignore
+
+  client:
+    name: client (Angular 20)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: client
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: client/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      # Also runs as `prebuild`; kept separate so a missing translation fails
+      # in one second with its own name in the checks list.
+      - name: Check translations
+        run: npm run i18n:check
+
+      - name: Build
+        run: npm run build
+
+      - name: Unit tests
+        # The karma builder errors out when there are no specs at all, so this
+        # starts running by itself as soon as the first one lands.
+        run: |
+          if [ -n "$(find src -name '*.spec.ts' -print -quit)" ]; then
+            npm test -- --watch=false --browsers=ChromeHeadless
+          else
+            echo "No *.spec.ts files in client/src yet — skipping karma."
+          fi

@@ -1,0 +1,13 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "packageRules": [
+    {
+      "description": "ImageSharp v4+ enforces a paid Six Labors licence at build time, which breaks the build with no key present. v3 stays free under the Split License. Revisit only alongside a licence decision.",
+      "matchDatasources": ["nuget"],
+      "matchPackageNames": ["SixLabors.ImageSharp"],
+      "matchUpdateTypes": ["major"],
+      "enabled": false
+    }
+  ]
+}
