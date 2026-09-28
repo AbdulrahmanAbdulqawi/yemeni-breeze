@@ -15,7 +15,7 @@ services:
       - Email__SmtpUser=${EMAIL_SMTP_USER}
       - Email__SmtpKey=${EMAIL_SMTP_KEY}
       - Email__FromAddress=${EMAIL_FROM_ADDRESS}
-      - Email__FromName=Yemeni Breeze
+      - Email__FromName=Yemen Breeze
       - Email__PublicBaseUrl=${SITE_ORIGIN}
       # Hetzner Object Storage (S3). Leave blank to fall back to the local uploads volume.
       - Storage__Endpoint=${STORAGE_ENDPOINT}

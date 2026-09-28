@@ -14,7 +14,7 @@ public class EmailOptions
     public string? SmtpUser { get; set; }
     public string? SmtpKey { get; set; }
     public string FromAddress { get; set; } = "noreply@yemenibreeze.nl";
-    public string FromName { get; set; } = "Yemeni Breeze";
+    public string FromName { get; set; } = "Yemen Breeze";
     public string PublicBaseUrl { get; set; } = "http://localhost:4200";
 }
 
@@ -143,13 +143,13 @@ public class EmailService(IConfiguration config, ILogger<EmailService> logger)
             <body style="margin:0;background:#fbf3da;font-family:Georgia,'Times New Roman',serif;color:#47180a">
               <div style="max-width:560px;margin:0 auto;padding:24px 16px">
                 <div style="background:#5b1f05;border-radius:14px 14px 0 0;padding:24px;text-align:center">
-                  <div style="color:#f6e7be;font-size:22px;letter-spacing:2px">YEMENI BREEZE</div>
+                  <div style="color:#f6e7be;font-size:22px;letter-spacing:2px">YEMEN BREEZE</div>
                   <div style="color:#ed9e42;font-size:14px">نسمات اليمن</div>
                 </div>
                 <div style="background:#ffffff;padding:28px;border-radius:0 0 14px 14px">
                   <h1 style="color:#8f1b04;font-size:22px;margin-top:0">{heading}</h1>
                   {body}
-                  <p style="margin-top:28px">{t["signoff"]}<br/><strong>Yemeni Breeze</strong></p>
+                  <p style="margin-top:28px">{t["signoff"]}<br/><strong>Yemen Breeze</strong></p>
                 </div>
                 <p style="text-align:center;color:#8f1b04;opacity:.7;font-size:12px;margin-top:16px">
                   {t["footer"]} · <a href="{Options.PublicBaseUrl}" style="color:#8f1b04">{Options.PublicBaseUrl.Replace("https://", "").Replace("http://", "")}</a>
@@ -174,7 +174,7 @@ public class EmailService(IConfiguration config, ILogger<EmailService> logger)
         return $"""
             BEGIN:VCALENDAR
             VERSION:2.0
-            PRODID:-//Yemeni Breeze//Events//EN
+            PRODID:-//Yemen Breeze//Events//EN
             BEGIN:VEVENT
             UID:{r.TicketCode}@yemenibreeze
             DTSTAMP:{DateTime.UtcNow:yyyyMMdd'T'HHmmss'Z'}

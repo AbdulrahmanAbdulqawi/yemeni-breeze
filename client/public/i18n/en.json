@@ -2,23 +2,23 @@
   "seo": {
     "home": {
       "title": "Yemen is more than a war",
-      "description": "Yemeni Breeze is a youth-led cultural initiative in Amsterdam. We CONNECT cultures, we SHOWCASE Yemen, we BUILD bridges through art, food, and community."
+      "description": "Yemen Breeze is a youth-led cultural initiative in Amsterdam. We CONNECT cultures, we SHOWCASE Yemen, we BUILD bridges through art, food, and community."
     },
     "about": {
       "title": "Our Story",
-      "description": "How Yemeni Breeze grew from one vision into an open movement — our mission, values, and the team behind it."
+      "description": "How Yemen Breeze grew from one vision into an open movement — our mission, values, and the team behind it."
     },
     "events": {
       "title": "Events",
-      "description": "Upcoming and past Yemeni Breeze events in Amsterdam — communal dinners, cooking workshops, music, and culture. Register online."
+      "description": "Upcoming and past Yemen Breeze events in Amsterdam — communal dinners, cooking workshops, music, and culture. Register online."
     },
     "gallery": {
       "title": "Gallery",
-      "description": "Photos from Yemeni Breeze events — Yemeni food, music, and community in Amsterdam."
+      "description": "Photos from Yemen Breeze events — Yemeni food, music, and community in Amsterdam."
     },
     "contact": {
       "title": "Contact",
-      "description": "Get in touch with Yemeni Breeze — partnerships, volunteering, press, and questions."
+      "description": "Get in touch with Yemen Breeze — partnerships, volunteering, press, and questions."
     }
   },
   "nav": {
@@ -31,7 +31,7 @@
   "footer": {
     "tagline": "We CONNECT cultures. We SHOWCASE Yemen. We BUILD bridges.",
     "location": "Amsterdam, The Netherlands",
-    "rights": "Yemeni Breeze — an open movement for everyone who believes in the power of culture.",
+    "rights": "Yemen Breeze — an open movement for everyone who believes in the power of culture.",
     "instagram": "Follow us on Instagram"
   },
   "home": {
@@ -54,13 +54,13 @@
     "upcomingTitle": "Upcoming event",
     "viewAllEvents": "See all events",
     "missionTitle": "Why we exist",
-    "missionText": "Most people outside Yemen only know the war. We show another side: history, art, beauty. Yemeni Breeze celebrates what Yemen has given to the world — and challenges the stereotypes and discrimination that Yemenis and other diaspora communities face."
+    "missionText": "Most people outside Yemen only know the war. We show another side: history, art, beauty. Yemen Breeze celebrates what Yemen has given to the world — and challenges the stereotypes and discrimination that Yemenis and other diaspora communities face."
   },
   "about": {
     "title": "Our Story",
-    "intro": "Yemeni Breeze is a youth-led cultural initiative based in Amsterdam, built on one powerful belief: Yemen is more than a war. Yemen has a civilization thousands of years old, a rich culinary tradition, powerful music, and a people full of warmth, creativity, and pride.",
-    "founding": "Yemeni Breeze was founded by Koutaiba, a young Yemeni in Amsterdam who carried a vision: to bring Yemeni culture to the world in a way that is authentic, modern, and impactful. His close friend Ali joined from the very beginning, and together they built the foundation of what has become a growing movement.",
-    "open": "Today, Yemeni Breeze is an open community. Any Yemeni in the Netherlands — or anyone who believes in our mission — is welcome to join the team, contribute ideas, and help shape what we become. This movement does not belong to a few people. It belongs to the Yemeni identity itself.",
+    "intro": "Yemen Breeze is a youth-led cultural initiative based in Amsterdam, built on one powerful belief: Yemen is more than a war. Yemen has a civilization thousands of years old, a rich culinary tradition, powerful music, and a people full of warmth, creativity, and pride.",
+    "founding": "Yemen Breeze was founded by Koutaiba, a young Yemeni in Amsterdam who carried a vision: to bring Yemeni culture to the world in a way that is authentic, modern, and impactful. His close friend Ali joined from the very beginning, and together they built the foundation of what has become a growing movement.",
+    "open": "Today, Yemen Breeze is an open community. Any Yemeni in the Netherlands — or anyone who believes in our mission — is welcome to join the team, contribute ideas, and help shape what we become. This movement does not belong to a few people. It belongs to the Yemeni identity itself.",
     "missionTitle": "Our Mission",
     "missionText": "To connect Yemeni culture with the world: changing the global image of Yemen, celebrating its rich heritage in all its forms, and addressing real social issues facing diaspora communities in the Netherlands, including racial discrimination and the marginalization of refugees.",
     "valuesTitle": "Our Values",
@@ -77,7 +77,7 @@
     "socialTitle": "Our Social Mission",
     "socialText": "We believe the most powerful response to hatred is not argument — it is experience. When a Dutch person has cooked Yemeni food with their own hands, written a message of love to a stranger in a camp, heard the oud played, and shared coffee at the same table — they do not see refugees the same way anymore. That is our method. And it works.",
     "teamTitle": "The Team",
-    "teamNote": "We are actively growing. If you are Yemeni and living in the Netherlands, or if you share our vision, we welcome you to reach out and become part of Yemeni Breeze.",
+    "teamNote": "We are actively growing. If you are Yemeni and living in the Netherlands, or if you share our vision, we welcome you to reach out and become part of Yemen Breeze.",
     "joinCta": "Join the movement",
     "backToTeam": "Back to the team"
   },
@@ -144,9 +144,9 @@
     "sent": "Thank you — we will get back to you soon.",
     "error": "Could not send your message. Please try again.",
     "partnership": "Partnerships",
-    "partnershipText": "Yemeni Breeze is registering as a formal Stichting (foundation) under Dutch law. We partner with cultural institutions, municipalities, refugee support organizations, and AZC locations.",
+    "partnershipText": "Yemen Breeze is registering as a formal Stichting (foundation) under Dutch law. We partner with cultural institutions, municipalities, refugee support organizations, and AZC locations.",
     "volunteer": "Volunteering",
-    "volunteerText": "There is no gate. If you care about Yemen and want to do something meaningful, Yemeni Breeze is your platform too."
+    "volunteerText": "There is no gate. If you care about Yemen and want to do something meaningful, Yemen Breeze is your platform too."
   },
   "admin": {
     "login": {

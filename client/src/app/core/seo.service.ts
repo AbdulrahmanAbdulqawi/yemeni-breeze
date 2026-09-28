@@ -40,7 +40,7 @@ export class SeoService {
 
   /** For dynamic pages (event detail). */
   setTags(pageTitle: string, description: string) {
-    const full = `${pageTitle} — Yemeni Breeze`;
+    const full = `${pageTitle} — Yemen Breeze`;
     this.title.setTitle(full);
     this.meta.updateTag({ name: 'description', content: description });
     this.meta.updateTag({ property: 'og:title', content: full });

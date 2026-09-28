@@ -43,22 +43,22 @@ public static class ContentDefaults
         ["home.upcomingTitle"] = ("Upcoming event", "Aankomend evenement", "الفعالية القادمة"),
         ["home.missionTitle"] = ("Why we exist", "Waarom wij bestaan", "لماذا وُجدنا"),
         ["home.missionText"] = (
-            "Most people outside Yemen only know the war. We show another side: history, art, beauty. Yemeni Breeze celebrates what Yemen has given to the world — and challenges the stereotypes and discrimination that Yemenis and other diaspora communities face.",
-            "De meeste mensen buiten Jemen kennen alleen de oorlog. Wij laten een andere kant zien: geschiedenis, kunst, schoonheid. Yemeni Breeze viert wat Jemen de wereld heeft gegeven — en bestrijdt de stereotypen en discriminatie waar Jemenieten en andere diasporagemeenschappen mee te maken hebben.",
+            "Most people outside Yemen only know the war. We show another side: history, art, beauty. Yemen Breeze celebrates what Yemen has given to the world — and challenges the stereotypes and discrimination that Yemenis and other diaspora communities face.",
+            "De meeste mensen buiten Jemen kennen alleen de oorlog. Wij laten een andere kant zien: geschiedenis, kunst, schoonheid. Yemen Breeze viert wat Jemen de wereld heeft gegeven — en bestrijdt de stereotypen en discriminatie waar Jemenieten en andere diasporagemeenschappen mee te maken hebben.",
             "معظم الناس خارج اليمن لا يعرفون سوى الحرب. نحن نُظهر وجهًا آخر: التاريخ والفن والجمال. تحتفي نسمات اليمن بما قدّمه اليمن للعالم — وتتصدى للصور النمطية والتمييز الذي يواجهه اليمنيون وجاليات المهجر الأخرى."),
 
         ["about.title"] = ("Our Story", "Ons verhaal", "قصتنا"),
         ["about.intro"] = (
-            "Yemeni Breeze is a youth-led cultural initiative based in Amsterdam, built on one powerful belief: Yemen is more than a war. Yemen has a civilization thousands of years old, a rich culinary tradition, powerful music, and a people full of warmth, creativity, and pride.",
-            "Yemeni Breeze is een cultureel jongereninitiatief in Amsterdam, gebouwd op één krachtige overtuiging: Jemen is meer dan een oorlog. Jemen heeft een duizenden jaren oude beschaving, een rijke culinaire traditie, krachtige muziek en een volk vol warmte, creativiteit en trots.",
+            "Yemen Breeze is a youth-led cultural initiative based in Amsterdam, built on one powerful belief: Yemen is more than a war. Yemen has a civilization thousands of years old, a rich culinary tradition, powerful music, and a people full of warmth, creativity, and pride.",
+            "Yemen Breeze is een cultureel jongereninitiatief in Amsterdam, gebouwd op één krachtige overtuiging: Jemen is meer dan een oorlog. Jemen heeft een duizenden jaren oude beschaving, een rijke culinaire traditie, krachtige muziek en een volk vol warmte, creativiteit en trots.",
             "نسمات اليمن مبادرة ثقافية شبابية مقرها أمستردام، بُنيت على قناعة راسخة: اليمن أكثر من مجرد حرب. لليمن حضارة عمرها آلاف السنين، وتقاليد طهي غنية، وموسيقى مؤثرة، وشعب مفعم بالدفء والإبداع والفخر."),
         ["about.founding"] = (
-            "Yemeni Breeze was founded by Koutaiba, a young Yemeni in Amsterdam who carried a vision: to bring Yemeni culture to the world in a way that is authentic, modern, and impactful. His close friend Ali joined from the very beginning, and together they built the foundation of what has become a growing movement.",
-            "Yemeni Breeze is opgericht door Koutaiba, een jonge Jemeniet in Amsterdam met een visie: de Jemenitische cultuur op een authentieke, moderne en impactvolle manier naar de wereld brengen. Zijn goede vriend Ali sloot zich vanaf het allereerste begin aan, en samen legden zij het fundament van wat inmiddels een groeiende beweging is.",
+            "Yemen Breeze was founded by Koutaiba, a young Yemeni in Amsterdam who carried a vision: to bring Yemeni culture to the world in a way that is authentic, modern, and impactful. His close friend Ali joined from the very beginning, and together they built the foundation of what has become a growing movement.",
+            "Yemen Breeze is opgericht door Koutaiba, een jonge Jemeniet in Amsterdam met een visie: de Jemenitische cultuur op een authentieke, moderne en impactvolle manier naar de wereld brengen. Zijn goede vriend Ali sloot zich vanaf het allereerste begin aan, en samen legden zij het fundament van wat inmiddels een groeiende beweging is.",
             "أسّس نسمات اليمن قتيبة، شاب يمني في أمستردام حمل رؤية: تقديم الثقافة اليمنية للعالم بطريقة أصيلة وعصرية ومؤثرة. انضم إليه صديقه المقرب علي منذ البداية، وبنيا معًا أساس ما أصبح اليوم حركة متنامية."),
         ["about.open"] = (
-            "Today, Yemeni Breeze is an open community. Any Yemeni in the Netherlands — or anyone who believes in our mission — is welcome to join the team, contribute ideas, and help shape what we become. This movement does not belong to a few people. It belongs to the Yemeni identity itself.",
-            "Vandaag is Yemeni Breeze een open community. Elke Jemeniet in Nederland — of iedereen die in onze missie gelooft — is welkom om mee te doen, ideeën aan te dragen en mede vorm te geven aan wat we worden. Deze beweging is niet van een paar mensen. Ze is van de Jemenitische identiteit zelf.",
+            "Today, Yemen Breeze is an open community. Any Yemeni in the Netherlands — or anyone who believes in our mission — is welcome to join the team, contribute ideas, and help shape what we become. This movement does not belong to a few people. It belongs to the Yemeni identity itself.",
+            "Vandaag is Yemen Breeze een open community. Elke Jemeniet in Nederland — of iedereen die in onze missie gelooft — is welkom om mee te doen, ideeën aan te dragen en mede vorm te geven aan wat we worden. Deze beweging is niet van een paar mensen. Ze is van de Jemenitische identiteit zelf.",
             "اليوم، نسمات اليمن مجتمع مفتوح. كل يمني في هولندا — وكل من يؤمن برسالتنا — مرحب به للانضمام إلى الفريق والمساهمة بالأفكار والمشاركة في صياغة مستقبلنا. هذه الحركة لا تخص أفرادًا بعينهم، بل تنتمي إلى الهوية اليمنية ذاتها."),
         ["about.missionTitle"] = ("Our Mission", "Onze missie", "رسالتنا"),
         ["about.missionText"] = (
@@ -98,8 +98,8 @@ public static class ContentDefaults
             "نؤمن أن أقوى ردّ على الكراهية ليس الجدال — بل التجربة. عندما يطبخ هولندي الطعام اليمني بيديه، ويكتب رسالة محبة لغريب في مخيم، ويسمع عزف العود، ويتشارك القهوة على الطاولة نفسها — لن ينظر إلى اللاجئين بالطريقة ذاتها بعد ذلك. هذه طريقتنا. وهي تنجح."),
         ["about.teamTitle"] = ("The Team", "Het team", "الفريق"),
         ["about.teamNote"] = (
-            "We are actively growing. If you are Yemeni and living in the Netherlands, or if you share our vision, we welcome you to reach out and become part of Yemeni Breeze.",
-            "We groeien actief. Ben je Jemeniet en woon je in Nederland, of deel je onze visie? Neem contact op en word onderdeel van Yemeni Breeze.",
+            "We are actively growing. If you are Yemeni and living in the Netherlands, or if you share our vision, we welcome you to reach out and become part of Yemen Breeze.",
+            "We groeien actief. Ben je Jemeniet en woon je in Nederland, of deel je onze visie? Neem contact op en word onderdeel van Yemen Breeze.",
             "نحن ننمو باستمرار. إذا كنت يمنيًا تعيش في هولندا، أو كنت تشاركنا رؤيتنا، نرحب بتواصلك وانضمامك إلى نسمات اليمن."),
         ["about.joinCta"] = ("Join the movement", "Sluit je aan", "انضم إلى الحركة"),
 
@@ -118,12 +118,12 @@ public static class ContentDefaults
             "We verwelkomen alle vragen, partnervoorstellen en interesse van personen, organisaties en instellingen die onze visie delen.",
             "نرحب بجميع الاستفسارات ومقترحات الشراكة واهتمام الأفراد والمنظمات والمؤسسات التي تشاركنا رؤيتنا."),
         ["contact.partnershipText"] = (
-            "Yemeni Breeze is registering as a formal Stichting (foundation) under Dutch law. We partner with cultural institutions, municipalities, refugee support organizations, and AZC locations.",
-            "Yemeni Breeze registreert zich als formele Stichting naar Nederlands recht. We werken samen met culturele instellingen, gemeenten, vluchtelingenorganisaties en AZC-locaties.",
+            "Yemen Breeze is registering as a formal Stichting (foundation) under Dutch law. We partner with cultural institutions, municipalities, refugee support organizations, and AZC locations.",
+            "Yemen Breeze registreert zich als formele Stichting naar Nederlands recht. We werken samen met culturele instellingen, gemeenten, vluchtelingenorganisaties en AZC-locaties.",
             "نسمات اليمن في طور التسجيل كمؤسسة (Stichting) رسمية بموجب القانون الهولندي. نتعاون مع المؤسسات الثقافية والبلديات ومنظمات دعم اللاجئين ومراكز استقبال طالبي اللجوء."),
         ["contact.volunteerText"] = (
-            "There is no gate. If you care about Yemen and want to do something meaningful, Yemeni Breeze is your platform too.",
-            "Er is geen drempel. Geef je om Jemen en wil je iets betekenisvols doen? Dan is Yemeni Breeze ook jouw platform.",
+            "There is no gate. If you care about Yemen and want to do something meaningful, Yemen Breeze is your platform too.",
+            "Er is geen drempel. Geef je om Jemen en wil je iets betekenisvols doen? Dan is Yemen Breeze ook jouw platform.",
             "لا توجد حواجز. إذا كنت تهتم باليمن وتريد أن تفعل شيئًا ذا معنى، فنسمات اليمن منصتك أيضًا."),
 
         ["footer.tagline"] = (
@@ -132,8 +132,8 @@ public static class ContentDefaults
             "نَصِلُ الثقافات. نُظهِرُ اليمن. نَبني الجسور."),
         ["footer.location"] = ("Amsterdam, The Netherlands", "Amsterdam, Nederland", "أمستردام، هولندا"),
         ["footer.rights"] = (
-            "Yemeni Breeze — an open movement for everyone who believes in the power of culture.",
-            "Yemeni Breeze — een open beweging voor iedereen die gelooft in de kracht van cultuur.",
+            "Yemen Breeze — an open movement for everyone who believes in the power of culture.",
+            "Yemen Breeze — een open beweging voor iedereen die gelooft in de kracht van cultuur.",
             "نسمات اليمن — حركة مفتوحة لكل من يؤمن بقوة الثقافة.")
     };
 }

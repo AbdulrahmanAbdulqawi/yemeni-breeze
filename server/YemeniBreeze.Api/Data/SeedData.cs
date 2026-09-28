@@ -82,8 +82,8 @@ public static class SeedData
                 new Event
                 {
                     Slug = "yemeni-breeze-sofra",
-                    TitleEn = "Yemeni Breeze Sofra",
-                    TitleNl = "Yemeni Breeze Sofra",
+                    TitleEn = "Yemen Breeze Sofra",
+                    TitleNl = "Yemen Breeze Sofra",
                     TitleAr = "سفرة نسمات اليمن",
                     DescriptionEn = "A communal dinner bringing Dutch volunteers, refugees, and organizers together. Cook side by side, prepare meals for residents of asylum seeker centers — each with a personal message — then sit together at one table and share the moment as equals. Hands-on Yemeni cooking workshops, traditional clothing, and cultural sharing through food and conversation.",
                     DescriptionNl = "Een gezamenlijk diner dat Nederlandse vrijwilligers, vluchtelingen en organisatoren samenbrengt. Kook zij aan zij, bereid maaltijden voor bewoners van AZC's — elk met een persoonlijke boodschap — en schuif daarna samen aan één tafel om het moment als gelijken te delen. Praktische Jemenitische kookworkshops, traditionele kleding en culturele uitwisseling via eten en gesprek.",
