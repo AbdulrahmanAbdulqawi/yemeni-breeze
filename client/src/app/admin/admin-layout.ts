@@ -23,7 +23,7 @@ import { ToastHost } from './ui/toast-host';
 
       <aside class="admin-sidebar">
         <a routerLink="/" class="admin-brand">
-          <img src="/assets/logo.png" alt="Yemeni Breeze" />
+          <img src="/assets/logo.png" alt="Yemen Breeze" />
         </a>
 
         <nav>
@@ -94,7 +94,7 @@ import { ToastHost } from './ui/toast-host';
           </button>
 
           <img src="/assets/logo.png" alt="" class="topbar-logo" />
-          <span class="topbar-title">Yemeni Breeze</span>
+          <span class="topbar-title">Yemen Breeze</span>
 
           <div class="topbar-right">
             <app-language-switcher />

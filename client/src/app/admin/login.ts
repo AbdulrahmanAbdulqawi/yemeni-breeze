@@ -11,7 +11,7 @@ import { AuthService } from '../core/auth.service';
   template: `
     <div class="login-wrap">
       <div class="card login-card">
-        <img src="/assets/logo.png" alt="Yemeni Breeze" class="login-logo" />
+        <img src="/assets/logo.png" alt="Yemen Breeze" class="login-logo" />
         <h1>{{ 'admin.login.title' | transloco }}</h1>
         <form [formGroup]="form" (ngSubmit)="submit()">
           <div class="field">

@@ -1,6 +1,6 @@
-# Yemeni Breeze — نسمات اليمن
+# Yemen Breeze — نسمات اليمن
 
-Website for **Yemeni Breeze**, a youth-led cultural initiative in Amsterdam.
+Website for **Yemen Breeze**, a youth-led cultural initiative in Amsterdam.
 *We CONNECT cultures. We SHOWCASE Yemen. We BUILD bridges.*
 
 ## Stack
