@@ -10,10 +10,11 @@ import { LanguageService } from '../../core/language.service';
 import { originalUrl } from '../../core/media-url';
 import { GalleryItemDto, RegistrationStatus } from '../../core/models';
 import { SeoService } from '../../core/seo.service';
+import { Reveal } from '../../shared/motion/reveal.directive';
 
 @Component({
   selector: 'app-event-detail',
-  imports: [ReactiveFormsModule, TranslocoPipe, LocalizedDatePipe, RouterLink],
+  imports: [ReactiveFormsModule, TranslocoPipe, LocalizedDatePipe, RouterLink, Reveal],
   templateUrl: './event-detail.html',
   styleUrl: './event-detail.scss'
 })

@@ -292,6 +292,103 @@ img {
   }
 }
 
+/* ===== Motion ===== */
+
+/* 3D hover tilt + glare, driven by the appTilt directive (shared/motion).
+   The transform only exists while hovering (.is-tilting), so at rest the
+   element is untransformed and the GSAP scroll reveal owns it cleanly. */
+.yb-tilt {
+  position: relative;
+
+  &.is-tilting {
+    transform: perspective(900px) rotateX(var(--tilt-rx, 0deg)) rotateY(var(--tilt-ry, 0deg));
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background: radial-gradient(
+      circle at var(--tilt-gx, 50%) var(--tilt-gy, 50%),
+      rgb(255 240 200 / 0.32),
+      transparent 60%
+    );
+    opacity: var(--tilt-glare, 0);
+  }
+}
+
+/* Enter/leave classes for Angular's native animate.enter / animate.leave. */
+@keyframes yb-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes yb-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes yb-zoom-in {
+  from {
+    opacity: 0;
+    transform: scale(0.94) translateY(10px);
+  }
+}
+
+@keyframes yb-rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+
+.yb-fade-in {
+  animation: yb-fade-in 0.25s ease-out;
+}
+
+.yb-fade-out {
+  animation: yb-fade-out 0.2s ease-in forwards;
+  pointer-events: none;
+}
+
+.yb-zoom-in {
+  animation: yb-zoom-in 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.yb-rise-in {
+  animation: yb-rise-in 0.5s ease-out;
+}
+
+/* Route changes cross-fade via the View Transitions API (withViewTransitions
+   in app.config). The header is its own layer so it stays put. */
+.site-header {
+  view-transition-name: site-header;
+}
+
+::view-transition-old(root) {
+  animation: 0.18s ease-in both yb-fade-out;
+}
+
+::view-transition-new(root) {
+  animation: 0.32s ease-out both yb-rise-in;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .yb-fade-in,
+  .yb-fade-out,
+  .yb-zoom-in,
+  .yb-rise-in,
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
 /* ===== Qamariya arch (signature brand shape) ===== */
 .arch {
   border-start-start-radius: var(--yb-arch-radius);

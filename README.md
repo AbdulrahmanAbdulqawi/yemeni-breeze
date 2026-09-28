@@ -18,6 +18,7 @@ Website for **Yemen Breeze**, a youth-led cultural initiative in Amsterdam.
 - **Emails (Brevo SMTP)** — localized confirmation email with **QR entry ticket** + calendar (.ics) attachment, waitlist and promotion notifications. Without SMTP config the app logs instead of sending (dev mode).
 - **QR check-in** — `/admin/events/:id/checkin`: camera scanning (phone-friendly) plus name/email search fallback, live seats counter; check-in status in the registrations table and CSV.
 - **Images** — server-side resize to WebP (1600px large + 480px thumb, EXIF stripped), drag-and-drop multi-upload, per-event photo albums, admin-managed hero/About images.
+- **Motion & 3D** — Home hero has a Three.js layer of drifting stained-glass shards (qamariya pieces) lit by a pointer-following light (`pages/home/qamariya-scene.ts`, lazy-loaded, paused off-screen); GSAP scroll reveals, stat count-ups and a 3D card tilt live in `shared/motion/`; lightboxes use Angular's `animate.enter`/`animate.leave` and routes cross-fade via View Transitions. Everything falls back to the static page under `prefers-reduced-motion`.
 - **Admin dashboard** (`/admin`) — JWT login; events CRUD in all three languages; registrations per event with waitlist promotion, cancellation, and **CSV export**; gallery + branding management; contact-message inbox.
 
 ## Run locally

@@ -2,6 +2,7 @@
   @if (heroImage(); as image) {
     <div class="hero-bg" [style.background-image]="'url(' + image + ')'"></div>
   }
+  <app-qamariya-hero />
   <div class="container hero-inner">
     <img src="/assets/logo.png" alt="Yemen Breeze — نسمات اليمن" class="hero-logo" />
     <h1 class="hero-title">{{ 'home.heroTitle' | cms }}</h1>
@@ -15,17 +16,17 @@
 
 <section class="section pillars">
   <div class="container pillars-grid">
-    <div class="pillar">
+    <div class="pillar" appReveal>
       <span class="pillar-dot" style="background: var(--yb-blue)"></span>
       <h3>{{ 'home.connect' | cms }}</h3>
       <p>{{ 'home.connectText' | cms }}</p>
     </div>
-    <div class="pillar">
+    <div class="pillar" appReveal>
       <span class="pillar-dot" style="background: var(--yb-orange)"></span>
       <h3>{{ 'home.showcase' | cms }}</h3>
       <p>{{ 'home.showcaseText' | cms }}</p>
     </div>
-    <div class="pillar">
+    <div class="pillar" appReveal>
       <span class="pillar-dot" style="background: var(--yb-green)"></span>
       <h3>{{ 'home.build' | cms }}</h3>
       <p>{{ 'home.buildText' | cms }}</p>
@@ -35,22 +36,22 @@
 
 <section class="section section-dark stats">
   <div class="container">
-    <h2 class="section-title">{{ 'home.statsTitle' | cms }}</h2>
+    <h2 class="section-title" appReveal>{{ 'home.statsTitle' | cms }}</h2>
     <div class="stats-grid">
-      <div class="stat">
-        <span class="stat-number">{{ 'home.statAttendeesValue' | cms }}</span>
+      <div class="stat" appReveal>
+        <span class="stat-number" [appCountUp]="'home.statAttendeesValue' | cms"></span>
         <span class="stat-label">{{ 'home.statAttendees' | cms }}</span>
       </div>
-      <div class="stat">
-        <span class="stat-number">{{ 'home.statViewsValue' | cms }}</span>
+      <div class="stat" appReveal>
+        <span class="stat-number" [appCountUp]="'home.statViewsValue' | cms"></span>
         <span class="stat-label">{{ 'home.statViews' | cms }}</span>
       </div>
-      <div class="stat">
-        <span class="stat-number">{{ 'home.statEventsValue' | cms }}</span>
+      <div class="stat" appReveal>
+        <span class="stat-number" [appCountUp]="'home.statEventsValue' | cms"></span>
         <span class="stat-label">{{ 'home.statEvents' | cms }}</span>
       </div>
-      <div class="stat">
-        <span class="stat-number">{{ 'home.statMealsValue' | cms }}</span>
+      <div class="stat" appReveal>
+        <span class="stat-number" [appCountUp]="'home.statMealsValue' | cms"></span>
         <span class="stat-label">{{ 'home.statMeals' | cms }}</span>
       </div>
     </div>
@@ -60,8 +61,8 @@
 @if (nextEvent(); as event) {
   <section class="section next-event">
     <div class="container">
-      <h2 class="section-title">{{ 'home.upcomingTitle' | cms }}</h2>
-      <div class="next-event-card">
+      <h2 class="section-title" appReveal>{{ 'home.upcomingTitle' | cms }}</h2>
+      <div class="next-event-card" appReveal>
         <app-event-card [event]="event" variant="upcoming" />
       </div>
     </div>
@@ -70,7 +71,7 @@
 
 <section class="section mission-strip">
   <div class="container">
-    <h2 class="section-title">{{ 'home.missionTitle' | cms }}</h2>
-    <p class="mission-text">{{ 'home.missionText' | cms }}</p>
+    <h2 class="section-title" appReveal>{{ 'home.missionTitle' | cms }}</h2>
+    <p class="mission-text" appReveal>{{ 'home.missionText' | cms }}</p>
   </div>
 </section>

@@ -8,19 +8,19 @@
 <section class="section">
   <div class="container">
     @if (upcoming().length) {
-      <h2 class="section-title">{{ 'events.upcoming' | transloco }}</h2>
+      <h2 class="section-title" appReveal>{{ 'events.upcoming' | transloco }}</h2>
       <div class="events-grid">
         @for (event of upcoming(); track event.id) {
-          <app-event-card [event]="event" variant="upcoming" />
+          <app-event-card [event]="event" variant="upcoming" appReveal />
         }
       </div>
     }
 
     @if (past().length) {
-      <h2 class="section-title past-title">{{ 'events.past' | transloco }}</h2>
+      <h2 class="section-title past-title" appReveal>{{ 'events.past' | transloco }}</h2>
       <div class="events-grid">
         @for (event of past(); track event.id) {
-          <app-event-card [event]="event" variant="past" />
+          <app-event-card [event]="event" variant="past" appReveal />
         }
       </div>
     }

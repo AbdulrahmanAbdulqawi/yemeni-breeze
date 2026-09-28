@@ -7,6 +7,7 @@ import { GalleryCacheService } from '../../core/gallery-cache.service';
 import { LanguageService } from '../../core/language.service';
 import { originalUrl } from '../../core/media-url';
 import { GalleryItemDto, MediaFolderDto } from '../../core/models';
+import { Reveal } from '../../shared/motion/reveal.directive';
 
 /**
  * Repeating bento rhythm: wide, tall, square, panoramic, then a balanced pair.
@@ -18,7 +19,7 @@ const PAGE_SIZE = 50;
 
 @Component({
   selector: 'app-gallery-page',
-  imports: [TranslocoPipe, CmsPipe],
+  imports: [TranslocoPipe, CmsPipe, Reveal],
   templateUrl: './gallery-page.html',
   styleUrl: './gallery-page.scss'
 })
