@@ -6,10 +6,11 @@ import { CmsPipe } from '../../core/cms.pipe';
 import { LanguageService } from '../../core/language.service';
 import { EventDto } from '../../core/models';
 import { EventCard } from '../../shared/event-card';
+import { Reveal } from '../../shared/motion/reveal.directive';
 
 @Component({
   selector: 'app-events-list',
-  imports: [TranslocoPipe, CmsPipe, EventCard],
+  imports: [TranslocoPipe, CmsPipe, EventCard, Reveal],
   templateUrl: './events-list.html',
   styleUrl: './events-list.scss'
 })

@@ -4,6 +4,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { LocalizedDatePipe } from '../core/localized-date.pipe';
 import { LanguageService } from '../core/language.service';
 import { EventDto } from '../core/models';
+import { Tilt } from './motion/tilt.directive';
 
 /**
  * The two event-card treatments used across Home and the Events page:
@@ -12,9 +13,9 @@ import { EventDto } from '../core/models';
  */
 @Component({
   selector: 'app-event-card',
-  imports: [RouterLink, TranslocoPipe, LocalizedDatePipe],
+  imports: [RouterLink, TranslocoPipe, LocalizedDatePipe, Tilt],
   template: `
-    <article class="ec card" [class.ec-past]="variant() === 'past'">
+    <article class="ec card" appTilt [class.ec-past]="variant() === 'past'">
       <div class="ec-media">
         @if (event().imageUrl) {
           <img [src]="event().imageUrl" [alt]="lang.pick(event(), 'title')" />

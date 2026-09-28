@@ -84,14 +84,14 @@
               </button>
             </form>
           } @else if (result() === 'Confirmed') {
-            <div class="result confirmed">
+            <div class="result confirmed" animate.enter="yb-rise-in">
               <span class="result-icon">🎉</span>
               <h2>{{ 'events.form.confirmedTitle' | transloco }}</h2>
               <p>{{ 'events.form.confirmedText' | transloco }}</p>
               <a routerLink="/events" class="btn btn-outline">{{ 'nav.events' | transloco }}</a>
             </div>
           } @else {
-            <div class="result waitlisted">
+            <div class="result waitlisted" animate.enter="yb-rise-in">
               <span class="result-icon">⏳</span>
               <h2>{{ 'events.form.waitlistedTitle' | transloco }}</h2>
               <p>{{ 'events.form.waitlistedText' | transloco }}</p>
@@ -106,18 +106,18 @@
   @if (album().length) {
     <section class="section album-section">
       <div class="container">
-        <h2 class="section-title">{{ 'events.album' | transloco }}</h2>
+        <h2 class="section-title" appReveal>{{ 'events.album' | transloco }}</h2>
         <div class="album-grid">
           @for (photo of album(); track photo.id) {
             @switch (photo.mediaType) {
               @case ('video') {
-                <video class="album-item arch" [src]="photo.imageUrl" controls preload="metadata"></video>
+                <video class="album-item arch" appReveal [src]="photo.imageUrl" controls preload="metadata"></video>
               }
               @case ('file') {
-                <a class="album-item arch file-tile" [href]="photo.imageUrl" target="_blank" rel="noopener">📄</a>
+                <a class="album-item arch file-tile" appReveal [href]="photo.imageUrl" target="_blank" rel="noopener">📄</a>
               }
               @default {
-                <button class="album-item arch" (click)="openLightbox(photo)">
+                <button class="album-item arch" appReveal (click)="openLightbox(photo)">
                   <img [src]="photo.thumbUrl || photo.imageUrl" [alt]="lang.pick(photo, 'caption')" loading="lazy" />
                 </button>
               }
@@ -129,7 +129,7 @@
   }
 
   @if (lightbox(); as photo) {
-    <div class="lightbox" (click)="closeLightbox()" (touchstart)="onTouchStart($event)" (touchend)="onTouchEnd($event)">
+    <div class="lightbox" animate.enter="yb-fade-in" animate.leave="yb-fade-out" (click)="closeLightbox()" (touchstart)="onTouchStart($event)" (touchend)="onTouchEnd($event)">
       <button type="button" class="lightbox-close" (click)="$event.stopPropagation(); closeLightbox()" [attr.aria-label]="'gallery.close' | transloco">
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <path d="M6 6l12 12M18 6 6 18" />
@@ -149,7 +149,7 @@
         </button>
       }
 
-      <div class="lightbox-content" (click)="$event.stopPropagation()">
+      <div class="lightbox-content" animate.enter="yb-zoom-in" (click)="$event.stopPropagation()">
         <img [src]="photo.imageUrl" [alt]="lang.pick(photo, 'caption')" />
         @if (lang.pick(photo, 'caption')) {
           <p class="lightbox-caption">{{ lang.pick(photo, 'caption') }}</p>

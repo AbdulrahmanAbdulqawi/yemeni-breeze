@@ -87,6 +87,12 @@
 
     &.open {
       display: flex;
+      /* keyframes live in styles.scss */
+      animation: yb-rise-in 0.25s ease-out;
+
+      @media (prefers-reduced-motion: reduce) {
+        animation: none;
+      }
     }
   }
 }

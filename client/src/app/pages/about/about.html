@@ -6,7 +6,7 @@
 </section>
 
 <section class="section">
-  <div class="container narrow story-block" [class.with-image]="aboutImage()">
+  <div class="container narrow story-block" [class.with-image]="aboutImage()" appReveal>
     @if (aboutImage(); as image) {
       <img [src]="image" alt="" class="story-image arch" />
     }
@@ -19,17 +19,17 @@
 
 <section class="section mission">
   <div class="container narrow">
-    <h2 class="section-title">{{ 'about.missionTitle' | cms }}</h2>
-    <p class="mission-text">{{ 'about.missionText' | cms }}</p>
+    <h2 class="section-title" appReveal>{{ 'about.missionTitle' | cms }}</h2>
+    <p class="mission-text" appReveal>{{ 'about.missionText' | cms }}</p>
   </div>
 </section>
 
 <section class="section">
   <div class="container">
-    <h2 class="section-title">{{ 'about.valuesTitle' | cms }}</h2>
+    <h2 class="section-title" appReveal>{{ 'about.valuesTitle' | cms }}</h2>
     <div class="values-grid">
       @for (value of values; track value.key) {
-        <div class="value-card card card-content">
+        <div class="value-card card card-content" appReveal appTilt>
           <span class="value-dot" [style.background]="value.color"></span>
           <h3>{{ 'about.value' + value.key | cms }}</h3>
           <p>{{ 'about.value' + value.key + 'Text' | cms }}</p>
@@ -48,11 +48,11 @@
 
 <section class="section">
   <div class="container">
-    <h2 class="section-title">{{ 'about.teamTitle' | cms }}</h2>
+    <h2 class="section-title" appReveal>{{ 'about.teamTitle' | cms }}</h2>
     <div class="team-grid">
       @for (member of team(); track member.id) {
         @if (member.slug) {
-          <a [routerLink]="['/team', member.slug]" class="team-card card arch">
+          <a [routerLink]="['/team', member.slug]" class="team-card card arch" appReveal appTilt>
             @if (member.photoUrl) {
               <img [src]="member.photoUrl" alt="" class="team-avatar-img" />
             } @else {
@@ -62,7 +62,7 @@
             <p>{{ lang.pick(member, 'role') }}</p>
           </a>
         } @else {
-          <div class="team-card card arch">
+          <div class="team-card card arch" appReveal appTilt>
             @if (member.photoUrl) {
               <img [src]="member.photoUrl" alt="" class="team-avatar-img" />
             } @else {

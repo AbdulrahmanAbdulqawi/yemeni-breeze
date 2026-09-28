@@ -6,10 +6,12 @@ import { ApiService } from '../../core/api.service';
 import { CmsPipe } from '../../core/cms.pipe';
 import { LanguageService } from '../../core/language.service';
 import { TeamMemberDto } from '../../core/models';
+import { Reveal } from '../../shared/motion/reveal.directive';
+import { Tilt } from '../../shared/motion/tilt.directive';
 
 @Component({
   selector: 'app-about',
-  imports: [CmsPipe, RouterLink],
+  imports: [CmsPipe, RouterLink, Reveal, Tilt],
   templateUrl: './about.html',
   styleUrl: './about.scss'
 })

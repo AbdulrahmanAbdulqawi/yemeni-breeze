@@ -3,10 +3,11 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { ApiService } from '../../core/api.service';
 import { CmsPipe } from '../../core/cms.pipe';
+import { Reveal } from '../../shared/motion/reveal.directive';
 
 @Component({
   selector: 'app-contact-page',
-  imports: [ReactiveFormsModule, TranslocoPipe, CmsPipe],
+  imports: [ReactiveFormsModule, TranslocoPipe, CmsPipe, Reveal],
   templateUrl: './contact-page.html',
   styleUrl: './contact-page.scss'
 })
