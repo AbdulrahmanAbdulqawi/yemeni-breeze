@@ -6,6 +6,13 @@ import { EventDto, GalleryItemDto, TeamMemberDto } from './models';
 export type Lang = 'en' | 'nl' | 'ar';
 const LANG_KEY = 'yb_lang';
 
+/**
+ * Languages offered in the switcher. Dutch is hidden for now, but its
+ * translations stay in place (nl.json, Nl columns, admin editors) so it can
+ * be switched back on by adding it here.
+ */
+export const SITE_LANGS: Lang[] = ['en', 'ar'];
+
 @Injectable({ providedIn: 'root' })
 export class LanguageService {
   private transloco = inject(TranslocoService);
@@ -15,7 +22,7 @@ export class LanguageService {
 
   init() {
     const saved = localStorage.getItem(LANG_KEY) as Lang | null;
-    this.set(saved && ['en', 'nl', 'ar'].includes(saved) ? saved : 'en');
+    this.set(saved && SITE_LANGS.includes(saved) ? saved : 'en');
   }
 
   set(lang: Lang) {
