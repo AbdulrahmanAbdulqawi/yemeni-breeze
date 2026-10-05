@@ -56,68 +56,19 @@
   margin-bottom: 0.6rem;
 }
 
-.team-grid {
+.services-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 1.4rem;
   max-width: 980px;
   margin: 0 auto;
-}
 
-.team-card {
-  display: block;
-  padding: 2.2rem 1rem 1.4rem;
-  text-align: center;
-  text-decoration: none;
-  color: inherit;
-  --yb-arch-radius: 90px;
-
-  &[href] {
-    transition: translate 0.15s ease, box-shadow 0.15s ease;
-
-    &:hover {
-      translate: 0 -3px;
-      box-shadow: 0 10px 28px rgba(71, 24, 10, 0.14);
-      color: inherit;
-    }
-  }
-
-  h3 {
-    margin-bottom: 0.2rem;
+  app-service-card {
+    text-align: center;
   }
 }
 
-.team-avatar,
-.team-avatar-img {
-  width: 72px;
-  height: 72px;
-  margin: 0 auto 0.8rem;
-  border-radius: 50%;
-}
-
-.team-avatar {
-  background: var(--yb-brown);
-  color: var(--yb-cream);
-  font-family: var(--yb-font-heading);
-  font-size: 1.8rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.team-avatar-img {
-  object-fit: cover;
-  display: block;
-}
-
-.team-note {
+.services-cta {
   text-align: center;
-  max-width: 640px;
-  margin: 2.2rem auto 1rem;
-  font-style: italic;
-  opacity: 0.85;
-}
-
-.team-cta {
-  text-align: center;
+  margin-top: 2.2rem;
 }

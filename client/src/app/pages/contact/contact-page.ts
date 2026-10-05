@@ -4,16 +4,19 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { ApiService } from '../../core/api.service';
 import { CmsPipe } from '../../core/cms.pipe';
 import { Reveal } from '../../shared/motion/reveal.directive';
+import { SERVICES, ServiceCard } from '../../shared/service-card';
 
 @Component({
   selector: 'app-contact-page',
-  imports: [ReactiveFormsModule, TranslocoPipe, CmsPipe, Reveal],
+  imports: [ReactiveFormsModule, TranslocoPipe, CmsPipe, Reveal, ServiceCard],
   templateUrl: './contact-page.html',
   styleUrl: './contact-page.scss'
 })
 export class ContactPage {
   private api = inject(ApiService);
   private fb = inject(FormBuilder);
+
+  readonly services = SERVICES;
 
   readonly sending = signal(false);
   readonly sent = signal(false);

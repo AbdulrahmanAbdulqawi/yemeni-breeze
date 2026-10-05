@@ -1,4 +1,4 @@
-export type ContentGroup = 'home' | 'about' | 'events' | 'gallery' | 'contact' | 'footer';
+export type ContentGroup = 'home' | 'about' | 'services' | 'events' | 'gallery' | 'contact' | 'footer';
 
 export interface ContentField {
   key: string;
@@ -57,21 +57,25 @@ export const CONTENT_FIELDS: ContentField[] = [
   { key: 'about.valueUnityText', group: 'about', multiline: true },
   { key: 'about.socialTitle', group: 'about' },
   { key: 'about.socialText', group: 'about', multiline: true },
-  { key: 'about.teamTitle', group: 'about' },
-  { key: 'about.teamNote', group: 'about', multiline: true },
-  { key: 'about.joinCta', group: 'about' },
+
+  { key: 'services.title', group: 'services' },
+  { key: 'services.photography', group: 'services' },
+  { key: 'services.photographyText', group: 'services', multiline: true },
+  { key: 'services.corner', group: 'services' },
+  { key: 'services.cornerText', group: 'services', multiline: true },
+  { key: 'services.food', group: 'services' },
+  { key: 'services.foodText', group: 'services', multiline: true },
+  { key: 'services.cta', group: 'services' },
 
   { key: 'events.intro', group: 'events', multiline: true },
 
   { key: 'gallery.intro', group: 'gallery', multiline: true },
 
-  { key: 'contact.intro', group: 'contact', multiline: true },
-  { key: 'contact.partnershipText', group: 'contact', multiline: true },
-  { key: 'contact.volunteerText', group: 'contact', multiline: true },
+  { key: 'contact.bookingIntro', group: 'contact', multiline: true },
 
   { key: 'footer.tagline', group: 'footer' },
   { key: 'footer.location', group: 'footer' },
   { key: 'footer.rights', group: 'footer', multiline: true }
 ];
 
-export const CONTENT_GROUPS: ContentGroup[] = ['home', 'about', 'events', 'gallery', 'contact', 'footer'];
+export const CONTENT_GROUPS: ContentGroup[] = ['home', 'about', 'services', 'events', 'gallery', 'contact', 'footer'];

@@ -14,23 +14,10 @@
   </div>
 </section>
 
-<section class="section pillars">
-  <div class="container pillars-grid">
-    <div class="pillar" appReveal>
-      <span class="pillar-dot" style="background: var(--yb-blue)"></span>
-      <h3>{{ 'home.connect' | cms }}</h3>
-      <p>{{ 'home.connectText' | cms }}</p>
-    </div>
-    <div class="pillar" appReveal>
-      <span class="pillar-dot" style="background: var(--yb-orange)"></span>
-      <h3>{{ 'home.showcase' | cms }}</h3>
-      <p>{{ 'home.showcaseText' | cms }}</p>
-    </div>
-    <div class="pillar" appReveal>
-      <span class="pillar-dot" style="background: var(--yb-green)"></span>
-      <h3>{{ 'home.build' | cms }}</h3>
-      <p>{{ 'home.buildText' | cms }}</p>
-    </div>
+<section class="section mission-strip">
+  <div class="container">
+    <h2 class="section-title" appReveal>{{ 'home.missionTitle' | cms }}</h2>
+    <p class="mission-text" appReveal>{{ 'home.missionText' | cms }}</p>
   </div>
 </section>
 
@@ -69,9 +56,22 @@
   </section>
 }
 
-<section class="section mission-strip">
-  <div class="container">
-    <h2 class="section-title" appReveal>{{ 'home.missionTitle' | cms }}</h2>
-    <p class="mission-text" appReveal>{{ 'home.missionText' | cms }}</p>
+<section class="section pillars">
+  <div class="container pillars-grid">
+    <div class="pillar" appReveal>
+      <span class="pillar-dot" style="background: var(--yb-blue)"></span>
+      <h3>{{ 'home.connect' | cms }}</h3>
+      <p>{{ 'home.connectText' | cms }}</p>
+    </div>
+    <div class="pillar" appReveal>
+      <span class="pillar-dot" style="background: var(--yb-orange)"></span>
+      <h3>{{ 'home.showcase' | cms }}</h3>
+      <p>{{ 'home.showcaseText' | cms }}</p>
+    </div>
+    <div class="pillar" appReveal>
+      <span class="pillar-dot" style="background: var(--yb-green)"></span>
+      <h3>{{ 'home.build' | cms }}</h3>
+      <p>{{ 'home.buildText' | cms }}</p>
+    </div>
   </div>
 </section>

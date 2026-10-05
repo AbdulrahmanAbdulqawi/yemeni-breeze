@@ -96,12 +96,24 @@ public static class ContentDefaults
             "We believe the most powerful response to hatred is not argument — it is experience. When a Dutch person has cooked Yemeni food with their own hands, written a message of love to a stranger in a camp, heard the oud played, and shared coffee at the same table — they do not see refugees the same way anymore. That is our method. And it works.",
             "Wij geloven dat het krachtigste antwoord op haat geen discussie is — maar ervaring. Als een Nederlander met eigen handen Jemenitisch eten heeft gekookt, een liefdevolle boodschap heeft geschreven aan een vreemde in een AZC, de oud heeft horen spelen en koffie heeft gedeeld aan dezelfde tafel — dan kijkt diegene nooit meer op dezelfde manier naar vluchtelingen. Dat is onze methode. En die werkt.",
             "نؤمن أن أقوى ردّ على الكراهية ليس الجدال — بل التجربة. عندما يطبخ هولندي الطعام اليمني بيديه، ويكتب رسالة محبة لغريب في مخيم، ويسمع عزف العود، ويتشارك القهوة على الطاولة نفسها — لن ينظر إلى اللاجئين بالطريقة ذاتها بعد ذلك. هذه طريقتنا. وهي تنجح."),
-        ["about.teamTitle"] = ("The Team", "Het team", "الفريق"),
-        ["about.teamNote"] = (
-            "We are actively growing. If you are Yemeni and living in the Netherlands, or if you share our vision, we welcome you to reach out and become part of Yemen Breeze.",
-            "We groeien actief. Ben je Jemeniet en woon je in Nederland, of deel je onze visie? Neem contact op en word onderdeel van Yemen Breeze.",
-            "نحن ننمو باستمرار. إذا كنت يمنيًا تعيش في هولندا، أو كنت تشاركنا رؤيتنا، نرحب بتواصلك وانضمامك إلى نسمات اليمن."),
-        ["about.joinCta"] = ("Join the movement", "Sluit je aan", "انضم إلى الحركة"),
+
+        ["services.title"] = ("Our services", "Onze diensten", "ركن الخدمات"),
+        ["services.photography"] = ("Photography & video editing", "Fotografie & videomontage", "التصوير والمونتاج"),
+        ["services.photographyText"] = (
+            "We capture your event in photos and video, and deliver a professionally edited cut ready to share.",
+            "We leggen je evenement vast in foto's en video, en leveren een professioneel gemonteerde versie die klaar is om te delen.",
+            "نوثّق فعاليتكم ومناسباتكم بالصور والفيديو، ونسلّمها لكم بمونتاج احترافي جاهز للنشر."),
+        ["services.corner"] = ("The Yemeni corner", "De Jemenitische hoek", "الركن اليمني"),
+        ["services.cornerText"] = (
+            "A Yemeni cultural corner at your event that introduces your guests to Yemen's heritage and hospitality.",
+            "Een Jemenitische cultuurhoek op je evenement die je gasten kennis laat maken met het erfgoed en de gastvrijheid van Jemen.",
+            "ركن ثقافي يمني في فعاليتكم يعرّف ضيوفكم بتراث اليمن وضيافته الأصيلة."),
+        ["services.food"] = ("Yemeni food", "Jemenitisch eten", "الأكل اليمني"),
+        ["services.foodText"] = (
+            "Authentic Yemeni dishes for your event, made from traditional recipes with the flavours of home.",
+            "Authentieke Jemenitische gerechten voor je evenement, bereid volgens traditionele recepten met de smaak van thuis.",
+            "أطباق يمنية أصيلة لفعاليتكم، محضّرة بوصفات تقليدية ونكهات من البيت."),
+        ["services.cta"] = ("Book us", "Boek ons", "احجزنا"),
 
         ["events.intro"] = (
             "Communal dinners, cooking workshops, and cultural gatherings in Amsterdam — join us at the table.",
@@ -113,18 +125,10 @@ public static class ContentDefaults
             "Momenten van onze evenementen in Amsterdam — handen in de keuken, muziek in de zaal, en tafels waar Jemenitische en Nederlandse gasten als gelijken samen zitten.",
             "لحظات من فعالياتنا في أمستردام — أيادٍ في المطبخ، وموسيقى تملأ المكان، وطاولات يجلس حولها الضيوف اليمنيون والهولنديون سواسية."),
 
-        ["contact.intro"] = (
-            "We welcome all inquiries, partnership proposals, and expressions of interest from individuals, organizations, and institutions who share our vision.",
-            "We verwelkomen alle vragen, partnervoorstellen en interesse van personen, organisaties en instellingen die onze visie delen.",
-            "نرحب بجميع الاستفسارات ومقترحات الشراكة واهتمام الأفراد والمنظمات والمؤسسات التي تشاركنا رؤيتنا."),
-        ["contact.partnershipText"] = (
-            "Yemen Breeze is registering as a formal Stichting (foundation) under Dutch law. We partner with cultural institutions, municipalities, refugee support organizations, and AZC locations.",
-            "Yemen Breeze registreert zich als formele Stichting naar Nederlands recht. We werken samen met culturele instellingen, gemeenten, vluchtelingenorganisaties en AZC-locaties.",
-            "نسمات اليمن في طور التسجيل كمؤسسة (Stichting) رسمية بموجب القانون الهولندي. نتعاون مع المؤسسات الثقافية والبلديات ومنظمات دعم اللاجئين ومراكز استقبال طالبي اللجوء."),
-        ["contact.volunteerText"] = (
-            "There is no gate. If you care about Yemen and want to do something meaningful, Yemen Breeze is your platform too.",
-            "Er is geen drempel. Geef je om Jemen en wil je iets betekenisvols doen? Dan is Yemen Breeze ook jouw platform.",
-            "لا توجد حواجز. إذا كنت تهتم باليمن وتريد أن تفعل شيئًا ذا معنى، فنسمات اليمن منصتك أيضًا."),
+        ["contact.bookingIntro"] = (
+            "Planning an event? Book Yemen Breeze — tell us about your event and the service you need, and we'll get back to you soon.",
+            "Plan je een evenement? Boek Yemen Breeze — vertel ons over je evenement en de dienst die je zoekt, en we nemen snel contact met je op.",
+            "تخططون لفعالية أو مناسبة؟ احجزوا نسمات اليمن — أخبرونا عن فعاليتكم والخدمة التي تحتاجونها، وسنعاود التواصل معكم قريبًا."),
 
         ["footer.tagline"] = (
             "We CONNECT cultures. We SHOWCASE Yemen. We BUILD bridges.",

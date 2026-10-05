@@ -6,7 +6,7 @@
     },
     "about": {
       "title": "Ons verhaal",
-      "description": "Hoe Yemen Breeze uitgroeide van één visie tot een open beweging — onze missie, waarden en het team erachter."
+      "description": "Hoe Yemen Breeze uitgroeide van één visie tot een open beweging — onze missie, waarden en diensten."
     },
     "events": {
       "title": "Evenementen",
@@ -17,8 +17,8 @@
       "description": "Foto's van Yemen Breeze-evenementen — Jemenitisch eten, muziek en community in Amsterdam."
     },
     "contact": {
-      "title": "Contact",
-      "description": "Neem contact op met Yemen Breeze — partnerschappen, vrijwilligerswerk, pers en vragen."
+      "title": "Boek ons",
+      "description": "Boek Yemen Breeze voor je evenement — fotografie en videomontage, een Jemenitische hoek en Jemenitisch eten."
     }
   },
   "nav": {
@@ -26,7 +26,7 @@
     "about": "Ons verhaal",
     "events": "Evenementen",
     "gallery": "Galerij",
-    "contact": "Contact"
+    "contact": "Boek ons"
   },
   "footer": {
     "tagline": "Wij VERBINDEN culturen. Wij TONEN Jemen. Wij BOUWEN bruggen.",
@@ -76,10 +76,17 @@
     "valueUnityText": "Het verhaal van Jemen is van ons allemaal.",
     "socialTitle": "Onze maatschappelijke missie",
     "socialText": "Wij geloven dat het krachtigste antwoord op haat geen discussie is — maar ervaring. Als een Nederlander met eigen handen Jemenitisch eten heeft gekookt, een liefdevolle boodschap heeft geschreven aan een vreemde in een AZC, de oud heeft horen spelen en koffie heeft gedeeld aan dezelfde tafel — dan kijkt diegene nooit meer op dezelfde manier naar vluchtelingen. Dat is onze methode. En die werkt.",
-    "teamTitle": "Het team",
-    "teamNote": "We groeien actief. Ben je Jemeniet en woon je in Nederland, of deel je onze visie? Neem contact op en word onderdeel van Yemen Breeze.",
-    "joinCta": "Sluit je aan",
     "backToTeam": "Terug naar het team"
+  },
+  "services": {
+    "title": "Onze diensten",
+    "photography": "Fotografie & videomontage",
+    "photographyText": "We leggen je evenement vast in foto's en video, en leveren een professioneel gemonteerde versie die klaar is om te delen.",
+    "corner": "De Jemenitische hoek",
+    "cornerText": "Een Jemenitische cultuurhoek op je evenement die je gasten kennis laat maken met het erfgoed en de gastvrijheid van Jemen.",
+    "food": "Jemenitisch eten",
+    "foodText": "Authentieke Jemenitische gerechten voor je evenement, bereid volgens traditionele recepten met de smaak van thuis.",
+    "cta": "Boek ons"
   },
   "events": {
     "title": "Evenementen",
@@ -133,8 +140,8 @@
     "loading": "Laden…"
   },
   "contact": {
-    "title": "Contact",
-    "intro": "We verwelkomen alle vragen, partnervoorstellen en interesse van personen, organisaties en instellingen die onze visie delen.",
+    "title": "Boek ons",
+    "bookingIntro": "Plan je een evenement? Boek Yemen Breeze — vertel ons over je evenement en de dienst die je zoekt, en we nemen snel contact met je op.",
     "name": "Je naam",
     "email": "Je e-mail",
     "subject": "Onderwerp",
@@ -142,11 +149,7 @@
     "send": "Verstuur bericht",
     "sending": "Versturen…",
     "sent": "Dank je — we nemen snel contact op.",
-    "error": "Bericht kon niet worden verzonden. Probeer het opnieuw.",
-    "partnership": "Partnerschappen",
-    "partnershipText": "Yemen Breeze registreert zich als formele Stichting naar Nederlands recht. We werken samen met culturele instellingen, gemeenten, vluchtelingenorganisaties en AZC-locaties.",
-    "volunteer": "Vrijwilligerswerk",
-    "volunteerText": "Er is geen drempel. Geef je om Jemen en wil je iets betekenisvols doen? Dan is Yemen Breeze ook jouw platform."
+    "error": "Bericht kon niet worden verzonden. Probeer het opnieuw."
   },
   "admin": {
     "login": {
@@ -319,7 +322,8 @@
         "about": "Ons verhaal",
         "events": "Evenementen",
         "gallery": "Galerij",
-        "contact": "Contact",
+        "contact": "Boek ons",
+        "services": "Diensten",
         "footer": "Footer"
       }
     },
