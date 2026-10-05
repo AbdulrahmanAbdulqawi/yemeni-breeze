@@ -32,8 +32,6 @@ export const CONTENT_FIELDS: ContentField[] = [
   { key: 'home.statViewsValue', group: 'home', shared: true },
   { key: 'home.statEvents', group: 'home' },
   { key: 'home.statEventsValue', group: 'home', shared: true },
-  { key: 'home.statMeals', group: 'home' },
-  { key: 'home.statMealsValue', group: 'home', shared: true },
   { key: 'home.upcomingTitle', group: 'home' },
   { key: 'home.missionTitle', group: 'home' },
   { key: 'home.missionText', group: 'home', multiline: true },
