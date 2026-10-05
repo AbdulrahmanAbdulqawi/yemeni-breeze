@@ -48,35 +48,14 @@
 
 <section class="section">
   <div class="container">
-    <h2 class="section-title" appReveal>{{ 'about.teamTitle' | cms }}</h2>
-    <div class="team-grid">
-      @for (member of team(); track member.id) {
-        @if (member.slug) {
-          <a [routerLink]="['/team', member.slug]" class="team-card card arch" appReveal appTilt>
-            @if (member.photoUrl) {
-              <img [src]="member.photoUrl" alt="" class="team-avatar-img" />
-            } @else {
-              <div class="team-avatar">{{ member.name.charAt(0) }}</div>
-            }
-            <h3>{{ member.name }}</h3>
-            <p>{{ lang.pick(member, 'role') }}</p>
-          </a>
-        } @else {
-          <div class="team-card card arch" appReveal appTilt>
-            @if (member.photoUrl) {
-              <img [src]="member.photoUrl" alt="" class="team-avatar-img" />
-            } @else {
-              <div class="team-avatar">{{ member.name.charAt(0) }}</div>
-            }
-            <h3>{{ member.name }}</h3>
-            <p>{{ lang.pick(member, 'role') }}</p>
-          </div>
-        }
+    <h2 class="section-title" appReveal>{{ 'services.title' | cms }}</h2>
+    <div class="services-grid">
+      @for (service of services; track service) {
+        <app-service-card [service]="service" appReveal appTilt />
       }
     </div>
-    <p class="team-note">{{ 'about.teamNote' | cms }}</p>
-    <p class="team-cta">
-      <a routerLink="/contact" class="btn btn-primary">{{ 'about.joinCta' | cms }}</a>
+    <p class="services-cta">
+      <a routerLink="/contact" class="btn btn-primary">{{ 'services.cta' | cms }}</a>
     </p>
   </div>
 </section>

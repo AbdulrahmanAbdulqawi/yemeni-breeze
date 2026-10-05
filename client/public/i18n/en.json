@@ -6,7 +6,7 @@
     },
     "about": {
       "title": "Our Story",
-      "description": "How Yemen Breeze grew from one vision into an open movement — our mission, values, and the team behind it."
+      "description": "How Yemen Breeze grew from one vision into an open movement — our mission, values, and services."
     },
     "events": {
       "title": "Events",
@@ -17,8 +17,8 @@
       "description": "Photos from Yemen Breeze events — Yemeni food, music, and community in Amsterdam."
     },
     "contact": {
-      "title": "Contact",
-      "description": "Get in touch with Yemen Breeze — partnerships, volunteering, press, and questions."
+      "title": "Book us",
+      "description": "Book Yemen Breeze for your event — photography and video editing, a Yemeni corner, and Yemeni food."
     }
   },
   "nav": {
@@ -26,7 +26,7 @@
     "about": "Our Story",
     "events": "Events",
     "gallery": "Gallery",
-    "contact": "Contact"
+    "contact": "Book us"
   },
   "footer": {
     "tagline": "We CONNECT cultures. We SHOWCASE Yemen. We BUILD bridges.",
@@ -76,10 +76,17 @@
     "valueUnityText": "Yemen's story belongs to all of us.",
     "socialTitle": "Our Social Mission",
     "socialText": "We believe the most powerful response to hatred is not argument — it is experience. When a Dutch person has cooked Yemeni food with their own hands, written a message of love to a stranger in a camp, heard the oud played, and shared coffee at the same table — they do not see refugees the same way anymore. That is our method. And it works.",
-    "teamTitle": "The Team",
-    "teamNote": "We are actively growing. If you are Yemeni and living in the Netherlands, or if you share our vision, we welcome you to reach out and become part of Yemen Breeze.",
-    "joinCta": "Join the movement",
     "backToTeam": "Back to the team"
+  },
+  "services": {
+    "title": "Our services",
+    "photography": "Photography & video editing",
+    "photographyText": "We capture your event in photos and video, and deliver a professionally edited cut ready to share.",
+    "corner": "The Yemeni corner",
+    "cornerText": "A Yemeni cultural corner at your event that introduces your guests to Yemen's heritage and hospitality.",
+    "food": "Yemeni food",
+    "foodText": "Authentic Yemeni dishes for your event, made from traditional recipes with the flavours of home.",
+    "cta": "Book us"
   },
   "events": {
     "title": "Events",
@@ -133,8 +140,8 @@
     "loading": "Loading…"
   },
   "contact": {
-    "title": "Contact",
-    "intro": "We welcome all inquiries, partnership proposals, and expressions of interest from individuals, organizations, and institutions who share our vision.",
+    "title": "Book us",
+    "bookingIntro": "Planning an event? Book Yemen Breeze — tell us about your event and the service you need, and we'll get back to you soon.",
     "name": "Your name",
     "email": "Your email",
     "subject": "Subject",
@@ -142,11 +149,7 @@
     "send": "Send message",
     "sending": "Sending…",
     "sent": "Thank you — we will get back to you soon.",
-    "error": "Could not send your message. Please try again.",
-    "partnership": "Partnerships",
-    "partnershipText": "Yemen Breeze is registering as a formal Stichting (foundation) under Dutch law. We partner with cultural institutions, municipalities, refugee support organizations, and AZC locations.",
-    "volunteer": "Volunteering",
-    "volunteerText": "There is no gate. If you care about Yemen and want to do something meaningful, Yemen Breeze is your platform too."
+    "error": "Could not send your message. Please try again."
   },
   "admin": {
     "login": {
@@ -319,7 +322,8 @@
         "about": "Our Story",
         "events": "Events",
         "gallery": "Gallery",
-        "contact": "Contact",
+        "contact": "Book us",
+        "services": "Services",
         "footer": "Footer"
       }
     },
