@@ -97,7 +97,7 @@ public static class ContentDefaults
             "Wij geloven dat het krachtigste antwoord op haat geen discussie is — maar ervaring. Als een Nederlander met eigen handen Jemenitisch eten heeft gekookt, een liefdevolle boodschap heeft geschreven aan een vreemde in een AZC, de oud heeft horen spelen en koffie heeft gedeeld aan dezelfde tafel — dan kijkt diegene nooit meer op dezelfde manier naar vluchtelingen. Dat is onze methode. En die werkt.",
             "نؤمن أن أقوى ردّ على الكراهية ليس الجدال — بل التجربة. عندما يطبخ هولندي الطعام اليمني بيديه، ويكتب رسالة محبة لغريب في مخيم، ويسمع عزف العود، ويتشارك القهوة على الطاولة نفسها — لن ينظر إلى اللاجئين بالطريقة ذاتها بعد ذلك. هذه طريقتنا. وهي تنجح."),
 
-        ["services.title"] = ("Our services", "Onze diensten", "ركن الخدمات"),
+        ["services.title"] = ("Our services", "Onze diensten", "خدماتنا"),
         ["services.photography"] = ("Photography & video editing", "Fotografie & videomontage", "التصوير والمونتاج"),
         ["services.photographyText"] = (
             "We capture your event in photos and video, and deliver a professionally edited cut ready to share.",
