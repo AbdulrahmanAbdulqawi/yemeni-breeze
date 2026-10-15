@@ -61,7 +61,7 @@ public class EmailProviderTests
         var (registration, ev) = ConfirmedRegistration();
 
         Assert.True(service.IsConfigured);
-        var email = RegistrationEmails.Build(registration, ev, EmailKind.Confirmed, "https://yemenibreeze.nl")!;
+        var email = RegistrationEmails.Build(registration, ev, EmailKind.Confirmed, "https://yemenbreeze.nl")!;
         await service.SendAsync(registration.FullName, registration.Email, email);
 
         Assert.NotNull(handler.Request);
@@ -118,7 +118,7 @@ public class EmailProviderTests
     {
         var service = CreateService(new() { ["Email:ResendApiKey"] = "re_test_key" }, new StatusHandler(status));
         var (registration, ev) = ConfirmedRegistration();
-        var email = RegistrationEmails.Build(registration, ev, EmailKind.Confirmed, "https://yemenibreeze.nl")!;
+        var email = RegistrationEmails.Build(registration, ev, EmailKind.Confirmed, "https://yemenbreeze.nl")!;
 
         var ex = await Assert.ThrowsAsync<EmailSendException>(() =>
             service.SendAsync(registration.FullName, registration.Email, email));

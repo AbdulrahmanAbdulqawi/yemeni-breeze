@@ -22,7 +22,7 @@ public class V7GalleryPaginationTests : IClassFixture<ApiFactory>
     {
         if (_client.DefaultRequestHeaders.Authorization is not null) return;
         var response = await _client.PostAsJsonAsync("/api/auth/login",
-            new { email = "admin@yemenibreeze.nl", password = "ChangeMe!2026" });
+            new { email = "admin@yemenbreeze.nl", password = "ChangeMe!2026" });
         var login = await response.Content.ReadFromJsonAsync<LoginResult>();
         _client.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue("Bearer", login!.Token);

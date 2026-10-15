@@ -3,4 +3,4 @@ Allow: /
 Disallow: /admin
 Disallow: /registrations/
 
-Sitemap: https://yemenibreeze.nl/sitemap.xml
+Sitemap: https://yemenbreeze.nl/sitemap.xml

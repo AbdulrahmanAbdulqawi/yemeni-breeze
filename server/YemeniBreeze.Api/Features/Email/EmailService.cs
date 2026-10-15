@@ -14,7 +14,7 @@ public class EmailOptions
     public string? SmtpUser { get; set; }
     public string? SmtpKey { get; set; }
     public string? ResendApiKey { get; set; }
-    public string FromAddress { get; set; } = "noreply@yemenibreeze.nl";
+    public string FromAddress { get; set; } = "noreply@yemenbreeze.nl";
     public string FromName { get; set; } = "Yemen Breeze";
     public string PublicBaseUrl { get; set; } = "http://localhost:4200";
 

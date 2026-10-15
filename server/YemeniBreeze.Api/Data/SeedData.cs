@@ -14,7 +14,7 @@ public static class SeedData
         var userManager = services.GetRequiredService<UserManager<IdentityUser>>();
         var config = services.GetRequiredService<IConfiguration>();
 
-        var adminEmail = config["Admin:Email"] ?? "admin@yemenibreeze.nl";
+        var adminEmail = config["Admin:Email"] ?? "admin@yemenbreeze.nl";
         if (await userManager.FindByEmailAsync(adminEmail) is null)
         {
             var admin = new IdentityUser { UserName = adminEmail, Email = adminEmail, EmailConfirmed = true };

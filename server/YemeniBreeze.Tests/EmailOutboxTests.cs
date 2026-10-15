@@ -44,7 +44,7 @@ public class EmailApiFactory : ApiFactory
         builder.UseSetting("Email:Provider", "resend");
         builder.UseSetting("Email:ResendApiKey", "re_test_key");
         builder.UseSetting("Email:SendIntervalMs", "0");
-        builder.UseSetting("Email:PublicBaseUrl", "https://yemenibreeze.nl");
+        builder.UseSetting("Email:PublicBaseUrl", "https://yemenbreeze.nl");
         builder.ConfigureServices(services =>
             services.AddHttpClient(EmailService.ResendHttpClient).ConfigurePrimaryHttpMessageHandler(() => Resend));
     }
@@ -91,7 +91,7 @@ public class EmailOutboxTests(EmailApiFactory factory) : IClassFixture<EmailApiF
     {
         if (_client.DefaultRequestHeaders.Authorization is not null) return;
         var response = await _client.PostAsJsonAsync("/api/auth/login",
-            new { email = "admin@yemenibreeze.nl", password = "ChangeMe!2026" });
+            new { email = "admin@yemenbreeze.nl", password = "ChangeMe!2026" });
         var login = await response.Content.ReadFromJsonAsync<JsonElement>();
         _client.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue("Bearer", login.GetProperty("token").GetString());

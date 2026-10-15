@@ -22,11 +22,11 @@ public class RegistrationEmailTemplateTests
     public void Confirmed_email_has_logo_qr_ticket_and_calendar()
     {
         var email = RegistrationEmails.Build(SampleRegistration(RegistrationStatus.Confirmed), SampleEvent(),
-            EmailKind.Confirmed, "https://yemenibreeze.nl/")!;
+            EmailKind.Confirmed, "https://yemenbreeze.nl/")!;
 
         Assert.Contains("cid:yb-logo", email.Html);
         Assert.Contains("cid:ticket-qr", email.Html);
-        Assert.Contains("https://yemenibreeze.nl/events/summer-night", email.Html);
+        Assert.Contains("https://yemenbreeze.nl/events/summer-night", email.Html);
         Assert.Equal(["yemen-breeze.png", "ticket.png", "yemen-breeze-event.ics"],
             email.Attachments.Select(a => a.FileName));
         Assert.True(email.Attachments[0].Content.Length > 1000, "logo resource should be embedded");
@@ -39,7 +39,7 @@ public class RegistrationEmailTemplateTests
     public void User_input_is_html_encoded()
     {
         var email = RegistrationEmails.Build(SampleRegistration(RegistrationStatus.Confirmed), SampleEvent(),
-            EmailKind.Confirmed, "https://yemenibreeze.nl")!;
+            EmailKind.Confirmed, "https://yemenbreeze.nl")!;
 
         Assert.DoesNotContain("<b>Test</b>", email.Html);
         Assert.Contains("Sara &lt;b&gt;Test&lt;/b&gt;", email.Html);
@@ -51,7 +51,7 @@ public class RegistrationEmailTemplateTests
     public void Arabic_email_is_right_to_left_with_arabic_title()
     {
         var email = RegistrationEmails.Build(SampleRegistration(RegistrationStatus.Confirmed, "ar"), SampleEvent(),
-            EmailKind.Confirmed, "https://yemenibreeze.nl")!;
+            EmailKind.Confirmed, "https://yemenbreeze.nl")!;
 
         Assert.Contains("dir=\"rtl\"", email.Html);
         Assert.Contains("ليلة صيفية", email.Subject);
@@ -61,7 +61,7 @@ public class RegistrationEmailTemplateTests
     public void Waitlist_email_has_no_ticket()
     {
         var email = RegistrationEmails.Build(SampleRegistration(RegistrationStatus.Waitlisted), SampleEvent(),
-            EmailKind.Waitlisted, "https://yemenibreeze.nl")!;
+            EmailKind.Waitlisted, "https://yemenbreeze.nl")!;
 
         Assert.DoesNotContain("cid:ticket-qr", email.Html);
         Assert.Single(email.Attachments); // logo only
@@ -73,6 +73,6 @@ public class RegistrationEmailTemplateTests
     {
         // A ticket email for a registration that was cancelled before it went out
         Assert.Null(RegistrationEmails.Build(SampleRegistration(RegistrationStatus.Cancelled), SampleEvent(),
-            EmailKind.Confirmed, "https://yemenibreeze.nl"));
+            EmailKind.Confirmed, "https://yemenbreeze.nl"));
     }
 }

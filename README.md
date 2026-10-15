@@ -42,7 +42,7 @@ npm start
 ```
 
 Default admin login (dev only — change via `Admin:Email` / `Admin:Password` config):
-`admin@yemenibreeze.nl` / `ChangeMe!2026`
+`admin@yemenbreeze.nl` / `ChangeMe!2026`
 
 ## Tests
 
