@@ -22,7 +22,7 @@ public class RegistrationEmailTemplateTests
     public void Confirmed_email_has_logo_qr_ticket_and_calendar()
     {
         var email = RegistrationEmails.Build(SampleRegistration(RegistrationStatus.Confirmed), SampleEvent(),
-            promoted: false, "https://yemenibreeze.nl/")!;
+            EmailKind.Confirmed, "https://yemenibreeze.nl/")!;
 
         Assert.Contains("cid:yb-logo", email.Html);
         Assert.Contains("cid:ticket-qr", email.Html);
@@ -39,7 +39,7 @@ public class RegistrationEmailTemplateTests
     public void User_input_is_html_encoded()
     {
         var email = RegistrationEmails.Build(SampleRegistration(RegistrationStatus.Confirmed), SampleEvent(),
-            promoted: false, "https://yemenibreeze.nl")!;
+            EmailKind.Confirmed, "https://yemenibreeze.nl")!;
 
         Assert.DoesNotContain("<b>Test</b>", email.Html);
         Assert.Contains("Sara &lt;b&gt;Test&lt;/b&gt;", email.Html);
@@ -51,7 +51,7 @@ public class RegistrationEmailTemplateTests
     public void Arabic_email_is_right_to_left_with_arabic_title()
     {
         var email = RegistrationEmails.Build(SampleRegistration(RegistrationStatus.Confirmed, "ar"), SampleEvent(),
-            promoted: false, "https://yemenibreeze.nl")!;
+            EmailKind.Confirmed, "https://yemenibreeze.nl")!;
 
         Assert.Contains("dir=\"rtl\"", email.Html);
         Assert.Contains("ليلة صيفية", email.Subject);
@@ -61,7 +61,7 @@ public class RegistrationEmailTemplateTests
     public void Waitlist_email_has_no_ticket()
     {
         var email = RegistrationEmails.Build(SampleRegistration(RegistrationStatus.Waitlisted), SampleEvent(),
-            promoted: false, "https://yemenibreeze.nl")!;
+            EmailKind.Waitlisted, "https://yemenibreeze.nl")!;
 
         Assert.DoesNotContain("cid:ticket-qr", email.Html);
         Assert.Single(email.Attachments); // logo only
@@ -69,9 +69,10 @@ public class RegistrationEmailTemplateTests
     }
 
     [Fact]
-    public void Cancelled_registration_gets_no_email()
+    public void Email_that_no_longer_fits_the_status_is_not_built()
     {
+        // A ticket email for a registration that was cancelled before it went out
         Assert.Null(RegistrationEmails.Build(SampleRegistration(RegistrationStatus.Cancelled), SampleEvent(),
-            promoted: false, "https://yemenibreeze.nl"));
+            EmailKind.Confirmed, "https://yemenibreeze.nl"));
     }
 }

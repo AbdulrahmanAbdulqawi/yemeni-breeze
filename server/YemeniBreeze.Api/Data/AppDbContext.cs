@@ -16,6 +16,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<SiteSetting> SiteSettings => Set<SiteSetting>();
     public DbSet<ContentBlock> ContentBlocks => Set<ContentBlock>();
     public DbSet<TeamMember> TeamMembers => Set<TeamMember>();
+    public DbSet<OutgoingEmail> OutgoingEmails => Set<OutgoingEmail>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -44,6 +45,18 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
             r.HasIndex(x => new { x.EventId, x.Email }).IsUnique();
             r.HasIndex(x => x.TicketCode).IsUnique();
             r.Property(x => x.Language).HasMaxLength(5);
+            r.HasIndex(x => x.ManageToken).IsUnique();
+        });
+
+        builder.Entity<OutgoingEmail>(o =>
+        {
+            o.HasOne(x => x.Registration)
+                .WithMany()
+                .HasForeignKey(x => x.RegistrationId)
+                .OnDelete(DeleteBehavior.Cascade);
+            o.Property(x => x.LastError).HasMaxLength(1000);
+            o.HasIndex(x => new { x.Status, x.NextAttemptAt });
+            o.HasIndex(x => new { x.RegistrationId, x.Kind });
         });
 
         builder.Entity<SiteSetting>(s =>

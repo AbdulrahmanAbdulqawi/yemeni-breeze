@@ -50,6 +50,41 @@ public class Registration
     public Guid TicketCode { get; set; } = Guid.NewGuid();
     public DateTime? CheckedInAt { get; set; }
     public string Language { get; set; } = "en";
+    /// <summary>Secret for the "manage / cancel my registration" link in emails. Null on rows created before it existed.</summary>
+    public Guid? ManageToken { get; set; } = Guid.NewGuid();
+}
+
+public enum EmailKind
+{
+    Confirmed = 0,
+    Promoted = 1,
+    Waitlisted = 2,
+    Cancelled = 3,
+    Reminder = 4
+}
+
+public enum EmailStatus
+{
+    Pending = 0,
+    Sent = 1,
+    Failed = 2,
+    /// <summary>Not sent on purpose: no provider configured, or the registration changed before sending.</summary>
+    Skipped = 3
+}
+
+/// <summary>Outbox row: one email to one registrant, sent (and retried) by the EmailDispatcher.</summary>
+public class OutgoingEmail
+{
+    public int Id { get; set; }
+    public int RegistrationId { get; set; }
+    public Registration? Registration { get; set; }
+    public EmailKind Kind { get; set; }
+    public EmailStatus Status { get; set; } = EmailStatus.Pending;
+    public int Attempts { get; set; }
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime NextAttemptAt { get; set; } = DateTime.UtcNow;
+    public DateTime? SentAt { get; set; }
+    public string? LastError { get; set; }
 }
 
 public class MediaFolder

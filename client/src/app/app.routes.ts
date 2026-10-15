@@ -13,7 +13,8 @@ export const routes: Routes = [
       { path: 'events/:slug', loadComponent: () => import('./pages/events/event-detail').then(m => m.EventDetail) },
       { path: 'gallery', loadComponent: () => import('./pages/gallery/gallery-page').then(m => m.GalleryPage) },
       { path: 'contact', loadComponent: () => import('./pages/contact/contact-page').then(m => m.ContactPage) },
-      { path: 'team/:slug', loadComponent: () => import('./pages/team/team-member-page').then(m => m.TeamMemberPage) }
+      { path: 'team/:slug', loadComponent: () => import('./pages/team/team-member-page').then(m => m.TeamMemberPage) },
+      { path: 'registrations/:token', loadComponent: () => import('./pages/registration/manage-registration').then(m => m.ManageRegistration) }
     ]
   },
   {

@@ -19,6 +19,10 @@ public class ApiFactory : WebApplicationFactory<Program>
         _connection = new SqliteConnection("Data Source=:memory:");
         _connection.Open();
 
+        // Tests drive the email dispatcher by hand and register many times from one "IP".
+        builder.UseSetting("Email:DispatcherEnabled", "false");
+        builder.UseSetting("RateLimiting:PermitLimit", "100000");
+
         builder.ConfigureServices(services =>
         {
             var descriptor = services.Single(d => d.ServiceType == typeof(DbContextOptions<AppDbContext>));

@@ -1,7 +1,6 @@
 using System.Net;
 using System.Text.Json;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging.Abstractions;
 using YemeniBreeze.Api.Domain;
 using YemeniBreeze.Api.Features.Email;
 
@@ -30,7 +29,7 @@ public class EmailProviderTests
     private static EmailService CreateService(Dictionary<string, string?> settings, HttpMessageHandler handler)
     {
         var config = new ConfigurationBuilder().AddInMemoryCollection(settings).Build();
-        return new EmailService(config, new FakeHttpClientFactory(handler), NullLogger<EmailService>.Instance);
+        return new EmailService(config, new FakeHttpClientFactory(handler));
     }
 
     private static (Registration, Event) ConfirmedRegistration()
@@ -62,7 +61,8 @@ public class EmailProviderTests
         var (registration, ev) = ConfirmedRegistration();
 
         Assert.True(service.IsConfigured);
-        await service.SendRegistrationEmailAsync(registration, ev);
+        var email = RegistrationEmails.Build(registration, ev, EmailKind.Confirmed, "https://yemenibreeze.nl")!;
+        await service.SendAsync(registration.FullName, registration.Email, email);
 
         Assert.NotNull(handler.Request);
         Assert.Equal("https://api.resend.com/emails", handler.Request!.RequestUri!.ToString());
@@ -97,20 +97,37 @@ public class EmailProviderTests
     }
 
     [Fact]
-    public async Task Nothing_is_sent_when_the_chosen_provider_has_no_credentials()
+    public void Chosen_provider_without_credentials_is_not_configured()
     {
-        var handler = new CapturingHandler();
         // SMTP credentials alone don't configure Resend when Resend is chosen explicitly.
         var service = CreateService(new()
         {
             ["Email:Provider"] = "resend",
             ["Email:SmtpHost"] = "smtp.example.com",
             ["Email:SmtpKey"] = "secret"
-        }, handler);
-        var (registration, ev) = ConfirmedRegistration();
-
+        }, new CapturingHandler());
         Assert.False(service.IsConfigured);
-        await service.SendRegistrationEmailAsync(registration, ev);
-        Assert.Null(handler.Request);
+    }
+
+    [Theory]
+    [InlineData(HttpStatusCode.TooManyRequests, true)]
+    [InlineData(HttpStatusCode.InternalServerError, true)]
+    [InlineData(HttpStatusCode.UnprocessableEntity, false)]
+    [InlineData(HttpStatusCode.Forbidden, false)]
+    public async Task Resend_errors_are_classified_for_retry(HttpStatusCode status, bool transient)
+    {
+        var service = CreateService(new() { ["Email:ResendApiKey"] = "re_test_key" }, new StatusHandler(status));
+        var (registration, ev) = ConfirmedRegistration();
+        var email = RegistrationEmails.Build(registration, ev, EmailKind.Confirmed, "https://yemenibreeze.nl")!;
+
+        var ex = await Assert.ThrowsAsync<EmailSendException>(() =>
+            service.SendAsync(registration.FullName, registration.Email, email));
+        Assert.Equal(transient, ex.Transient);
+    }
+
+    private sealed class StatusHandler(HttpStatusCode status) : HttpMessageHandler
+    {
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken ct) =>
+            Task.FromResult(new HttpResponseMessage(status) { Content = new StringContent("{\"message\":\"nope\"}") });
     }
 }

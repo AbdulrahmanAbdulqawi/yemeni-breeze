@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using YemeniBreeze.Api.Data;
 using YemeniBreeze.Api.Domain;
+using YemeniBreeze.Api.Features.Security;
 
 namespace YemeniBreeze.Api.Features.Contact;
 
@@ -26,7 +27,7 @@ public static class ContactEndpoints
             });
             await db.SaveChangesAsync();
             return Results.Ok(new { message = "Thank you — we will get back to you." });
-        });
+        }).RequireRateLimiting(RateLimiting.PublicForms);
 
         var admin = app.MapGroup("/api/admin/contact").RequireAuthorization();
 

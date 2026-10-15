@@ -417,6 +417,46 @@ namespace YemeniBreeze.Api.Migrations
                     b.ToTable("MediaFolders");
                 });
 
+            modelBuilder.Entity("YemeniBreeze.Api.Domain.OutgoingEmail", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Attempts")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Kind")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("LastError")
+                        .HasMaxLength(1000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("NextAttemptAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("RegistrationId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime?>("SentAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RegistrationId", "Kind");
+
+                    b.HasIndex("Status", "NextAttemptAt");
+
+                    b.ToTable("OutgoingEmails");
+                });
+
             modelBuilder.Entity("YemeniBreeze.Api.Domain.Registration", b =>
                 {
                     b.Property<int>("Id")
@@ -450,6 +490,9 @@ namespace YemeniBreeze.Api.Migrations
                         .HasMaxLength(5)
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid?>("ManageToken")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Note")
                         .HasMaxLength(1000)
                         .HasColumnType("TEXT");
@@ -465,6 +508,9 @@ namespace YemeniBreeze.Api.Migrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ManageToken")
+                        .IsUnique();
 
                     b.HasIndex("TicketCode")
                         .IsUnique();
@@ -622,6 +668,17 @@ namespace YemeniBreeze.Api.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("Event");
+                });
+
+            modelBuilder.Entity("YemeniBreeze.Api.Domain.OutgoingEmail", b =>
+                {
+                    b.HasOne("YemeniBreeze.Api.Domain.Registration", "Registration")
+                        .WithMany()
+                        .HasForeignKey("RegistrationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Registration");
                 });
 
             modelBuilder.Entity("YemeniBreeze.Api.Domain.Registration", b =>

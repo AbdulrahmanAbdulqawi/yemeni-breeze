@@ -14,6 +14,7 @@ import {
   LoginResponse,
   MediaFolderDto,
   RegisterRequest,
+  ManagedRegistration,
   RegistrationDto,
   RegistrationResult,
   RegistrationStatus,
@@ -58,6 +59,14 @@ export class ApiService {
 
   register(slug: string, request: RegisterRequest) {
     return this.http.post<RegistrationResult>(`/api/events/${slug}/register`, request);
+  }
+
+  getManagedRegistration(token: string) {
+    return this.http.get<ManagedRegistration>(`/api/registrations/manage/${token}`);
+  }
+
+  cancelManagedRegistration(token: string) {
+    return this.http.post<ManagedRegistration>(`/api/registrations/manage/${token}/cancel`, {});
   }
 
   getGallery() {
@@ -105,6 +114,11 @@ export class ApiService {
   adminSetRegistrationStatus(eventId: number, id: number, status: RegistrationStatus) {
     return this.http.post<RegistrationDto>(
       `/api/admin/events/${eventId}/registrations/${id}/status`, { status });
+  }
+
+  adminResendRegistrationEmail(eventId: number, id: number) {
+    return this.http.post<RegistrationDto>(
+      `/api/admin/events/${eventId}/registrations/${id}/resend-email`, {});
   }
 
   registrationsCsvUrl(eventId: number) {

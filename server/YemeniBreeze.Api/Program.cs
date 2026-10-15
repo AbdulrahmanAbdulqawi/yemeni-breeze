@@ -12,6 +12,7 @@ using YemeniBreeze.Api.Features.Events;
 using YemeniBreeze.Api.Features.Gallery;
 using YemeniBreeze.Api.Features.Media;
 using YemeniBreeze.Api.Features.Registrations;
+using YemeniBreeze.Api.Features.Security;
 using YemeniBreeze.Api.Features.Settings;
 using YemeniBreeze.Api.Features.Storage;
 using YemeniBreeze.Api.Features.Team;
@@ -64,6 +65,10 @@ builder.Services.AddSingleton<StorageService>();
 builder.Services.AddSingleton<ImageService>();
 builder.Services.AddHttpClient(EmailService.ResendHttpClient);
 builder.Services.AddSingleton<EmailService>();
+builder.Services.AddSingleton<EmailSignal>();
+builder.Services.AddSingleton<EmailDispatcher>();
+builder.Services.AddHostedService(sp => sp.GetRequiredService<EmailDispatcher>());
+builder.Services.AddPublicFormProtection(builder.Configuration);
 
 builder.Services.AddCors(options => options.AddDefaultPolicy(policy =>
     policy.WithOrigins(builder.Configuration.GetSection("Cors:Origins").Get<string[]>()
@@ -73,10 +78,12 @@ builder.Services.AddCors(options => options.AddDefaultPolicy(policy =>
 
 var app = builder.Build();
 
+app.UseForwardedHeaders();
 app.UseCors();
 app.UseStaticFiles();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseRateLimiter();
 
 app.MapAuthEndpoints();
 app.MapEventsEndpoints();

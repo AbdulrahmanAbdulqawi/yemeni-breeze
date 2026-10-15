@@ -76,6 +76,10 @@
                 <label for="note">{{ 'events.form.note' | transloco }}</label>
                 <textarea id="note" formControlName="note" rows="3"></textarea>
               </div>
+              <div class="hp-field" aria-hidden="true">
+                <label for="website">Website</label>
+                <input id="website" formControlName="website" tabindex="-1" autocomplete="off" />
+              </div>
               @if (errorKey(); as key) {
                 <p class="error-text">{{ key | transloco }}</p>
               }
@@ -88,6 +92,7 @@
               <span class="result-icon">🎉</span>
               <h2>{{ 'events.form.confirmedTitle' | transloco }}</h2>
               <p>{{ 'events.form.confirmedText' | transloco }}</p>
+              <p class="result-mail">✉️ {{ 'events.form.checkInbox' | transloco }}</p>
               <a routerLink="/events" class="btn btn-outline">{{ 'nav.events' | transloco }}</a>
             </div>
           } @else {
@@ -95,6 +100,7 @@
               <span class="result-icon">⏳</span>
               <h2>{{ 'events.form.waitlistedTitle' | transloco }}</h2>
               <p>{{ 'events.form.waitlistedText' | transloco }}</p>
+              <p class="result-mail">✉️ {{ 'events.form.checkInboxWaitlist' | transloco }}</p>
               <a routerLink="/events" class="btn btn-outline">{{ 'nav.events' | transloco }}</a>
             </div>
           }

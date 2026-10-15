@@ -1,33 +1,57 @@
+using System.Net.Mail;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
 using YemeniBreeze.Api.Data;
 using YemeniBreeze.Api.Domain;
 using YemeniBreeze.Api.Features.Email;
+using YemeniBreeze.Api.Features.Security;
 
 namespace YemeniBreeze.Api.Features.Registrations;
 
-public record RegisterRequest(string FullName, string Email, string? Phone, int GuestsCount, string? Note, string? Language);
+/// <param name="Website">Honeypot: hidden from people, so only bots fill it in.</param>
+public record RegisterRequest(
+    string FullName, string Email, string? Phone, int GuestsCount, string? Note, string? Language,
+    string? Website = null);
 public record RegistrationResultDto(int Id, RegistrationStatus Status, string EventSlug);
 public record RegistrationDto(
     int Id, int EventId, string FullName, string Email, string? Phone,
     int GuestsCount, string? Note, RegistrationStatus Status, DateTime CreatedAt,
-    DateTime? CheckedInAt);
+    DateTime? CheckedInAt,
+    EmailKind? LastEmailKind = null, EmailStatus? LastEmailStatus = null,
+    DateTime? LastEmailAt = null, string? LastEmailError = null);
 public record CheckinRequest(string TicketCode);
+
+/// <summary>What the "manage my registration" page shows. Reached with the secret token from the email.</summary>
+public record ManagedRegistrationDto(
+    string FullName, int GuestsCount, RegistrationStatus Status, bool CanCancel, ManagedEventDto Event);
+public record ManagedEventDto(
+    string Slug, string TitleEn, string TitleNl, string TitleAr,
+    DateOnly Date, string StartTime, string EndTime, string Location);
 
 public static class RegistrationsEndpoints
 {
-    private static RegistrationDto ToDto(Registration r) => new(
+    private static RegistrationDto ToDto(Registration r, OutgoingEmail? lastEmail = null) => new(
         r.Id, r.EventId, r.FullName, r.Email, r.Phone,
-        r.GuestsCount, r.Note, r.Status, r.CreatedAt, r.CheckedInAt);
+        r.GuestsCount, r.Note, r.Status, r.CreatedAt, r.CheckedInAt,
+        lastEmail?.Kind, lastEmail?.Status, lastEmail?.SentAt ?? lastEmail?.CreatedAt, lastEmail?.LastError);
 
     public static void MapRegistrationsEndpoints(this IEndpointRouteBuilder app)
     {
         // Public: register for an event (auto-waitlist when capacity is reached)
         app.MapPost("/api/events/{slug}/register",
-            async (string slug, RegisterRequest request, AppDbContext db, EmailService emails) =>
+            async (string slug, RegisterRequest request, AppDbContext db, EmailSignal emailSignal) =>
         {
+            // Bots fill every field; pretend it worked so they don't adapt.
+            if (!string.IsNullOrWhiteSpace(request.Website))
+                return Results.Ok(new RegistrationResultDto(0, RegistrationStatus.Confirmed, slug));
+
             if (string.IsNullOrWhiteSpace(request.FullName) || string.IsNullOrWhiteSpace(request.Email))
                 return Results.BadRequest(new { message = "Name and email are required." });
+            var email = request.Email.Trim().ToLowerInvariant();
+            if (!IsValidEmail(email))
+                return Results.BadRequest(new { message = "Please enter a valid email address." });
+            if (request.FullName.Trim().Length > 200 || (request.Phone?.Length ?? 0) > 50 || (request.Note?.Length ?? 0) > 1000)
+                return Results.BadRequest(new { message = "One of the fields is too long." });
             if (request.GuestsCount is < 1 or > 10)
                 return Results.BadRequest(new { message = "Guests count must be between 1 and 10." });
 
@@ -37,8 +61,8 @@ public static class RegistrationsEndpoints
             if (!ev.IsRegistrationOpen)
                 return Results.BadRequest(new { message = "Registration for this event is closed." });
 
-            var email = request.Email.Trim().ToLowerInvariant();
-            if (ev.Registrations.Any(r => r.Email == email && r.Status != RegistrationStatus.Cancelled))
+            var existing = ev.Registrations.FirstOrDefault(r => r.Email == email);
+            if (existing is not null && existing.Status != RegistrationStatus.Cancelled)
                 return Results.Conflict(new { message = "This email is already registered for this event." });
 
             var confirmedSeats = ev.Registrations
@@ -48,36 +72,80 @@ public static class RegistrationsEndpoints
                 ? RegistrationStatus.Confirmed
                 : RegistrationStatus.Waitlisted;
 
-            var registration = new Registration
-            {
-                EventId = ev.Id,
-                FullName = request.FullName.Trim(),
-                Email = email,
-                Phone = request.Phone?.Trim(),
-                GuestsCount = request.GuestsCount,
-                Note = request.Note?.Trim(),
-                Status = status,
-                Language = request.Language is "nl" or "ar" ? request.Language : "en"
-            };
-            db.Registrations.Add(registration);
-            await db.SaveChangesAsync();
+            // Someone who cancelled can sign up again: (EventId, Email) is unique, so reuse the row.
+            var registration = existing ?? new Registration { EventId = ev.Id, Email = email };
+            registration.FullName = request.FullName.Trim();
+            registration.Phone = request.Phone?.Trim();
+            registration.GuestsCount = request.GuestsCount;
+            registration.Note = request.Note?.Trim();
+            registration.Status = status;
+            registration.Language = request.Language is "nl" or "ar" ? request.Language : "en";
+            registration.CreatedAt = DateTime.UtcNow; // back of the waitlist queue
+            registration.CheckedInAt = null;
+            registration.ManageToken ??= Guid.NewGuid();
+            if (existing is null) db.Registrations.Add(registration);
 
-            _ = emails.SendRegistrationEmailAsync(registration, ev);
+            EmailOutbox.Enqueue(db, registration,
+                status == RegistrationStatus.Confirmed ? EmailKind.Confirmed : EmailKind.Waitlisted);
+            await db.SaveChangesAsync();
+            emailSignal.Wake();
 
             return Results.Ok(new RegistrationResultDto(registration.Id, registration.Status, ev.Slug));
+        }).RequireRateLimiting(RateLimiting.PublicForms);
+
+        // Public: the page behind the "cancel your registration" link in emails
+        app.MapGet("/api/registrations/manage/{token:guid}", async (Guid token, AppDbContext db) =>
+        {
+            var registration = await db.Registrations.Include(r => r.Event)
+                .FirstOrDefaultAsync(r => r.ManageToken == token);
+            return registration is null ? Results.NotFound() : Results.Ok(ToManagedDto(registration));
         });
+
+        app.MapPost("/api/registrations/manage/{token:guid}/cancel",
+            async (Guid token, AppDbContext db, EmailSignal emailSignal) =>
+        {
+            var registration = await db.Registrations
+                .FirstOrDefaultAsync(r => r.ManageToken == token);
+            if (registration is null) return Results.NotFound();
+            var ev = await db.Events.Include(e => e.Registrations)
+                .FirstAsync(e => e.Id == registration.EventId);
+
+            if (registration.Status == RegistrationStatus.Cancelled)
+                return Results.Ok(ToManagedDto(registration)); // already done; clicking twice is fine
+            if (!CanCancel(registration))
+                return Results.BadRequest(new { message = "This event has already taken place." });
+
+            var previous = registration.Status;
+            registration.Status = RegistrationStatus.Cancelled;
+            var promoted = previous == RegistrationStatus.Confirmed ? PromoteWaitlisted(ev) : [];
+
+            EmailOutbox.Enqueue(db, registration, EmailKind.Cancelled);
+            foreach (var promotedReg in promoted)
+                EmailOutbox.Enqueue(db, promotedReg, EmailKind.Promoted);
+            await db.SaveChangesAsync();
+            emailSignal.Wake();
+
+            return Results.Ok(ToManagedDto(registration));
+        }).RequireRateLimiting(RateLimiting.PublicForms);
 
         var admin = app.MapGroup("/api/admin/events/{eventId:int}/registrations").RequireAuthorization();
 
         admin.MapGet("/", async (int eventId, AppDbContext db) =>
-            (await db.Registrations
+        {
+            var registrations = await db.Registrations
                 .Where(r => r.EventId == eventId)
                 .OrderBy(r => r.Status).ThenBy(r => r.CreatedAt)
-                .ToListAsync())
-            .Select(ToDto));
+                .ToListAsync();
+            var lastEmails = (await db.OutgoingEmails
+                    .Where(o => o.Registration!.EventId == eventId)
+                    .ToListAsync())
+                .GroupBy(o => o.RegistrationId)
+                .ToDictionary(g => g.Key, g => g.MaxBy(o => o.Id)!);
+            return registrations.Select(r => ToDto(r, lastEmails.GetValueOrDefault(r.Id)));
+        });
 
         admin.MapPost("/{id:int}/status",
-            async (int eventId, int id, StatusChange change, AppDbContext db, EmailService emails) =>
+            async (int eventId, int id, StatusChange change, AppDbContext db, EmailSignal emailSignal) =>
         {
             var ev = await db.Events.Include(e => e.Registrations)
                 .FirstOrDefaultAsync(e => e.Id == eventId);
@@ -89,19 +157,35 @@ public static class RegistrationsEndpoints
 
             // Manual promotion from the waitlist → send the ticket
             if (previous != RegistrationStatus.Confirmed && change.Status == RegistrationStatus.Confirmed)
-                _ = emails.SendRegistrationEmailAsync(registration, ev, promoted: previous == RegistrationStatus.Waitlisted);
+                EmailOutbox.Enqueue(db, registration,
+                    previous == RegistrationStatus.Waitlisted ? EmailKind.Promoted : EmailKind.Confirmed);
 
             // Cancelling a confirmed registration frees seats → auto-promote waitlisted people who fit
-            var promotedRegs = previous == RegistrationStatus.Confirmed && change.Status == RegistrationStatus.Cancelled
-                ? PromoteWaitlisted(ev)
-                : [];
+            if (previous == RegistrationStatus.Confirmed && change.Status == RegistrationStatus.Cancelled)
+                foreach (var promotedReg in PromoteWaitlisted(ev))
+                    EmailOutbox.Enqueue(db, promotedReg, EmailKind.Promoted);
 
             await db.SaveChangesAsync();
-
-            foreach (var promotedReg in promotedRegs)
-                _ = emails.SendRegistrationEmailAsync(promotedReg, ev, promoted: true);
-
+            emailSignal.Wake();
             return Results.Ok(ToDto(registration));
+        });
+
+        // Send the ticket (or waitlist notice) again, e.g. when someone lost the email
+        admin.MapPost("/{id:int}/resend-email",
+            async (int eventId, int id, AppDbContext db, EmailSignal emailSignal) =>
+        {
+            var registration = await db.Registrations
+                .FirstOrDefaultAsync(r => r.EventId == eventId && r.Id == id);
+            if (registration is null) return Results.NotFound();
+            if (registration.Status == RegistrationStatus.Cancelled)
+                return Results.BadRequest(new { message = "Cancelled registrations have no ticket to send." });
+
+            var kind = registration.Status == RegistrationStatus.Confirmed ? EmailKind.Confirmed : EmailKind.Waitlisted;
+            var email = new OutgoingEmail { RegistrationId = registration.Id, Kind = kind };
+            db.OutgoingEmails.Add(email);
+            await db.SaveChangesAsync();
+            emailSignal.Wake();
+            return Results.Accepted(value: ToDto(registration, email));
         });
 
         // Check-in by QR ticket code (door scenario)
@@ -185,6 +269,26 @@ public static class RegistrationsEndpoints
             promoted.Add(next);
         }
     }
+
+    private static bool CanCancel(Registration r) =>
+        r.Status != RegistrationStatus.Cancelled
+        && r.Event is { } ev
+        && ev.Date >= DateOnly.FromDateTime(TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, EventTimeZone.Amsterdam));
+
+    private static ManagedRegistrationDto ToManagedDto(Registration r)
+    {
+        var ev = r.Event!;
+        return new ManagedRegistrationDto(r.FullName, r.GuestsCount, r.Status, CanCancel(r),
+            new ManagedEventDto(ev.Slug, ev.TitleEn, ev.TitleNl, ev.TitleAr,
+                ev.Date, ev.StartTime, ev.EndTime, ev.Location));
+    }
+
+    private static bool IsValidEmail(string email) =>
+        email.Length <= 254
+        && MailAddress.TryCreate(email, out var address)
+        && address.Address == email
+        && address.Host.Contains('.')
+        && !address.Host.StartsWith('.') && !address.Host.EndsWith('.');
 
     public record StatusChange(RegistrationStatus Status);
 

@@ -107,7 +107,9 @@ export class EventDetail {
     email: ['', [Validators.required, Validators.email]],
     phone: [''],
     guestsCount: [1, [Validators.required, Validators.min(1), Validators.max(10)]],
-    note: ['']
+    note: [''],
+    // Honeypot: visually hidden, so only bots fill it in. The server quietly drops those.
+    website: ['']
   });
 
   submit() {
@@ -124,7 +126,11 @@ export class EventDetail {
         this.submitting.set(false);
       },
       error: err => {
-        this.errorKey.set(err.status === 409 ? 'events.form.duplicate' : 'events.form.genericError');
+        this.errorKey.set(
+          err.status === 409 ? 'events.form.duplicate'
+            : err.status === 429 ? 'events.form.tooMany'
+              : err.status === 400 ? 'events.form.checkFields'
+                : 'events.form.genericError');
         this.submitting.set(false);
       }
     });

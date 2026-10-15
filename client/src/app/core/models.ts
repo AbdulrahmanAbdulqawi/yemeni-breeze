@@ -48,6 +48,8 @@ export interface RegisterRequest {
   guestsCount: number;
   note?: string;
   language?: string;
+  /** Honeypot: a hidden field only bots fill in. */
+  website?: string;
 }
 
 export interface RegistrationResult {
@@ -67,6 +69,31 @@ export interface RegistrationDto {
   status: RegistrationStatus;
   createdAt: string;
   checkedInAt: string | null;
+  lastEmailKind: EmailKind | null;
+  lastEmailStatus: EmailStatus | null;
+  lastEmailAt: string | null;
+  lastEmailError: string | null;
+}
+
+export type EmailKind = 'Confirmed' | 'Promoted' | 'Waitlisted' | 'Cancelled' | 'Reminder';
+export type EmailStatus = 'Pending' | 'Sent' | 'Failed' | 'Skipped';
+
+/** The "manage my registration" page, reached via the private link in emails. */
+export interface ManagedRegistration {
+  fullName: string;
+  guestsCount: number;
+  status: RegistrationStatus;
+  canCancel: boolean;
+  event: {
+    slug: string;
+    titleEn: string;
+    titleNl: string;
+    titleAr: string;
+    date: string;
+    startTime: string;
+    endTime: string;
+    location: string;
+  };
 }
 
 export interface CheckinResult {

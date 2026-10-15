@@ -98,6 +98,24 @@
   .result-icon {
     font-size: 3rem;
   }
+
+  .result-mail {
+    background: var(--yb-surface-low);
+    border: 1px solid var(--yb-outline);
+    border-radius: var(--yb-radius);
+    padding: 0.8rem 1rem;
+    color: var(--yb-maroon);
+    font-size: 0.95rem;
+  }
+}
+
+/* Off-screen rather than display:none, which some bots detect and skip */
+.hp-field {
+  position: absolute;
+  inset-inline-start: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
 }
 
 .album-section {

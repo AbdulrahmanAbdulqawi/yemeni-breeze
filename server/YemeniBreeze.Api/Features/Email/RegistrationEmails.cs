@@ -10,7 +10,7 @@ namespace YemeniBreeze.Api.Features.Email;
 public record EmailContent(string Subject, string Html, string Text, IReadOnlyList<EmailAttachment> Attachments);
 
 /// <summary>
-/// Builds the registration emails (confirmed / promoted / waitlisted) in the site's identity:
+/// Builds the registration emails (confirmed, promoted, waitlisted, reminder, cancelled) in the site's identity:
 /// espresso browns, cream paper, gold accents, the qamariya logo and its stained-glass colours.
 /// Markup is table-based with inline styles so it survives Gmail, Outlook and Apple Mail.
 /// </summary>
@@ -45,41 +45,47 @@ public static class RegistrationEmails
         return memory.ToArray();
     });
 
-    /// <summary>Returns null for statuses that don't get an email (e.g. Cancelled).</summary>
-    public static EmailContent? Build(Registration r, Event ev, bool promoted, string publicBaseUrl)
+    /// <summary>
+    /// Renders the email of the given kind, or returns null when it no longer fits the
+    /// registration (e.g. a ticket email for a registration that has since been cancelled).
+    /// </summary>
+    public static EmailContent? Build(Registration r, Event ev, EmailKind kind, string publicBaseUrl)
     {
+        var requiredStatus = kind switch
+        {
+            EmailKind.Waitlisted => RegistrationStatus.Waitlisted,
+            EmailKind.Cancelled => RegistrationStatus.Cancelled,
+            _ => RegistrationStatus.Confirmed
+        };
+        if (r.Status != requiredStatus) return null;
+
         var t = Strings(r.Language);
         var baseUrl = publicBaseUrl.TrimEnd('/');
         var eventUrl = $"{baseUrl}/events/{Uri.EscapeDataString(ev.Slug)}";
-        var title = EventTitle(r, ev);
+        var manageUrl = kind != EmailKind.Cancelled && r.ManageToken is { } token
+            ? $"{baseUrl}/registrations/{token:D}"
+            : null;
+        var withTicket = r.Status == RegistrationStatus.Confirmed;
 
-        string subject, heading, intro, preheader;
-        string? note;
-        var confirmed = r.Status == RegistrationStatus.Confirmed;
-        switch (r.Status)
+        var key = kind switch
         {
-            case RegistrationStatus.Confirmed when promoted:
-                (subject, heading, intro, note) = (t["promotedSubject"], t["promotedHeading"], t["promotedIntro"], null);
-                preheader = t["promotedPreheader"];
-                break;
-            case RegistrationStatus.Confirmed:
-                (subject, heading, intro, note) = (t["confirmedSubject"], t["confirmedHeading"], t["confirmedIntro"], null);
-                preheader = t["confirmedPreheader"];
-                break;
-            case RegistrationStatus.Waitlisted:
-                (subject, heading, intro, note) = (t["waitlistSubject"], t["waitlistHeading"], t["waitlistIntro"], t["waitlistNote"]);
-                preheader = t["waitlistPreheader"];
-                break;
-            default:
-                return null;
-        }
-        subject = string.Format(subject, title);
+            EmailKind.Promoted => "promoted",
+            EmailKind.Waitlisted => "waitlist",
+            EmailKind.Cancelled => "cancelled",
+            EmailKind.Reminder => "reminder",
+            _ => "confirmed"
+        };
+        var subject = string.Format(t[key + "Subject"], EventTitle(r, ev));
+        var heading = t[key + "Heading"];
+        var intro = t[key + "Intro"];
+        var preheader = t[key + "Preheader"];
+        var note = t.GetValueOrDefault(key + "Note");
 
         var attachments = new List<EmailAttachment>
         {
             new("yemen-breeze.png", Logo.Value, "image/png", LogoContentId)
         };
-        if (confirmed)
+        if (withTicket)
         {
             attachments.Add(new("ticket.png", GenerateTicketQr(r.TicketCode), "image/png", QrContentId));
             attachments.Add(new("yemen-breeze-event.ics",
@@ -89,13 +95,14 @@ public static class RegistrationEmails
         var body = new StringBuilder();
         body.Append(Paragraph(H(intro)));
         body.Append(EventCard(r, ev, t));
-        if (confirmed) body.Append(TicketCard(r, t));
+        if (withTicket) body.Append(TicketCard(r, t));
         if (note is not null) body.Append(Paragraph(H(note)));
         body.Append(Button(t["viewEvent"], eventUrl));
-        if (confirmed) body.Append(Small(t["calendarNote"]));
+        if (withTicket) body.Append(Small(t["calendarNote"]));
+        if (manageUrl is not null) body.Append(ManageLink(t, manageUrl));
 
         var html = Layout(r.Language, subject, preheader, heading, body.ToString(), t, baseUrl);
-        var text = PlainText(r, ev, t, heading, intro, note, confirmed, eventUrl, baseUrl);
+        var text = PlainText(r, ev, t, heading, intro, note, withTicket, eventUrl, manageUrl, baseUrl);
         return new EmailContent(subject, html, text, attachments);
     }
 
@@ -159,6 +166,12 @@ public static class RegistrationEmails
             <a href="{H(url)}" style="display:inline-block;padding:13px 30px;font-size:15px;font-weight:700;color:{Cream};text-decoration:none;border-radius:999px">{H(label)}</a>
           </td></tr>
         </table>
+        """;
+
+    private static string ManageLink(IReadOnlyDictionary<string, string> t, string url) => $"""
+        <p style="margin:22px 0 0;padding-top:16px;border-top:1px solid {Outline};font-size:13px;line-height:1.5;color:{Maroon};text-align:center">
+          {H(t["cantMakeIt"])} <a href="{H(url)}" style="color:{Maroon};font-weight:700">{H(t["manageLink"])}</a>
+        </p>
         """;
 
     private static string DetailRow(string icon, string label, string value, bool ltr = false) => $"""
@@ -283,7 +296,7 @@ public static class RegistrationEmails
     }
 
     private static string PlainText(Registration r, Event ev, IReadOnlyDictionary<string, string> t,
-        string heading, string intro, string? note, bool confirmed, string eventUrl, string baseUrl)
+        string heading, string intro, string? note, bool confirmed, string eventUrl, string? manageUrl, string baseUrl)
     {
         var sb = new StringBuilder();
         sb.AppendLine("YEMEN BREEZE · نسمات اليمن").AppendLine();
@@ -302,6 +315,7 @@ public static class RegistrationEmails
         }
         if (note is not null) sb.AppendLine(note).AppendLine();
         sb.AppendLine($"{t["viewEvent"]}: {eventUrl}").AppendLine();
+        if (manageUrl is not null) sb.AppendLine($"{t["cantMakeIt"]} {t["manageLink"]}: {manageUrl}").AppendLine();
         sb.AppendLine(t["signoff"]).AppendLine(t["team"]).AppendLine();
         sb.AppendLine(t["footer"]).AppendLine(baseUrl);
         return sb.ToString();
@@ -328,6 +342,25 @@ public static class RegistrationEmails
             BEGIN:VCALENDAR
             VERSION:2.0
             PRODID:-//Yemen Breeze//Events//EN
+            CALSCALE:GREGORIAN
+            METHOD:PUBLISH
+            BEGIN:VTIMEZONE
+            TZID:Europe/Amsterdam
+            BEGIN:DAYLIGHT
+            TZOFFSETFROM:+0100
+            TZOFFSETTO:+0200
+            TZNAME:CEST
+            DTSTART:19700329T020000
+            RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU
+            END:DAYLIGHT
+            BEGIN:STANDARD
+            TZOFFSETFROM:+0200
+            TZOFFSETTO:+0100
+            TZNAME:CET
+            DTSTART:19701025T030000
+            RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU
+            END:STANDARD
+            END:VTIMEZONE
             BEGIN:VEVENT
             UID:{r.TicketCode}@yemenibreeze
             DTSTAMP:{DateTime.UtcNow.ToString("yyyyMMdd'T'HHmmss'Z'", CultureInfo.InvariantCulture)}
@@ -360,6 +393,17 @@ public static class RegistrationEmails
             ["waitlistIntro"] = "Het evenement zit momenteel vol, maar plannen veranderen vaak.",
             ["waitlistNote"] = "We mailen je direct zodra er een plek vrijkomt — met je ticket erbij.",
             ["waitlistPreheader"] = "We laten het je meteen weten als er een plek vrijkomt.",
+            ["reminderSubject"] = "Morgen: {0}",
+            ["reminderHeading"] = "Tot morgen!",
+            ["reminderIntro"] = "Een kleine herinnering: we kijken ernaar uit je morgen te verwelkomen. Je ticket staat hieronder — houd het klaar bij de ingang.",
+            ["reminderPreheader"] = "Morgen is het zover — je ticket zit erbij.",
+            ["cancelledSubject"] = "Je inschrijving is geannuleerd — {0}",
+            ["cancelledHeading"] = "Je inschrijving is geannuleerd",
+            ["cancelledIntro"] = "We hebben je inschrijving voor dit evenement geannuleerd. Dank je wel dat je het liet weten — je plek gaat naar iemand op de wachtlijst.",
+            ["cancelledNote"] = "Toch van gedachten veranderd? Je kunt je opnieuw inschrijven op de evenementpagina zolang er plekken zijn.",
+            ["cancelledPreheader"] = "Je annulering is verwerkt.",
+            ["cantMakeIt"] = "Kun je toch niet komen?",
+            ["manageLink"] = "Annuleer je inschrijving",
             ["dateLabel"] = "Datum",
             ["timeLabel"] = "Tijd",
             ["locationLabel"] = "Locatie",
@@ -391,6 +435,17 @@ public static class RegistrationEmails
             ["waitlistIntro"] = "الفعالية مكتملة حاليًا، لكن الخطط كثيرًا ما تتغير.",
             ["waitlistNote"] = "سنراسلك فورًا عند توفّر مقعد — ومعها تذكرتك.",
             ["waitlistPreheader"] = "سنخبرك فورًا عند توفّر مقعد.",
+            ["reminderSubject"] = "غدًا: {0}",
+            ["reminderHeading"] = "نراك غدًا!",
+            ["reminderIntro"] = "تذكير صغير: نتطلع لاستقبالك غدًا. تجد تذكرتك أدناه — اجعلها جاهزة عند المدخل.",
+            ["reminderPreheader"] = "الفعالية غدًا — تذكرتك مرفقة.",
+            ["cancelledSubject"] = "تم إلغاء تسجيلك — {0}",
+            ["cancelledHeading"] = "تم إلغاء تسجيلك",
+            ["cancelledIntro"] = "ألغينا تسجيلك في هذه الفعالية. شكرًا لإعلامنا — سيذهب مقعدك إلى أحد المنتظرين.",
+            ["cancelledNote"] = "غيّرت رأيك؟ يمكنك التسجيل مجددًا من صفحة الفعالية ما دامت المقاعد متاحة.",
+            ["cancelledPreheader"] = "تمت معالجة إلغاء تسجيلك.",
+            ["cantMakeIt"] = "لن تتمكن من الحضور؟",
+            ["manageLink"] = "ألغِ تسجيلك",
             ["dateLabel"] = "التاريخ",
             ["timeLabel"] = "الوقت",
             ["locationLabel"] = "المكان",
@@ -422,6 +477,17 @@ public static class RegistrationEmails
             ["waitlistIntro"] = "The event is currently full, but plans often change.",
             ["waitlistNote"] = "We'll email you the moment a spot opens up — with your ticket included.",
             ["waitlistPreheader"] = "We'll let you know the moment a spot opens up.",
+            ["reminderSubject"] = "Tomorrow: {0}",
+            ["reminderHeading"] = "See you tomorrow!",
+            ["reminderIntro"] = "A quick reminder: we're looking forward to welcoming you tomorrow. Your ticket is below — have it ready at the entrance.",
+            ["reminderPreheader"] = "It's tomorrow — your ticket is inside.",
+            ["cancelledSubject"] = "Your registration is cancelled — {0}",
+            ["cancelledHeading"] = "Your registration is cancelled",
+            ["cancelledIntro"] = "We've cancelled your registration for this event. Thank you for letting us know — your spot goes to someone on the waitlist.",
+            ["cancelledNote"] = "Changed your mind? You can register again on the event page while spots are available.",
+            ["cancelledPreheader"] = "Your cancellation has been processed.",
+            ["cantMakeIt"] = "Can't make it after all?",
+            ["manageLink"] = "Cancel your registration",
             ["dateLabel"] = "Date",
             ["timeLabel"] = "Time",
             ["locationLabel"] = "Location",

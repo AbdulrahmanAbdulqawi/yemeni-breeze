@@ -21,6 +21,11 @@ services:
       - Email__FromAddress=${EMAIL_FROM_ADDRESS}
       - Email__FromName=Yemen Breeze
       - Email__PublicBaseUrl=${SITE_ORIGIN}
+      # Abuse protection on the public forms (register, contact, cancel): requests per IP per 10 minutes.
+      - RateLimiting__PermitLimit=${RATE_LIMIT_PER_10_MIN:-10}
+      # Proxies in front of the API (Traefik + the web container's nginx). Use 3 if Cloudflare
+      # proxies the domain too, or every visitor shares Cloudflare's IP and hits the limit.
+      - ForwardedHeaders__ForwardLimit=${PROXY_HOPS:-2}
       # Hetzner Object Storage (S3). Leave blank to fall back to the local uploads volume.
       - Storage__Endpoint=${STORAGE_ENDPOINT}
       - Storage__Region=${STORAGE_REGION}

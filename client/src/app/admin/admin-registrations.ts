@@ -5,7 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { ApiService } from '../core/api.service';
-import { RegistrationDto, RegistrationStatus } from '../core/models';
+import { EmailStatus, RegistrationDto, RegistrationStatus } from '../core/models';
 import { ToastService } from './ui/toast.service';
 import { PageHeader } from './ui/page-header';
 import { EmptyState, Spinner } from './ui/state-views';
@@ -60,6 +60,7 @@ import { EmptyState, Spinner } from './ui/state-views';
               <th>{{ 'admin.registrations.guests' | transloco }}</th>
               <th>{{ 'admin.registrations.status' | transloco }}</th>
               <th>{{ 'admin.checkin.checkedIn' | transloco }}</th>
+              <th>{{ 'admin.registrations.emailStatus' | transloco }}</th>
               <th>{{ 'admin.registrations.note' | transloco }}</th>
               <th>{{ 'admin.registrations.registeredAt' | transloco }}</th>
               <th></th>
@@ -82,6 +83,15 @@ import { EmptyState, Spinner } from './ui/state-views';
                     <span class="badge badge-confirmed">✓ {{ registration.checkedInAt | date: 'HH:mm' }}</span>
                   }
                 </td>
+                <td>
+                  @if (registration.lastEmailStatus; as emailStatus) {
+                    <span
+                      [class]="'badge email-badge ' + emailBadge(emailStatus)"
+                      [title]="registration.lastEmailError || (registration.lastEmailKind + ' · ' + (registration.lastEmailAt | date: 'short'))">
+                      {{ 'admin.registrations.email' + emailStatus | transloco }}
+                    </span>
+                  }
+                </td>
                 <td class="note-cell" [title]="registration.note">{{ registration.note }}</td>
                 <td>{{ registration.createdAt | date: 'short' }}</td>
                 <td class="actions">
@@ -91,6 +101,9 @@ import { EmptyState, Spinner } from './ui/state-views';
                     </button>
                   }
                   @if (registration.status !== 'Cancelled') {
+                    <button class="btn-link" [disabled]="resending() === registration.id" (click)="resendEmail(registration)">
+                      {{ 'admin.registrations.resendEmail' | transloco }}
+                    </button>
                     <button class="btn-link danger" (click)="setStatus(registration, 'Cancelled')">
                       {{ 'admin.registrations.cancel' | transloco }}
                     </button>
@@ -117,6 +130,10 @@ import { EmptyState, Spinner } from './ui/state-views';
     .checked-ratio {
       font-size: 0.9rem;
       color: var(--ad-muted, #7c6a5c);
+    }
+
+    .email-badge {
+      white-space: nowrap;
     }
 
     .note-cell {
@@ -150,6 +167,7 @@ export class AdminRegistrations {
   readonly loading = signal(true);
   readonly query = signal('');
   readonly statusFilter = signal('');
+  readonly resending = signal<number | null>(null);
 
   readonly confirmedSeats = computed(() =>
     this.registrations()
@@ -200,6 +218,28 @@ export class AdminRegistrations {
         this.load(+this.eventId());
       },
       error: () => this.toasts.error(this.transloco.translate('admin.media.genericError'))
+    });
+  }
+
+  emailBadge(status: EmailStatus) {
+    return status === 'Sent' ? 'badge-confirmed'
+      : status === 'Failed' ? 'badge-cancelled'
+        : 'badge-waitlisted';
+  }
+
+  resendEmail(registration: RegistrationDto) {
+    this.resending.set(registration.id);
+    this.api.adminResendRegistrationEmail(+this.eventId(), registration.id).subscribe({
+      next: () => {
+        this.resending.set(null);
+        this.toasts.success(this.transloco.translate('admin.registrations.emailQueued'));
+        // The dispatcher sends within seconds; refresh so the status column catches up.
+        setTimeout(() => this.load(+this.eventId()), 3000);
+      },
+      error: () => {
+        this.resending.set(null);
+        this.toasts.error(this.transloco.translate('admin.media.genericError'));
+      }
     });
   }
 
