@@ -1,3 +1,4 @@
+using System.Net.Http.Headers;
 using System.Text;
 using MailKit.Net.Smtp;
 using MailKit.Security;
@@ -9,22 +10,39 @@ namespace YemeniBreeze.Api.Features.Email;
 
 public class EmailOptions
 {
+    /// <summary>"smtp" or "resend". When empty, Resend is used if <see cref="ResendApiKey"/> is set, otherwise SMTP.</summary>
+    public string? Provider { get; set; }
     public string? SmtpHost { get; set; }
     public int SmtpPort { get; set; } = 587;
     public string? SmtpUser { get; set; }
     public string? SmtpKey { get; set; }
+    public string? ResendApiKey { get; set; }
     public string FromAddress { get; set; } = "noreply@yemenibreeze.nl";
     public string FromName { get; set; } = "Yemen Breeze";
     public string PublicBaseUrl { get; set; } = "http://localhost:4200";
+
+    public string ResolvedProvider =>
+        !string.IsNullOrWhiteSpace(Provider) ? Provider.Trim().ToLowerInvariant()
+        : !string.IsNullOrEmpty(ResendApiKey) ? "resend"
+        : "smtp";
 }
 
-public class EmailService(IConfiguration config, ILogger<EmailService> logger)
+/// <summary>A file attached to an email. When <see cref="ContentId"/> is set it is embedded inline (cid:).</summary>
+public record EmailAttachment(string FileName, byte[] Content, string ContentType, string? ContentId = null);
+
+public class EmailService(IConfiguration config, IHttpClientFactory httpClientFactory, ILogger<EmailService> logger)
 {
+    public const string ResendHttpClient = "resend";
+
     private EmailOptions Options =>
         config.GetSection("Email").Get<EmailOptions>() ?? new EmailOptions();
 
-    public bool IsConfigured =>
-        !string.IsNullOrEmpty(Options.SmtpHost) && !string.IsNullOrEmpty(Options.SmtpKey);
+    public bool IsConfigured => Options.ResolvedProvider switch
+    {
+        "resend" => !string.IsNullOrEmpty(Options.ResendApiKey),
+        "smtp" => !string.IsNullOrEmpty(Options.SmtpHost) && !string.IsNullOrEmpty(Options.SmtpKey),
+        _ => false
+    };
 
     /// <summary>Sends the right email for a registration's current status. Never throws.</summary>
     public async Task SendRegistrationEmailAsync(Registration registration, Event ev, bool promoted = false)
@@ -39,25 +57,14 @@ public class EmailService(IConfiguration config, ILogger<EmailService> logger)
             };
             if (subject is null || html is null) return;
 
-            var message = new MimeMessage();
-            message.From.Add(new MailboxAddress(Options.FromName, Options.FromAddress));
-            message.To.Add(new MailboxAddress(registration.FullName, registration.Email));
-            message.Subject = subject;
-
-            var builder = new BodyBuilder();
-
+            var attachments = new List<EmailAttachment>();
             if (registration.Status == RegistrationStatus.Confirmed)
             {
-                var qr = GenerateTicketQr(registration.TicketCode);
-                var qrImage = builder.LinkedResources.Add("ticket.png", qr, new ContentType("image", "png"));
-                qrImage.ContentId = "ticket-qr";
-                builder.Attachments.Add("yemeni-breeze-event.ics",
-                    Encoding.UTF8.GetBytes(BuildIcs(registration, ev)),
-                    new ContentType("text", "calendar"));
+                attachments.Add(new EmailAttachment("ticket.png", GenerateTicketQr(registration.TicketCode),
+                    "image/png", ContentId: "ticket-qr"));
+                attachments.Add(new EmailAttachment("yemeni-breeze-event.ics",
+                    Encoding.UTF8.GetBytes(BuildIcs(registration, ev)), "text/calendar"));
             }
-
-            builder.HtmlBody = html;
-            message.Body = builder.ToMessageBody();
 
             if (!IsConfigured)
             {
@@ -67,16 +74,92 @@ public class EmailService(IConfiguration config, ILogger<EmailService> logger)
                 return;
             }
 
-            using var client = new SmtpClient();
-            await client.ConnectAsync(Options.SmtpHost, Options.SmtpPort, SecureSocketOptions.StartTls);
-            await client.AuthenticateAsync(Options.SmtpUser, Options.SmtpKey);
-            await client.SendAsync(message);
-            await client.DisconnectAsync(true);
-            logger.LogInformation("Sent '{Subject}' to {Email}", subject, registration.Email);
+            var options = Options;
+            if (options.ResolvedProvider == "resend")
+                await SendViaResendAsync(options, registration.FullName, registration.Email, subject, html, attachments);
+            else
+                await SendViaSmtpAsync(options, registration.FullName, registration.Email, subject, html, attachments);
+
+            logger.LogInformation("Sent '{Subject}' to {Email} via {Provider}",
+                subject, registration.Email, options.ResolvedProvider);
         }
         catch (Exception ex)
         {
             logger.LogError(ex, "Failed to send registration email to {Email}", registration.Email);
+        }
+    }
+
+    private static async Task SendViaSmtpAsync(EmailOptions options, string toName, string toEmail,
+        string subject, string html, IReadOnlyList<EmailAttachment> attachments)
+    {
+        var message = new MimeMessage();
+        message.From.Add(new MailboxAddress(options.FromName, options.FromAddress));
+        message.To.Add(new MailboxAddress(toName, toEmail));
+        message.Subject = subject;
+
+        var builder = new BodyBuilder();
+        foreach (var a in attachments)
+        {
+            var contentType = ContentType.Parse(a.ContentType);
+            if (a.ContentId is null)
+            {
+                builder.Attachments.Add(a.FileName, a.Content, contentType);
+            }
+            else
+            {
+                var linked = builder.LinkedResources.Add(a.FileName, a.Content, contentType);
+                linked.ContentId = a.ContentId;
+            }
+        }
+        builder.HtmlBody = html;
+        message.Body = builder.ToMessageBody();
+
+        using var client = new SmtpClient();
+        await client.ConnectAsync(options.SmtpHost, options.SmtpPort, SecureSocketOptions.StartTls);
+        await client.AuthenticateAsync(options.SmtpUser, options.SmtpKey);
+        await client.SendAsync(message);
+        await client.DisconnectAsync(true);
+    }
+
+    // https://resend.com/docs/api-reference/emails/send-email
+    private async Task SendViaResendAsync(EmailOptions options, string toName, string toEmail,
+        string subject, string html, IReadOnlyList<EmailAttachment> attachments)
+    {
+        var payload = new Dictionary<string, object>
+        {
+            ["from"] = $"{options.FromName} <{options.FromAddress}>",
+            ["to"] = new[] { toEmail },
+            ["subject"] = subject,
+            ["html"] = html
+        };
+        if (attachments.Count > 0)
+        {
+            payload["attachments"] = attachments.Select(a =>
+            {
+                var item = new Dictionary<string, string>
+                {
+                    ["filename"] = a.FileName,
+                    ["content"] = Convert.ToBase64String(a.Content),
+                    ["content_type"] = a.ContentType
+                };
+                if (a.ContentId is not null) item["content_id"] = a.ContentId;
+                return item;
+            }).ToArray();
+        }
+
+        var client = httpClientFactory.CreateClient(ResendHttpClient);
+        using var request = new HttpRequestMessage(HttpMethod.Post, "https://api.resend.com/emails")
+        {
+            Content = JsonContent.Create(payload)
+        };
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", options.ResendApiKey);
+
+        using var response = await client.SendAsync(request);
+        if (!response.IsSuccessStatusCode)
+        {
+            var body = await response.Content.ReadAsStringAsync();
+            throw new HttpRequestException(
+                $"Resend returned {(int)response.StatusCode} for {toEmail} ({toName}): {body}");
         }
     }
 

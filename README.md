@@ -15,7 +15,7 @@ Website for **Yemen Breeze**, a youth-led cultural initiative in Amsterdam.
 
 - **Public site** — Home, Our Story, Events, Gallery, Contact; fully trilingual (English, Dutch, Arabic with right-to-left layout); per-page localized SEO meta.
 - **Event registration with automatic waitlist** — capacity-aware: when confirmed seats reach capacity, new signups become *Waitlisted*. Duplicate emails per event are rejected. Cancelling a confirmed registration auto-promotes the earliest waitlisted signup that fits.
-- **Emails (Brevo SMTP)** — localized confirmation email with **QR entry ticket** + calendar (.ics) attachment, waitlist and promotion notifications. Without SMTP config the app logs instead of sending (dev mode).
+- **Emails (Resend or SMTP)** — localized confirmation email with **QR entry ticket** + calendar (.ics) attachment, waitlist and promotion notifications. The provider is picked by env vars: `EMAIL_PROVIDER=resend` + `RESEND_API_KEY` for [Resend](https://resend.com), or `EMAIL_PROVIDER=smtp` + `EMAIL_SMTP_*` for any SMTP relay (Brevo by default). With `EMAIL_PROVIDER` blank, Resend is used when `RESEND_API_KEY` is set, otherwise SMTP. Without credentials for the chosen provider the app logs instead of sending (dev mode).
 - **QR check-in** — `/admin/events/:id/checkin`: camera scanning (phone-friendly) plus name/email search fallback, live seats counter; check-in status in the registrations table and CSV.
 - **Images** — server-side resize to WebP (1600px large + 480px thumb, EXIF stripped), drag-and-drop multi-upload, per-event photo albums, admin-managed hero/About images.
 - **Motion & 3D** — Home hero has a Three.js layer of drifting stained-glass shards (qamariya pieces) lit by a pointer-following light (`pages/home/qamariya-scene.ts`, lazy-loaded, paused off-screen); GSAP scroll reveals, stat count-ups and a 3D card tilt live in `shared/motion/`; lightboxes use Angular's `animate.enter`/`animate.leave` and routes cross-fade via View Transitions. Everything falls back to the static page under `prefers-reduced-motion`.
@@ -51,7 +51,7 @@ dotnet test
 
 **Local Docker:** `docker compose up -d --build` → site on port 8080 (nginx serves Angular, proxies `/api` and `/uploads` to the API container; SQLite DB and uploads persist in named volumes).
 
-**Production (Coolify):** add a *Docker Compose* resource pointing at `docker-compose.coolify.yml`, assign the domain to the `web` service (Traefik handles TLS), and set the env vars listed in that file (`JWT_KEY`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `SITE_ORIGIN`, `EMAIL_SMTP_USER`, `EMAIL_SMTP_KEY`, `EMAIL_FROM_ADDRESS`). Enable the GitHub webhook for push-to-deploy. Nightly backups: schedule `deploy/backup.sh` (SQLite snapshot + uploads tar, 14-day rotation).
+**Production (Coolify):** add a *Docker Compose* resource pointing at `docker-compose.coolify.yml`, assign the domain to the `web` service (Traefik handles TLS), and set the env vars listed in that file (`JWT_KEY`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `SITE_ORIGIN`, `EMAIL_FROM_ADDRESS`, plus either `RESEND_API_KEY` or `EMAIL_SMTP_USER` + `EMAIL_SMTP_KEY`). Enable the GitHub webhook for push-to-deploy. Nightly backups: schedule `deploy/backup.sh` (SQLite snapshot + uploads tar, 14-day rotation).
 
 ## Brand
 

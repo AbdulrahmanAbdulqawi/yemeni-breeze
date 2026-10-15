@@ -10,6 +10,10 @@ services:
       - Admin__Email=${ADMIN_EMAIL}
       - Admin__Password=${ADMIN_PASSWORD}
       - Cors__Origins__0=${SITE_ORIGIN}
+      # Email provider: "resend" or "smtp". Leave EMAIL_PROVIDER blank to use Resend
+      # when RESEND_API_KEY is set, otherwise SMTP (Brevo by default).
+      - Email__Provider=${EMAIL_PROVIDER}
+      - Email__ResendApiKey=${RESEND_API_KEY}
       - Email__SmtpHost=${EMAIL_SMTP_HOST:-smtp-relay.brevo.com}
       - Email__SmtpPort=${EMAIL_SMTP_PORT:-587}
       - Email__SmtpUser=${EMAIL_SMTP_USER}

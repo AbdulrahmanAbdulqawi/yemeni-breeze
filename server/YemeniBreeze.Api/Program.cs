@@ -62,6 +62,7 @@ builder.Services.AddAuthorization();
 
 builder.Services.AddSingleton<StorageService>();
 builder.Services.AddSingleton<ImageService>();
+builder.Services.AddHttpClient(EmailService.ResendHttpClient);
 builder.Services.AddSingleton<EmailService>();
 
 builder.Services.AddCors(options => options.AddDefaultPolicy(policy =>
