@@ -75,14 +75,17 @@ public class EmailProviderTests
         Assert.Equal("sara@example.com", root.GetProperty("to")[0].GetString());
         Assert.Contains("Test Event", root.GetProperty("subject").GetString());
         Assert.Contains("cid:ticket-qr", root.GetProperty("html").GetString());
+        Assert.Contains("Sara Test", root.GetProperty("text").GetString());
 
         var attachments = root.GetProperty("attachments").EnumerateArray().ToList();
-        Assert.Equal(2, attachments.Count);
+        Assert.Equal(3, attachments.Count);
+        var logo = attachments.Single(a => a.GetProperty("filename").GetString() == "yemen-breeze.png");
+        Assert.Equal("yb-logo", logo.GetProperty("content_id").GetString());
         var qr = attachments.Single(a => a.GetProperty("filename").GetString() == "ticket.png");
         Assert.Equal("ticket-qr", qr.GetProperty("content_id").GetString());
         Assert.Equal("image/png", qr.GetProperty("content_type").GetString());
         Assert.NotEmpty(Convert.FromBase64String(qr.GetProperty("content").GetString()!));
-        var ics = attachments.Single(a => a.GetProperty("filename").GetString() == "yemeni-breeze-event.ics");
+        var ics = attachments.Single(a => a.GetProperty("filename").GetString() == "yemen-breeze-event.ics");
         Assert.False(ics.TryGetProperty("content_id", out _));
     }
 
