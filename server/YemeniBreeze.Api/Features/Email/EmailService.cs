@@ -115,8 +115,8 @@ public class EmailService(IConfiguration config, IHttpClientFactory httpClientFa
         message.Body = builder.ToMessageBody();
 
         using var client = new SmtpClient();
-        await client.ConnectAsync(options.SmtpHost, options.SmtpPort, SecureSocketOptions.StartTls);
-        await client.AuthenticateAsync(options.SmtpUser, options.SmtpKey);
+        await client.ConnectAsync(options.SmtpHost!, options.SmtpPort, SecureSocketOptions.StartTls);
+        await client.AuthenticateAsync(options.SmtpUser!, options.SmtpKey!);
         await client.SendAsync(message);
         await client.DisconnectAsync(true);
     }
