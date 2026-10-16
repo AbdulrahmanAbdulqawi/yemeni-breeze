@@ -38,10 +38,9 @@
         <div class="detail-form card card-form">
           @if (result() === null) {
             <h2>{{ (ev.requiresApproval ? 'events.form.requestTitle' : ev.spotsLeft > 0 ? 'events.form.title' : 'events.form.waitlistTitle') | transloco }}</h2>
+            <!-- The number of free seats is deliberately not shown to visitors -->
             <p class="detail-spots">
-              @if (ev.spotsLeft > 0) {
-                <strong>{{ ev.spotsLeft }} {{ 'events.spotsLeft' | transloco }}</strong>
-              } @else {
+              @if (ev.spotsLeft <= 0 && !ev.requiresApproval) {
                 <strong class="waitlist">{{ 'events.waitlistOpen' | transloco }}</strong>
               }
               <span>{{ 'events.reservationRequired' | transloco }}</span>

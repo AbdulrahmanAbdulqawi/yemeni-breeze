@@ -9,7 +9,7 @@ import { Tilt } from './motion/tilt.directive';
 /**
  * The two event-card treatments used across Home and the Events page:
  * `upcoming` (the featured next event, with meta rows and a Register CTA)
- * and `past` (photo + date badge, with a link into that event's album).
+ * and `past` (photo + date badge). The whole card links to the event's page.
  */
 @Component({
   selector: 'app-event-card',
@@ -40,7 +40,10 @@ import { Tilt } from './motion/tilt.directive';
           </div>
         }
 
-        <h3>{{ lang.pick(event(), 'title') }}</h3>
+        <h3>
+          <!-- Stretched over the whole card, so clicking anywhere opens the event -->
+          <a [routerLink]="['/events', event().slug]" class="ec-link">{{ lang.pick(event(), 'title') }}</a>
+        </h3>
 
         @if (variant() === 'upcoming') {
           <ul class="ec-meta">
@@ -69,10 +72,9 @@ import { Tilt } from './motion/tilt.directive';
 
           <div class="ec-footer">
             @if (event().isRegistrationOpen) {
+              <!-- The number of free seats is deliberately not shown to visitors -->
               <div class="ec-spots">
-                @if (event().spotsLeft > 0) {
-                  <strong>{{ event().spotsLeft }} {{ 'events.spotsLeft' | transloco }}</strong>
-                } @else {
+                @if (event().spotsLeft <= 0 && !event().requiresApproval) {
                   <strong class="waitlist">{{ 'events.waitlistOpen' | transloco }}</strong>
                 }
                 <span>{{ 'events.reservationRequired' | transloco }}</span>
@@ -83,11 +85,8 @@ import { Tilt } from './motion/tilt.directive';
               </div>
             }
             <a [routerLink]="['/events', event().slug]" class="btn btn-primary ec-cta">
-              @if (event().isRegistrationOpen && event().spotsLeft > 0) {
-                <span class="cta-swap">
-                  <span class="cta-default">{{ 'events.register' | transloco }}</span>
-                  <span class="cta-hover">{{ 'events.form.submit' | transloco }}</span>
-                </span>
+              @if (event().isRegistrationOpen && (event().spotsLeft > 0 || event().requiresApproval)) {
+                {{ 'events.register' | transloco }}
               } @else {
                 {{ (event().isRegistrationOpen ? 'events.joinWaitlist' : 'events.details') | transloco }}
               }
@@ -99,22 +98,42 @@ import { Tilt } from './motion/tilt.directive';
         } @else {
           <p class="ec-location">{{ event().location }}</p>
           <p class="ec-desc">{{ lang.pick(event(), 'description') }}</p>
-          <a [routerLink]="['/events', event().slug]" class="ec-gallery-link">
-            {{ 'events.viewGallery' | transloco }}
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M5 12h14M13 6l6 6-6 6" />
-            </svg>
-          </a>
         }
       </div>
     </article>
   `,
   styles: `
     .ec {
+      position: relative;
       display: flex;
       flex-direction: column;
       margin: 0;
       overflow: hidden;
+    }
+
+    /* "Stretched link": the title link's ::after covers the whole card. It hangs off
+       the title rather than the button because the button moves on hover, and a
+       transformed element would trap the overlay inside itself. */
+    .ec-link {
+      color: inherit;
+      text-decoration: none;
+
+      &::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+      }
+
+      &:hover,
+      &:focus-visible {
+        color: var(--yb-maroon);
+      }
+    }
+
+    /* The real button stays above the overlay */
+    .ec-cta {
+      position: relative;
+      z-index: 1;
     }
 
     .ec-media {
@@ -265,38 +284,6 @@ import { Tilt } from './motion/tilt.directive';
       align-items: center;
       gap: 0.5rem;
 
-      /* "Register" previews the wording of the form it leads to on hover,
-         swapping to the exact label the submit button itself uses.
-         Both labels sit in the same grid cell so the wider one ("Confirm
-         registration") sets the box size and nothing reflows on hover. */
-      .cta-swap {
-        position: relative;
-        display: inline-grid;
-
-        span {
-          grid-area: 1 / 1;
-          transition: opacity 0.15s ease;
-          white-space: nowrap;
-        }
-
-        .cta-hover {
-          opacity: 0;
-        }
-      }
-
-      /* Selectors repeat the .cta-swap ancestor so specificity matches (and
-         beats) the base ".cta-swap .cta-hover { opacity: 0 }" rule above —
-         Angular's per-component [_ngcontent] attribute is appended to every
-         class in a rule, so a shorter hover selector here would otherwise
-         lose the specificity tie and never show the hover text. */
-      &:hover .cta-swap .cta-default {
-        opacity: 0;
-      }
-
-      &:hover .cta-swap .cta-hover {
-        opacity: 1;
-      }
-
       svg {
         width: 16px;
         height: 16px;
@@ -339,34 +326,6 @@ import { Tilt } from './motion/tilt.directive';
       color: var(--ad-muted, #52443f);
     }
 
-    .ec-gallery-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      margin-top: auto;
-      padding-top: 0.4rem;
-      font-weight: 700;
-      color: var(--yb-maroon);
-      text-decoration: none;
-
-      svg {
-        width: 15px;
-        height: 15px;
-        fill: none;
-        stroke: currentColor;
-        stroke-width: 2;
-        stroke-linecap: round;
-        stroke-linejoin: round;
-      }
-
-      &:hover {
-        color: var(--yb-red);
-      }
-
-      :host-context([dir='rtl']) & svg {
-        transform: scaleX(-1);
-      }
-    }
   `
 })
 export class EventCard {
