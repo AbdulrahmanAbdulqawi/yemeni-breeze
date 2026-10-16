@@ -70,7 +70,7 @@ type PageState = 'loading' | 'ready' | 'notFound' | 'error';
                 @if (r.canCancel) {
                   @if (!confirming()) {
                     <p class="hint">{{ 'manage.cancelHint' | transloco }}</p>
-                    <div class="actions">
+                    <div class="actions centered">
                       <button class="btn btn-outline danger" type="button" (click)="confirming.set(true)">
                         {{ 'manage.cancel' | transloco }}
                       </button>
@@ -176,6 +176,10 @@ type PageState = 'loading' | 'ready' | 'notFound' | 'error';
       flex-wrap: wrap;
       gap: 0.8rem;
       margin-top: 1rem;
+
+      &.centered {
+        justify-content: center;
+      }
     }
 
     .confirm {

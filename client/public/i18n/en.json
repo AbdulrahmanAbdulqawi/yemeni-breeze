@@ -163,7 +163,7 @@
     "statusWaitlisted": "On the waitlist",
     "statusCancelled": "Cancelled",
     "cancelHint": "Can't make it after all? Cancelling frees your spot for someone on the waitlist.",
-    "cancel": "Cancel my registration",
+    "cancel": "Cancel",
     "confirmQuestion": "Cancel your registration?",
     "confirmText": "Your ticket will stop working. You can register again later if spots are still available.",
     "confirmYes": "Yes, cancel it",
