@@ -139,6 +139,29 @@ public class RegistrationApprovalTests(EmailApiFactory factory) : IClassFixture<
     }
 
     [Fact]
+    public async Task Signing_up_again_does_not_show_the_old_registrations_email()
+    {
+        await AuthenticateAsync();
+        var ev = await CreateEventAsync(requiresApproval: false);
+        var (id, _) = await RegisterAsync(ev.Slug, "again@approval.test");   // confirmed, ticket sent
+        await DrainAsync();
+        (await SetStatusAsync(ev.Id, id, "Cancelled")).EnsureSuccessStatusCode();
+        await WithDbAsync(async db =>
+        {
+            (await db.Events.SingleAsync(e => e.Id == ev.Id)).RequiresApproval = true;
+            return await db.SaveChangesAsync();
+        });
+
+        var (againId, status) = await RegisterAsync(ev.Slug, "again@approval.test");
+
+        Assert.Equal(id, againId); // same row, reused
+        Assert.Equal("Pending", status);
+        var rows = await _client.GetFromJsonAsync<JsonElement>($"/api/admin/events/{ev.Id}/registrations");
+        var row = rows.EnumerateArray().Single(r => r.GetProperty("id").GetInt32() == id);
+        Assert.Equal(JsonValueKind.Null, row.GetProperty("lastEmailStatus").ValueKind);
+    }
+
+    [Fact]
     public async Task Admin_can_accept_past_capacity()
     {
         await AuthenticateAsync();

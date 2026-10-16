@@ -104,6 +104,38 @@ public class RegistrationEmailTemplateTests
         Assert.Contains("src=\"https://yemenbreeze.nl/api/media/events/cover.webp\"", email.Html);
     }
 
+    [Fact]
+    public void Ticket_email_greets_by_first_name()
+    {
+        var registration = SampleRegistration(RegistrationStatus.Confirmed);
+        registration.FullName = "Sara Ahmed";
+
+        var email = RegistrationEmails.Build(registration, SampleEvent(), EmailKind.Confirmed, "https://yemenbreeze.nl")!;
+
+        Assert.Contains("Dear Sara,", email.Html);
+        Assert.Contains("Dear Sara,", email.Text);
+    }
+
+    [Fact]
+    public void Rejection_email_names_the_event_but_leaves_out_its_details()
+    {
+        var registration = SampleRegistration(RegistrationStatus.Rejected);
+        registration.FullName = "Sara Ahmed";
+        var ev = SampleEvent();
+        ev.ImageUrl = "/api/media/events/cover.webp";
+
+        var email = RegistrationEmails.Build(registration, ev, EmailKind.Rejected, "https://yemenbreeze.nl")!;
+
+        Assert.Contains("Dear Sara,", email.Html);
+        Assert.Contains("Summer Night</h1>", email.Html);          // the event's name is the heading
+        Assert.DoesNotContain("Thanks for signing up", email.Html);
+        foreach (var detail in new[] { "Rotterdam", "18:00", "cover.webp", "View the event", "/events/summer-night" })
+        {
+            Assert.DoesNotContain(detail, email.Html);
+            Assert.DoesNotContain(detail, email.Text);
+        }
+    }
+
     [Theory]
     [InlineData("https://yemenbreeze.nl,https://www.yemenbreeze.nl", "https://yemenbreeze.nl")]
     [InlineData(" https://yemenbreeze.nl/ , https://www.yemenbreeze.nl", "https://yemenbreeze.nl")]

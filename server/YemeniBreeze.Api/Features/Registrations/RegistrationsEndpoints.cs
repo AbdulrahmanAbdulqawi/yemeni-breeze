@@ -159,8 +159,10 @@ public static class RegistrationsEndpoints
                 .OrderBy(r => r.Status != RegistrationStatus.Pending) // the ones waiting for a decision first
                 .ThenBy(r => r.Status).ThenBy(r => r.CreatedAt)
                 .ToListAsync();
+            // Someone who cancelled and signed up again reuses their row; emails from before the
+            // new signup belong to the old one, so they don't count as this registration's email.
             var lastEmails = (await db.OutgoingEmails
-                    .Where(o => o.Registration!.EventId == eventId)
+                    .Where(o => o.Registration!.EventId == eventId && o.CreatedAt >= o.Registration.CreatedAt)
                     .ToListAsync())
                 .GroupBy(o => o.RegistrationId)
                 .ToDictionary(g => g.Key, g => g.MaxBy(o => o.Id)!);

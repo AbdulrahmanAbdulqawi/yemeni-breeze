@@ -138,8 +138,9 @@
       "requestTitle": "Request a place",
       "approvalNote": "Our team reviews every request. If you are accepted, we will email you your ticket.",
       "submitRequest": "Send my request",
-      "pendingTitle": "Thanks, we got your request! 🙌",
-      "pendingText": "Our team will look at it soon. If you're in, your ticket will land in your inbox."
+      "pendingTitle": "Thank you, {{name}}! 💛",
+      "pendingText": "We're so happy you want to join us! Your request is in, and our team will look at it very soon. If there's a place for you, your ticket will land in your inbox, so keep an eye out (and peek in your spam folder, just in case).",
+      "moreEvents": "Explore more events"
     },
     "featured": "Featured",
     "limitedAvailability": "Limited availability",

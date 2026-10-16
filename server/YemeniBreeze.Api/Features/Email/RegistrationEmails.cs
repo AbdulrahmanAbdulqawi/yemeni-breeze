@@ -82,8 +82,11 @@ public static class RegistrationEmails
             _ => "confirmed"
         };
         var subject = string.Format(t[key + "Subject"], EventTitle(r, ev));
-        var heading = t[key + "Heading"];
+        // A "sorry" email stays short and personal: the event's name as the heading, no details.
+        var showEvent = kind != EmailKind.Rejected;
+        var heading = showEvent ? t[key + "Heading"] : EventTitle(r, ev);
         var intro = t[key + "Intro"];
+        var greeting = string.Format(t["greeting"], FirstName(r.FullName));
         var preheader = t[key + "Preheader"];
         var note = t.GetValueOrDefault(key + "Note");
 
@@ -99,21 +102,28 @@ public static class RegistrationEmails
         }
 
         var body = new StringBuilder();
+        body.Append(Paragraph(H(greeting)));
         body.Append(Paragraph(H(intro)));
-        if (AbsoluteUrl(ev.ImageUrl, baseUrl) is { } imageUrl) body.Append(EventImage(imageUrl, eventUrl, EventTitle(r, ev)));
-        body.Append(EventCard(r, ev, t));
+        if (showEvent)
+        {
+            if (AbsoluteUrl(ev.ImageUrl, baseUrl) is { } imageUrl) body.Append(EventImage(imageUrl, eventUrl, EventTitle(r, ev)));
+            body.Append(EventCard(r, ev, t));
+        }
         if (withTicket) body.Append(TicketCard(r, t));
         if (note is not null) body.Append(Paragraph(H(note)));
-        body.Append(Button(t["viewEvent"], eventUrl));
+        if (showEvent) body.Append(Button(t["viewEvent"], eventUrl));
         if (withTicket) body.Append(Small(t["calendarNote"]));
         if (manageUrl is not null) body.Append(ManageLink(t, manageUrl));
 
         var html = Layout(r.Language, subject, preheader, heading, body.ToString(), t, baseUrl);
-        var text = PlainText(r, ev, t, heading, intro, note, withTicket, eventUrl, manageUrl, baseUrl);
+        var text = PlainText(r, ev, t, heading, greeting, intro, note, withTicket, showEvent ? eventUrl : null, manageUrl, baseUrl);
         return new EmailContent(subject, html, text, attachments);
     }
 
     private static string H(string? value) => WebUtility.HtmlEncode(value ?? "");
+
+    private static string FirstName(string fullName) =>
+        fullName.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ?? fullName;
 
     /// <summary>Uploaded images are stored as site-relative paths; mail clients need the full address.</summary>
     private static string? AbsoluteUrl(string? url, string baseUrl) =>
@@ -318,17 +328,22 @@ public static class RegistrationEmails
     }
 
     private static string PlainText(Registration r, Event ev, IReadOnlyDictionary<string, string> t,
-        string heading, string intro, string? note, bool confirmed, string eventUrl, string? manageUrl, string baseUrl)
+        string heading, string greeting, string intro, string? note, bool confirmed,
+        string? eventUrl, string? manageUrl, string baseUrl)
     {
         var sb = new StringBuilder();
         sb.AppendLine("YEMEN BREEZE · نسمات اليمن").AppendLine();
         sb.AppendLine(heading).AppendLine();
+        sb.AppendLine(greeting).AppendLine();
         sb.AppendLine(intro).AppendLine();
-        sb.AppendLine(EventTitle(r, ev));
-        sb.AppendLine($"{t["dateLabel"]}: {FormatDate(ev.Date, r.Language)}");
-        if (!string.IsNullOrWhiteSpace(ev.StartTime)) sb.AppendLine($"{t["timeLabel"]}: \u2066{TimeRange(ev)}\u2069");
-        if (!string.IsNullOrWhiteSpace(ev.Location)) sb.AppendLine($"{t["locationLabel"]}: {ev.Location}");
-        sb.AppendLine();
+        if (eventUrl is not null) // no event details in a "sorry" email
+        {
+            sb.AppendLine(EventTitle(r, ev));
+            sb.AppendLine($"{t["dateLabel"]}: {FormatDate(ev.Date, r.Language)}");
+            if (!string.IsNullOrWhiteSpace(ev.StartTime)) sb.AppendLine($"{t["timeLabel"]}: \u2066{TimeRange(ev)}\u2069");
+            if (!string.IsNullOrWhiteSpace(ev.Location)) sb.AppendLine($"{t["locationLabel"]}: {ev.Location}");
+            sb.AppendLine();
+        }
         if (confirmed)
         {
             sb.AppendLine($"{t["ticketLabel"]}: {r.FullName} — {r.GuestsCount} {(r.GuestsCount == 1 ? t["guest"] : t["guests"])}");
@@ -336,7 +351,7 @@ public static class RegistrationEmails
             sb.AppendLine(t["ticketNote"]).AppendLine();
         }
         if (note is not null) sb.AppendLine(note).AppendLine();
-        sb.AppendLine($"{t["viewEvent"]}: {eventUrl}").AppendLine();
+        if (eventUrl is not null) sb.AppendLine($"{t["viewEvent"]}: {eventUrl}").AppendLine();
         if (manageUrl is not null) sb.AppendLine($"{t["cantMakeIt"]} {t["manageLink"]}: {manageUrl}").AppendLine();
         sb.AppendLine(t["signoff"]).AppendLine(t["team"]).AppendLine();
         sb.AppendLine(t["footer"]).AppendLine($"{t["followUs"]} {InstagramHandle} — {InstagramUrl}");
@@ -425,10 +440,10 @@ public static class RegistrationEmails
             ["cancelledNote"] = "Toch van gedachten veranderd? Je kunt je gewoon opnieuw inschrijven op de evenementpagina, zolang er plek is.",
             ["cancelledPreheader"] = "Je annulering is gelukt.",
             ["rejectedSubject"] = "Over je aanmelding — {0}",
-            ["rejectedHeading"] = "Dank je wel voor je aanmelding",
             ["rejectedIntro"] = "Wat leuk dat je erbij wilde zijn! Helaas kunnen we je deze keer geen plek geven.",
             ["rejectedNote"] = "We hopen je heel graag te zien bij een van onze volgende evenementen.",
             ["rejectedPreheader"] = "Een bericht over je aanmelding.",
+            ["greeting"] = "Beste {0},",
             ["cantMakeIt"] = "Kun je toch niet komen?",
             ["manageLink"] = "Annuleer je inschrijving",
             ["dateLabel"] = "Datum",
@@ -473,10 +488,10 @@ public static class RegistrationEmails
             ["cancelledNote"] = "غيّرت رأيك؟ يمكنك التسجيل من جديد من صفحة الفعالية ما دامت هناك مقاعد.",
             ["cancelledPreheader"] = "تم إلغاء تسجيلك بنجاح.",
             ["rejectedSubject"] = "بخصوص طلب تسجيلك في {0}",
-            ["rejectedHeading"] = "شكرًا لتسجيلك",
             ["rejectedIntro"] = "سعدنا كثيرًا برغبتك في الانضمام إلينا! للأسف لا نستطيع أن نوفّر لك مقعدًا هذه المرة.",
             ["rejectedNote"] = "نتمنى أن نراك في إحدى فعالياتنا القادمة.",
             ["rejectedPreheader"] = "رسالة بخصوص طلب تسجيلك.",
+            ["greeting"] = "مرحبًا {0}،",
             ["cantMakeIt"] = "لن تتمكن من الحضور؟",
             ["manageLink"] = "ألغِ تسجيلك",
             ["dateLabel"] = "التاريخ",
@@ -521,10 +536,10 @@ public static class RegistrationEmails
             ["cancelledNote"] = "Changed your mind? You can sign up again on the event page while there are spots left.",
             ["cancelledPreheader"] = "Your cancellation went through.",
             ["rejectedSubject"] = "About your registration — {0}",
-            ["rejectedHeading"] = "Thanks for signing up",
             ["rejectedIntro"] = "We loved that you wanted to join us! Unfortunately, we can't offer you a place at this event this time.",
             ["rejectedNote"] = "We really hope to see you at one of our next events.",
             ["rejectedPreheader"] = "A message about your registration.",
+            ["greeting"] = "Dear {0},",
             ["cantMakeIt"] = "Can't make it after all?",
             ["manageLink"] = "Cancel your registration",
             ["dateLabel"] = "Date",

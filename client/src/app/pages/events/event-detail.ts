@@ -102,6 +102,8 @@ export class EventDetail {
 
   readonly submitting = signal(false);
   readonly result = signal<RegistrationStatus | null>(null);
+  /** For a personal thank-you after submitting ("Thank you, Sara!"). */
+  readonly firstName = signal('');
   readonly errorKey = signal<string | null>(null);
 
   readonly form = this.fb.nonNullable.group({
@@ -162,6 +164,7 @@ export class EventDetail {
       language: this.lang.current()
     }).subscribe({
       next: response => {
+        this.firstName.set(value.fullName.trim().split(/\s+/)[0]);
         this.result.set(response.status);
         this.submitting.set(false);
       },

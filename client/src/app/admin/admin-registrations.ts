@@ -128,6 +128,7 @@ import { EmptyState, Spinner } from './ui/state-views';
                 <td class="note-cell" [title]="registration.note">{{ registration.note }}</td>
                 <td>{{ registration.createdAt | date: 'short' }}</td>
                 <td class="actions">
+                  <div class="actions-inner">
                   @if (registration.status === 'Pending') {
                     <button class="btn-link accept" (click)="accept(registration)">
                       {{ 'admin.registrations.accept' | transloco }}
@@ -150,6 +151,7 @@ import { EmptyState, Spinner } from './ui/state-views';
                       {{ 'admin.registrations.cancel' | transloco }}
                     </button>
                   }
+                  </div>
                 </td>
               </tr>
             }
@@ -206,9 +208,14 @@ import { EmptyState, Spinner } from './ui/state-views';
       white-space: nowrap;
     }
 
+    /* The cell stays a table-cell (flex on a <td> breaks the row); the buttons flex inside it. */
     .actions {
       white-space: nowrap;
+    }
+
+    .actions-inner {
       display: flex;
+      align-items: center;
       gap: 0.6rem;
     }
 

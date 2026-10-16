@@ -92,10 +92,13 @@ type SortKey = 'titleEn' | 'date' | 'status' | 'capacity' | 'confirmedCount' | '
       font-weight: 600;
     }
 
+    /* No flex on the <td> itself: that takes it out of the table row */
     .actions {
       white-space: nowrap;
-      display: flex;
-      gap: 0.7rem;
+
+      > * + * {
+        margin-inline-start: 0.7rem;
+      }
     }
 
     .badge-draft {

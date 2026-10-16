@@ -138,8 +138,9 @@
       "requestTitle": "Vraag een plek aan",
       "approvalNote": "Ons team bekijkt elke aanvraag. Word je geaccepteerd, dan mailen we je je ticket.",
       "submitRequest": "Verstuur mijn aanvraag",
-      "pendingTitle": "Dank je, we hebben je aanvraag! 🙌",
-      "pendingText": "Ons team kijkt er snel naar. Ben je erbij, dan komt je ticket in je inbox."
+      "pendingTitle": "Dank je wel, {{name}}! 💛",
+      "pendingText": "Wat leuk dat je erbij wilt zijn! Je aanvraag is binnen en ons team kijkt er heel snel naar. Is er een plekje voor je, dan komt je ticket in je inbox. Houd hem dus in de gaten (en kijk voor de zekerheid ook even in je spammap).",
+      "moreEvents": "Bekijk meer evenementen"
     },
     "featured": "Uitgelicht",
     "limitedAvailability": "Beperkt beschikbaar",

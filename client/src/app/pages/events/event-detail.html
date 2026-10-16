@@ -154,9 +154,9 @@
           } @else if (result() === 'Pending') {
             <div class="result pending" animate.enter="yb-rise-in">
               <span class="result-icon">📨</span>
-              <h2>{{ 'events.form.pendingTitle' | transloco }}</h2>
+              <h2>{{ 'events.form.pendingTitle' | transloco: { name: firstName() } }}</h2>
               <p>{{ 'events.form.pendingText' | transloco }}</p>
-              <a routerLink="/events" class="btn btn-outline">{{ 'nav.events' | transloco }}</a>
+              <a routerLink="/events" class="btn btn-outline">{{ 'events.form.moreEvents' | transloco }}</a>
             </div>
           } @else {
             <div class="result waitlisted" animate.enter="yb-rise-in">
