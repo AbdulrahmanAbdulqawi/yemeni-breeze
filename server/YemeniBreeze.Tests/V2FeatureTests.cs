@@ -52,7 +52,12 @@ public class V2FeatureTests : IClassFixture<ApiFactory>
     private async Task<RegistrationRow> RegisterAsync(string slug, string email, int guests)
     {
         var response = await _client.PostAsJsonAsync($"/api/events/{slug}/register",
-            new { FullName = "Person " + email, Email = email, GuestsCount = guests, Language = "en" });
+            new
+            {
+                FullName = "Person " + email, Email = email, GuestsCount = guests, Language = "en",
+                Phone = "+3160000000", Country = "Yemen", Reason = "Testing",
+                GuestNames = guests > 1 ? "Friends" : null
+            });
         response.EnsureSuccessStatusCode();
         var result = await response.Content.ReadFromJsonAsync<RegisterResult>();
         using var scope = _factory.Services.CreateScope();

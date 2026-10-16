@@ -311,6 +311,9 @@ namespace YemeniBreeze.Api.Migrations
                         .HasMaxLength(300)
                         .HasColumnType("TEXT");
 
+                    b.Property<bool>("RequiresApproval")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Slug")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -466,7 +469,15 @@ namespace YemeniBreeze.Api.Migrations
                     b.Property<DateTime?>("CheckedInAt")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Country")
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("DietaryRestrictions")
+                        .HasMaxLength(500)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Email")
@@ -482,7 +493,14 @@ namespace YemeniBreeze.Api.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("GuestNames")
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
                     b.Property<int>("GuestsCount")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool?>("IsVegetarian")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Language")
@@ -501,11 +519,18 @@ namespace YemeniBreeze.Api.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Reason")
+                        .HasMaxLength(1000)
+                        .HasColumnType("TEXT");
+
                     b.Property<int>("Status")
                         .HasColumnType("INTEGER");
 
                     b.Property<Guid>("TicketCode")
                         .HasColumnType("TEXT");
+
+                    b.Property<bool>("WantsUpdates")
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 

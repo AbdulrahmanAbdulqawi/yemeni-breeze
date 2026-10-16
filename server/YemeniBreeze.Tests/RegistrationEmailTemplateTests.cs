@@ -69,6 +69,51 @@ public class RegistrationEmailTemplateTests
     }
 
     [Fact]
+    public void Arabic_heading_and_footer_are_right_to_left_too()
+    {
+        // Gmail drops <html dir>, so the heading bar and footer need their own dir or "!" lands on the wrong side.
+        var email = RegistrationEmails.Build(SampleRegistration(RegistrationStatus.Confirmed, "ar"), SampleEvent(),
+            EmailKind.Confirmed, "https://yemenbreeze.nl")!;
+
+        Assert.Contains("<body dir=\"rtl\"", email.Html);
+        Assert.Contains("dir=\"rtl\" bgcolor=\"#310f02\"", email.Html);   // heading bar
+        Assert.Contains("dir=\"rtl\" bgcolor=\"#4b2312\"", email.Html);   // footer
+        Assert.DoesNotContain(".ics", email.Html);                         // no scrambled "(.ics)" in RTL text
+    }
+
+    [Fact]
+    public void Footer_links_to_instagram_instead_of_the_domain()
+    {
+        var email = RegistrationEmails.Build(SampleRegistration(RegistrationStatus.Confirmed), SampleEvent(),
+            EmailKind.Confirmed, "https://yemenbreeze.nl")!;
+
+        Assert.Contains("https://instagram.com/Yemeni.breeze", email.Html);
+        Assert.Contains("@Yemeni.breeze", email.Text);
+        Assert.DoesNotContain(">yemenbreeze.nl<", email.Html);
+    }
+
+    [Fact]
+    public void Event_photo_is_shown_with_a_full_address()
+    {
+        var ev = SampleEvent();
+        ev.ImageUrl = "/api/media/events/cover.webp";
+
+        var email = RegistrationEmails.Build(SampleRegistration(RegistrationStatus.Confirmed), ev,
+            EmailKind.Confirmed, "https://yemenbreeze.nl")!;
+
+        Assert.Contains("src=\"https://yemenbreeze.nl/api/media/events/cover.webp\"", email.Html);
+    }
+
+    [Theory]
+    [InlineData("https://yemenbreeze.nl,https://www.yemenbreeze.nl", "https://yemenbreeze.nl")]
+    [InlineData(" https://yemenbreeze.nl/ , https://www.yemenbreeze.nl", "https://yemenbreeze.nl")]
+    [InlineData("https://yemenbreeze.nl", "https://yemenbreeze.nl")]
+    public void Email_links_use_one_site_address_when_several_are_configured(string configured, string expected)
+    {
+        Assert.Equal(expected, new EmailOptions { PublicBaseUrl = configured }.SiteUrl);
+    }
+
+    [Fact]
     public void Email_that_no_longer_fits_the_status_is_not_built()
     {
         // A ticket email for a registration that was cancelled before it went out

@@ -12,6 +12,8 @@ import { GalleryItemDto, RegistrationStatus } from '../../core/models';
 import { SeoService } from '../../core/seo.service';
 import { Reveal } from '../../shared/motion/reveal.directive';
 
+type YesNo = 'yes' | 'no';
+
 @Component({
   selector: 'app-event-detail',
   imports: [ReactiveFormsModule, TranslocoPipe, LocalizedDatePipe, RouterLink, Reveal],
@@ -105,11 +107,34 @@ export class EventDetail {
   readonly form = this.fb.nonNullable.group({
     fullName: ['', [Validators.required, Validators.maxLength(200)]],
     email: ['', [Validators.required, Validators.email]],
-    phone: [''],
-    guestsCount: [1, [Validators.required, Validators.min(1), Validators.max(10)]],
-    note: [''],
+    country: ['', [Validators.required, Validators.maxLength(100)]],
+    phone: ['', [Validators.required, Validators.maxLength(50)]],
+    reason: ['', [Validators.required, Validators.maxLength(1000)]],
+    bringingGuests: ['no' as YesNo],
+    // Only asked (and validated) when bringingGuests is 'yes'; see bringingGuestsSync.
+    extraGuests: [1],
+    guestNames: [''],
+    vegetarian: ['' as YesNo | ''],
+    dietaryRestrictions: ['', Validators.maxLength(500)],
+    wantsUpdates: ['' as YesNo | ''],
     // Honeypot: visually hidden, so only bots fill it in. The server quietly drops those.
     website: ['']
+  });
+
+  readonly bringingGuests = toSignal(this.form.controls.bringingGuests.valueChanges,
+    { initialValue: this.form.controls.bringingGuests.value });
+
+  private bringingGuestsSync = effect(() => {
+    const { extraGuests, guestNames } = this.form.controls;
+    if (this.bringingGuests() === 'yes') {
+      extraGuests.setValidators([Validators.required, Validators.min(1), Validators.max(9)]);
+      guestNames.setValidators([Validators.required, Validators.maxLength(500)]);
+    } else {
+      extraGuests.clearValidators();
+      guestNames.clearValidators();
+    }
+    extraGuests.updateValueAndValidity();
+    guestNames.updateValueAndValidity();
   });
 
   submit() {
@@ -120,7 +145,22 @@ export class EventDetail {
     }
     this.submitting.set(true);
     this.errorKey.set(null);
-    this.api.register(event.slug, { ...this.form.getRawValue(), language: this.lang.current() }).subscribe({
+    const value = this.form.getRawValue();
+    const bringsGuests = value.bringingGuests === 'yes';
+    this.api.register(event.slug, {
+      fullName: value.fullName,
+      email: value.email,
+      country: value.country,
+      phone: value.phone,
+      reason: value.reason,
+      guestsCount: bringsGuests ? 1 + value.extraGuests : 1,
+      guestNames: bringsGuests ? value.guestNames : null,
+      isVegetarian: value.vegetarian === '' ? null : value.vegetarian === 'yes',
+      dietaryRestrictions: value.dietaryRestrictions,
+      wantsUpdates: value.wantsUpdates === 'yes',
+      website: value.website,
+      language: this.lang.current()
+    }).subscribe({
       next: response => {
         this.result.set(response.status);
         this.submitting.set(false);

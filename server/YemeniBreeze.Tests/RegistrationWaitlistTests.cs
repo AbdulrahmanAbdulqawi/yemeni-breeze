@@ -68,7 +68,11 @@ public class RegistrationWaitlistTests : IClassFixture<ApiFactory>
     }
 
     private static object Registration(string email, int guests = 1) =>
-        new { FullName = "Test Person", Email = email, Phone = "+3160000000", GuestsCount = guests, Note = "" };
+        new
+        {
+            FullName = "Test Person", Email = email, Phone = "+3160000000", GuestsCount = guests,
+            Country = "Yemen", Reason = "To meet people", GuestNames = guests > 1 ? "A Friend" : null
+        };
 
     [Fact]
     public async Task Registers_As_Confirmed_While_Capacity_Remains()
@@ -120,6 +124,63 @@ public class RegistrationWaitlistTests : IClassFixture<ApiFactory>
         var response = await _client.PostAsJsonAsync($"/api/events/{slug}/register", Registration("late@test.nl"));
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Theory]
+    [InlineData("Country")]
+    [InlineData("Phone")]
+    [InlineData("Reason")]
+    public async Task Rejects_When_A_Required_Question_Is_Blank(string field)
+    {
+        var slug = await CreateEventAsync(capacity: 10);
+        var body = new Dictionary<string, object?>
+        {
+            ["FullName"] = "Test Person", ["Email"] = $"{field}@test.nl", ["GuestsCount"] = 1,
+            ["Phone"] = "+3160000000", ["Country"] = "Yemen", ["Reason"] = "To meet people",
+            [field] = "  "
+        };
+
+        var response = await _client.PostAsJsonAsync($"/api/events/{slug}/register", body);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task Rejects_Guests_Without_Their_Names()
+    {
+        var slug = await CreateEventAsync(capacity: 10);
+
+        var response = await _client.PostAsJsonAsync($"/api/events/{slug}/register", new
+        {
+            FullName = "Test Person", Email = "no-names@test.nl", Phone = "+3160000000",
+            GuestsCount = 3, Country = "Yemen", Reason = "To meet people"
+        });
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task Stores_The_Registration_Answers()
+    {
+        var slug = await CreateEventAsync(capacity: 10);
+
+        var response = await _client.PostAsJsonAsync($"/api/events/{slug}/register", new
+        {
+            FullName = "Test Person", Email = "answers@test.nl", Phone = "+3160000000", GuestsCount = 2,
+            Country = " Netherlands ", Reason = "Love Yemeni food", GuestNames = "Sara",
+            IsVegetarian = true, DietaryRestrictions = "No nuts", WantsUpdates = true
+        });
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        using var scope = _factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var saved = await db.Registrations.SingleAsync(r => r.Email == "answers@test.nl");
+        Assert.Equal("Netherlands", saved.Country);
+        Assert.Equal("Love Yemeni food", saved.Reason);
+        Assert.Equal("Sara", saved.GuestNames);
+        Assert.True(saved.IsVegetarian);
+        Assert.Equal("No nuts", saved.DietaryRestrictions);
+        Assert.True(saved.WantsUpdates);
     }
 
     [Fact]

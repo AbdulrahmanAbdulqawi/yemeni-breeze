@@ -71,8 +71,10 @@ builder.Services.AddHostedService(sp => sp.GetRequiredService<EmailDispatcher>()
 builder.Services.AddPublicFormProtection(builder.Configuration);
 
 builder.Services.AddCors(options => options.AddDefaultPolicy(policy =>
-    policy.WithOrigins(builder.Configuration.GetSection("Cors:Origins").Get<string[]>()
-            ?? ["http://localhost:4200"])
+    // An origin entry may hold several comma-separated origins (SITE_ORIGIN lists both domains).
+    policy.WithOrigins((builder.Configuration.GetSection("Cors:Origins").Get<string[]>() ?? ["http://localhost:4200"])
+            .SelectMany(o => o.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+            .ToArray())
         .AllowAnyHeader()
         .AllowAnyMethod()));
 

@@ -94,6 +94,8 @@ type PageState = 'loading' | 'ready' | 'notFound' | 'error';
                   }
                 } @else if (r.status === 'Cancelled' && !justCancelled()) {
                   <p class="hint">{{ 'manage.alreadyCancelled' | transloco }}</p>
+                } @else if (r.status === 'Rejected') {
+                  <p class="hint">{{ 'manage.rejected' | transloco }}</p>
                 } @else if (r.status !== 'Cancelled') {
                   <p class="hint">{{ 'manage.pastEvent' | transloco }}</p>
                 }
@@ -159,7 +161,9 @@ type PageState = 'loading' | 'ready' | 'notFound' | 'error';
 
     .status-confirmed { color: var(--yb-green); }
     .status-waitlisted { color: #a8670f; }
-    .status-cancelled { color: var(--yb-red); }
+    .status-cancelled,
+    .status-rejected { color: var(--yb-red); }
+    .status-pending { color: var(--yb-blue); }
 
     .hint,
     .muted {

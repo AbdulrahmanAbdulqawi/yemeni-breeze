@@ -445,6 +445,61 @@ img {
   }
 }
 
+/* Required-question marker */
+.req {
+  color: var(--yb-red);
+}
+
+/* Yes / No questions: <fieldset class="field choice"> with radio pills in .choice-options */
+.choice {
+  border: none;
+  padding: 0;
+  margin-inline: 0;
+
+  legend {
+    font-weight: 600;
+    color: var(--yb-brown);
+    padding: 0;
+    margin-bottom: 0.35rem;
+  }
+}
+
+.choice-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+
+  label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border: 1.5px solid #d9c9a8;
+    border-radius: 999px;
+    background: #fff;
+    font-weight: 600;
+    cursor: pointer;
+
+    &:has(input:checked) {
+      border-color: var(--yb-maroon);
+      background: var(--yb-cream);
+    }
+
+    &:has(input:focus-visible) {
+      outline: 2px solid var(--yb-blue);
+    }
+  }
+
+  /* .field styles every input as a text box; undo that for radios */
+  input[type='radio'] {
+    padding: 0;
+    margin: 0;
+    width: 1rem;
+    height: 1rem;
+    accent-color: var(--yb-maroon);
+  }
+}
+
 .error-text {
   color: var(--yb-red);
   font-size: 0.9rem;
@@ -472,6 +527,16 @@ img {
 .badge-cancelled {
   background: #f6dad6;
   color: var(--yb-maroon);
+}
+
+.badge-pending {
+  background: #e3e6fb;
+  color: #2b2bb0;
+}
+
+.badge-rejected {
+  background: #ece7e4;
+  color: #6b5d55;
 }
 
 /* ===== Tables (admin) ===== */

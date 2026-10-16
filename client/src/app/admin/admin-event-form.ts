@@ -110,6 +110,13 @@ import { LangSelect } from './ui/lang-select';
           </label>
         </div>
       </div>
+      <div class="field checkbox-field approval-field">
+        <label>
+          <input type="checkbox" formControlName="requiresApproval" />
+          {{ 'admin.events.requiresApproval' | transloco }}
+        </label>
+        <span class="field-hint">{{ 'admin.events.requiresApprovalHint' | transloco }}</span>
+      </div>
 
       <h2 class="form-section">{{ 'admin.events.sectionMedia' | transloco }}</h2>
       <div class="field cover-field">
@@ -221,6 +228,15 @@ import { LangSelect } from './ui/lang-select';
       }
     }
 
+    .approval-field {
+      margin-top: 0.4rem;
+    }
+
+    .field-hint {
+      font-size: 0.82rem;
+      color: var(--ad-muted, #7c6a5c);
+    }
+
     .image-preview {
       max-height: 150px;
       width: auto;
@@ -275,7 +291,8 @@ export class AdminEventForm {
     capacity: [100, [Validators.required, Validators.min(1)]],
     imageUrl: [null as string | null],
     status: ['Draft' as EventStatus],
-    isRegistrationOpen: [false]
+    isRegistrationOpen: [false],
+    requiresApproval: [false]
   });
 
   /** Live form value, so the "still empty in…" hint tracks typing. */

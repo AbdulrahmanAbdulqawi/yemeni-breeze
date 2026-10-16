@@ -25,6 +25,8 @@ public class Event
     public string? ImageUrl { get; set; }
     public EventStatus Status { get; set; } = EventStatus.Draft;
     public bool IsRegistrationOpen { get; set; }
+    /// <summary>New registrations wait as Pending, without any email, until an admin accepts or rejects them.</summary>
+    public bool RequiresApproval { get; set; }
     public List<Registration> Registrations { get; set; } = [];
 }
 
@@ -32,7 +34,10 @@ public enum RegistrationStatus
 {
     Confirmed = 0,
     Waitlisted = 1,
-    Cancelled = 2
+    Cancelled = 2,
+    /// <summary>Waiting for an admin to accept or reject (events with RequiresApproval).</summary>
+    Pending = 3,
+    Rejected = 4
 }
 
 public class Registration
@@ -44,7 +49,16 @@ public class Registration
     public string Email { get; set; } = "";
     public string? Phone { get; set; }
     public int GuestsCount { get; set; } = 1;
+    /// <summary>Free-text "anything we should know?". No longer asked on the form; kept for older registrations.</summary>
     public string? Note { get; set; }
+    // Registration questions. Null on rows created before the form asked them.
+    public string? Country { get; set; }
+    public string? Reason { get; set; }
+    /// <summary>Names of the people they bring along. Required when GuestsCount > 1.</summary>
+    public string? GuestNames { get; set; }
+    public bool? IsVegetarian { get; set; }
+    public string? DietaryRestrictions { get; set; }
+    public bool WantsUpdates { get; set; }
     public RegistrationStatus Status { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public Guid TicketCode { get; set; } = Guid.NewGuid();
@@ -60,7 +74,8 @@ public enum EmailKind
     Promoted = 1,
     Waitlisted = 2,
     Cancelled = 3,
-    Reminder = 4
+    Reminder = 4,
+    Rejected = 5
 }
 
 public enum EmailStatus

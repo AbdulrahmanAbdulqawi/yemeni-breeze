@@ -1,5 +1,5 @@
 export type EventStatus = 'Draft' | 'Published' | 'Past';
-export type RegistrationStatus = 'Confirmed' | 'Waitlisted' | 'Cancelled';
+export type RegistrationStatus = 'Confirmed' | 'Waitlisted' | 'Cancelled' | 'Pending' | 'Rejected';
 
 export interface EventDto {
   id: number;
@@ -21,6 +21,10 @@ export interface EventDto {
   confirmedCount: number;
   waitlistedCount: number;
   spotsLeft: number;
+  /** Signups wait for an admin to accept or reject them; no email until then. */
+  requiresApproval: boolean;
+  /** People (seats) waiting for review. */
+  pendingCount: number;
 }
 
 export interface EventInput {
@@ -39,6 +43,7 @@ export interface EventInput {
   imageUrl: string | null;
   status: EventStatus;
   isRegistrationOpen: boolean;
+  requiresApproval: boolean;
 }
 
 export interface RegisterRequest {
@@ -50,6 +55,13 @@ export interface RegisterRequest {
   language?: string;
   /** Honeypot: a hidden field only bots fill in. */
   website?: string;
+  country: string;
+  reason: string;
+  /** Required when guestsCount > 1. */
+  guestNames?: string | null;
+  isVegetarian?: boolean | null;
+  dietaryRestrictions?: string;
+  wantsUpdates: boolean;
 }
 
 export interface RegistrationResult {
@@ -73,9 +85,15 @@ export interface RegistrationDto {
   lastEmailStatus: EmailStatus | null;
   lastEmailAt: string | null;
   lastEmailError: string | null;
+  country: string | null;
+  reason: string | null;
+  guestNames: string | null;
+  isVegetarian: boolean | null;
+  dietaryRestrictions: string | null;
+  wantsUpdates: boolean;
 }
 
-export type EmailKind = 'Confirmed' | 'Promoted' | 'Waitlisted' | 'Cancelled' | 'Reminder';
+export type EmailKind = 'Confirmed' | 'Promoted' | 'Waitlisted' | 'Cancelled' | 'Reminder' | 'Rejected';
 export type EmailStatus = 'Pending' | 'Sent' | 'Failed' | 'Skipped';
 
 /** The "manage my registration" page, reached via the private link in emails. */

@@ -18,6 +18,14 @@ public class EmailOptions
     public string FromName { get; set; } = "Yemen Breeze";
     public string PublicBaseUrl { get; set; } = "http://localhost:4200";
 
+    /// <summary>
+    /// The address links in emails point to. PublicBaseUrl comes from SITE_ORIGIN, which may list
+    /// several origins ("https://a.nl,https://www.a.nl"); links use the first one.
+    /// </summary>
+    public string SiteUrl => PublicBaseUrl
+        .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+        .FirstOrDefault()?.TrimEnd('/') ?? "http://localhost:4200";
+
     /// <summary>Runs the background outbox sender. Tests switch it off and drive it by hand.</summary>
     public bool DispatcherEnabled { get; set; } = true;
     /// <summary>Queue a reminder for confirmed registrants the day before the event.</summary>

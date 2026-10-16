@@ -12,14 +12,16 @@ public record EventDto(
     string DescriptionEn, string DescriptionNl, string DescriptionAr,
     DateOnly Date, string StartTime, string EndTime, string Location,
     int Capacity, string? ImageUrl, EventStatus Status, bool IsRegistrationOpen,
-    int ConfirmedCount, int WaitlistedCount, int SpotsLeft);
+    int ConfirmedCount, int WaitlistedCount, int SpotsLeft,
+    bool RequiresApproval, int PendingCount);
 
 public record EventInput(
     string Slug,
     string TitleEn, string TitleNl, string TitleAr,
     string DescriptionEn, string DescriptionNl, string DescriptionAr,
     DateOnly Date, string StartTime, string EndTime, string Location,
-    int Capacity, string? ImageUrl, EventStatus Status, bool IsRegistrationOpen);
+    int Capacity, string? ImageUrl, EventStatus Status, bool IsRegistrationOpen,
+    bool RequiresApproval = false);
 
 public static class EventsEndpoints
 {
@@ -31,13 +33,17 @@ public static class EventsEndpoints
         var waitlisted = e.Registrations
             .Where(r => r.Status == RegistrationStatus.Waitlisted)
             .Sum(r => r.GuestsCount);
+        var pending = e.Registrations
+            .Where(r => r.Status == RegistrationStatus.Pending)
+            .Sum(r => r.GuestsCount);
         return new EventDto(
             e.Id, e.Slug,
             e.TitleEn, e.TitleNl, e.TitleAr,
             e.DescriptionEn, e.DescriptionNl, e.DescriptionAr,
             e.Date, e.StartTime, e.EndTime, e.Location,
             e.Capacity, e.ImageUrl, e.Status, e.IsRegistrationOpen,
-            confirmed, waitlisted, Math.Max(0, e.Capacity - confirmed));
+            confirmed, waitlisted, Math.Max(0, e.Capacity - confirmed),
+            e.RequiresApproval, pending);
     }
 
     public static void MapEventsEndpoints(this IEndpointRouteBuilder app)
@@ -144,5 +150,6 @@ public static class EventsEndpoints
         ev.ImageUrl = input.ImageUrl;
         ev.Status = input.Status;
         ev.IsRegistrationOpen = input.IsRegistrationOpen;
+        ev.RequiresApproval = input.RequiresApproval;
     }
 }

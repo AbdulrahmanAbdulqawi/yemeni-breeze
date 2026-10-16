@@ -2,9 +2,15 @@
   "version": "0.0.1",
   "configurations": [
     {
+      "name": "api",
+      "runtimeExecutable": "dotnet",
+      "runtimeArgs": ["run", "--project", "server/YemeniBreeze.Api", "--launch-profile", "http"],
+      "port": 5239
+    },
+    {
       "name": "client",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["--prefix", "C:/personal/yemenBreeze/client", "start"],
+      "runtimeArgs": ["--prefix", "client", "start"],
       "port": 4200
     }
   ]

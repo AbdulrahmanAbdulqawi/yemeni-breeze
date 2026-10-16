@@ -37,7 +37,7 @@
       @if (ev.isRegistrationOpen) {
         <div class="detail-form card card-form">
           @if (result() === null) {
-            <h2>{{ (ev.spotsLeft > 0 ? 'events.form.title' : 'events.form.waitlistTitle') | transloco }}</h2>
+            <h2>{{ (ev.requiresApproval ? 'events.form.requestTitle' : ev.spotsLeft > 0 ? 'events.form.title' : 'events.form.waitlistTitle') | transloco }}</h2>
             <p class="detail-spots">
               @if (ev.spotsLeft > 0) {
                 <strong>{{ ev.spotsLeft }} {{ 'events.spotsLeft' | transloco }}</strong>
@@ -46,36 +46,92 @@
               }
               <span>{{ 'events.reservationRequired' | transloco }}</span>
             </p>
-            @if (ev.spotsLeft <= 0) {
+            @if (ev.requiresApproval) {
+              <p class="waitlist-note">{{ 'events.form.approvalNote' | transloco }}</p>
+            } @else if (ev.spotsLeft <= 0) {
               <p class="waitlist-note">{{ 'events.form.waitlistNote' | transloco }}</p>
             }
             <form [formGroup]="form" (ngSubmit)="submit()">
               <div class="field">
-                <label for="fullName">{{ 'events.form.fullName' | transloco }}</label>
-                <input id="fullName" formControlName="fullName" autocomplete="name" />
+                <label for="fullName">{{ 'events.form.fullName' | transloco }} <span class="req" aria-hidden="true">*</span></label>
+                <input id="fullName" formControlName="fullName" autocomplete="name" required />
                 @if (form.controls.fullName.touched && form.controls.fullName.invalid) {
-                  <span class="error-text">{{ 'events.form.fullName' | transloco }} *</span>
+                  <span class="error-text">{{ 'events.form.required' | transloco }}</span>
                 }
               </div>
               <div class="field">
-                <label for="email">{{ 'events.form.email' | transloco }}</label>
-                <input id="email" formControlName="email" type="email" autocomplete="email" />
+                <label for="email">{{ 'events.form.email' | transloco }} <span class="req" aria-hidden="true">*</span></label>
+                <input id="email" formControlName="email" type="email" autocomplete="email" required />
                 @if (form.controls.email.touched && form.controls.email.invalid) {
-                  <span class="error-text">{{ 'events.form.email' | transloco }} *</span>
+                  <span class="error-text">{{ 'events.form.invalidEmail' | transloco }}</span>
                 }
               </div>
               <div class="field">
-                <label for="phone">{{ 'events.form.phone' | transloco }}</label>
-                <input id="phone" formControlName="phone" type="tel" autocomplete="tel" />
+                <label for="country">{{ 'events.form.country' | transloco }} <span class="req" aria-hidden="true">*</span></label>
+                <input id="country" formControlName="country" autocomplete="country-name" required />
+                @if (form.controls.country.touched && form.controls.country.invalid) {
+                  <span class="error-text">{{ 'events.form.required' | transloco }}</span>
+                }
               </div>
               <div class="field">
-                <label for="guests">{{ 'events.form.guests' | transloco }}</label>
-                <input id="guests" formControlName="guestsCount" type="number" min="1" max="10" />
+                <label for="phone">{{ 'events.form.phone' | transloco }} <span class="req" aria-hidden="true">*</span></label>
+                <input id="phone" formControlName="phone" type="tel" autocomplete="tel" required />
+                @if (form.controls.phone.touched && form.controls.phone.invalid) {
+                  <span class="error-text">{{ 'events.form.required' | transloco }}</span>
+                }
               </div>
               <div class="field">
-                <label for="note">{{ 'events.form.note' | transloco }}</label>
-                <textarea id="note" formControlName="note" rows="3"></textarea>
+                <label for="reason">{{ 'events.form.reason' | transloco }} <span class="req" aria-hidden="true">*</span></label>
+                <textarea id="reason" formControlName="reason" rows="3" required></textarea>
+                @if (form.controls.reason.touched && form.controls.reason.invalid) {
+                  <span class="error-text">{{ 'events.form.required' | transloco }}</span>
+                }
               </div>
+
+              <fieldset class="field choice">
+                <legend>{{ 'events.form.bringingGuests' | transloco }}</legend>
+                <div class="choice-options">
+                  <label><input type="radio" name="bringingGuests" formControlName="bringingGuests" value="yes" /> {{ 'events.form.yes' | transloco }}</label>
+                  <label><input type="radio" name="bringingGuests" formControlName="bringingGuests" value="no" /> {{ 'events.form.no' | transloco }}</label>
+                </div>
+              </fieldset>
+              @if (bringingGuests() === 'yes') {
+                <div class="guest-details">
+                  <div class="field">
+                    <label for="extraGuests">{{ 'events.form.extraGuests' | transloco }} <span class="req" aria-hidden="true">*</span></label>
+                    <input id="extraGuests" formControlName="extraGuests" type="number" min="1" max="9" required />
+                    @if (form.controls.extraGuests.touched && form.controls.extraGuests.invalid) {
+                      <span class="error-text">{{ 'events.form.extraGuestsRange' | transloco }}</span>
+                    }
+                  </div>
+                  <div class="field">
+                    <label for="guestNames">{{ 'events.form.guestNames' | transloco }} <span class="req" aria-hidden="true">*</span></label>
+                    <textarea id="guestNames" formControlName="guestNames" rows="2" required></textarea>
+                    @if (form.controls.guestNames.touched && form.controls.guestNames.invalid) {
+                      <span class="error-text">{{ 'events.form.required' | transloco }}</span>
+                    }
+                  </div>
+                </div>
+              }
+
+              <fieldset class="field choice">
+                <legend>{{ 'events.form.vegetarian' | transloco }}</legend>
+                <div class="choice-options">
+                  <label><input type="radio" name="vegetarian" formControlName="vegetarian" value="yes" /> {{ 'events.form.yes' | transloco }}</label>
+                  <label><input type="radio" name="vegetarian" formControlName="vegetarian" value="no" /> {{ 'events.form.no' | transloco }}</label>
+                </div>
+              </fieldset>
+              <div class="field">
+                <label for="dietaryRestrictions">{{ 'events.form.dietaryRestrictions' | transloco }}</label>
+                <textarea id="dietaryRestrictions" formControlName="dietaryRestrictions" rows="2"></textarea>
+              </div>
+              <fieldset class="field choice">
+                <legend>{{ 'events.form.wantsUpdates' | transloco }}</legend>
+                <div class="choice-options">
+                  <label><input type="radio" name="wantsUpdates" formControlName="wantsUpdates" value="yes" /> {{ 'events.form.yes' | transloco }}</label>
+                  <label><input type="radio" name="wantsUpdates" formControlName="wantsUpdates" value="no" /> {{ 'events.form.no' | transloco }}</label>
+                </div>
+              </fieldset>
               <div class="hp-field" aria-hidden="true">
                 <label for="website">Website</label>
                 <input id="website" formControlName="website" tabindex="-1" autocomplete="off" />
@@ -84,7 +140,7 @@
                 <p class="error-text">{{ key | transloco }}</p>
               }
               <button class="btn btn-primary btn-arrow" type="submit" [disabled]="submitting()">
-                {{ (submitting() ? 'events.form.submitting' : 'events.form.submit') | transloco }}
+                {{ (submitting() ? 'events.form.submitting' : ev.requiresApproval ? 'events.form.submitRequest' : 'events.form.submit') | transloco }}
               </button>
             </form>
           } @else if (result() === 'Confirmed') {
@@ -93,6 +149,13 @@
               <h2>{{ 'events.form.confirmedTitle' | transloco }}</h2>
               <p>{{ 'events.form.confirmedText' | transloco }}</p>
               <p class="result-mail">✉️ {{ 'events.form.checkInbox' | transloco }}</p>
+              <a routerLink="/events" class="btn btn-outline">{{ 'nav.events' | transloco }}</a>
+            </div>
+          } @else if (result() === 'Pending') {
+            <div class="result pending" animate.enter="yb-rise-in">
+              <span class="result-icon">📨</span>
+              <h2>{{ 'events.form.pendingTitle' | transloco }}</h2>
+              <p>{{ 'events.form.pendingText' | transloco }}</p>
               <a routerLink="/events" class="btn btn-outline">{{ 'nav.events' | transloco }}</a>
             </div>
           } @else {

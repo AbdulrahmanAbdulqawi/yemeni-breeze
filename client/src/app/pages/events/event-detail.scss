@@ -109,6 +109,16 @@
   }
 }
 
+.guest-details {
+  border-inline-start: 3px solid var(--yb-gold);
+  padding-inline-start: 1rem;
+  margin-bottom: 1.1rem;
+
+  .field:last-child {
+    margin-bottom: 0;
+  }
+}
+
 /* Off-screen rather than display:none, which some bots detect and skip */
 .hp-field {
   position: absolute;

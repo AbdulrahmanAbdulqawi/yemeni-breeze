@@ -11,14 +11,18 @@ namespace YemeniBreeze.Api.Features.Registrations;
 /// <param name="Website">Honeypot: hidden from people, so only bots fill it in.</param>
 public record RegisterRequest(
     string FullName, string Email, string? Phone, int GuestsCount, string? Note, string? Language,
-    string? Website = null);
+    string? Website = null,
+    string? Country = null, string? Reason = null, string? GuestNames = null,
+    bool? IsVegetarian = null, string? DietaryRestrictions = null, bool WantsUpdates = false);
 public record RegistrationResultDto(int Id, RegistrationStatus Status, string EventSlug);
 public record RegistrationDto(
     int Id, int EventId, string FullName, string Email, string? Phone,
     int GuestsCount, string? Note, RegistrationStatus Status, DateTime CreatedAt,
     DateTime? CheckedInAt,
     EmailKind? LastEmailKind = null, EmailStatus? LastEmailStatus = null,
-    DateTime? LastEmailAt = null, string? LastEmailError = null);
+    DateTime? LastEmailAt = null, string? LastEmailError = null,
+    string? Country = null, string? Reason = null, string? GuestNames = null,
+    bool? IsVegetarian = null, string? DietaryRestrictions = null, bool WantsUpdates = false);
 public record CheckinRequest(string TicketCode);
 
 /// <summary>What the "manage my registration" page shows. Reached with the secret token from the email.</summary>
@@ -33,7 +37,8 @@ public static class RegistrationsEndpoints
     private static RegistrationDto ToDto(Registration r, OutgoingEmail? lastEmail = null) => new(
         r.Id, r.EventId, r.FullName, r.Email, r.Phone,
         r.GuestsCount, r.Note, r.Status, r.CreatedAt, r.CheckedInAt,
-        lastEmail?.Kind, lastEmail?.Status, lastEmail?.SentAt ?? lastEmail?.CreatedAt, lastEmail?.LastError);
+        lastEmail?.Kind, lastEmail?.Status, lastEmail?.SentAt ?? lastEmail?.CreatedAt, lastEmail?.LastError,
+        r.Country, r.Reason, r.GuestNames, r.IsVegetarian, r.DietaryRestrictions, r.WantsUpdates);
 
     public static void MapRegistrationsEndpoints(this IEndpointRouteBuilder app)
     {
@@ -47,13 +52,21 @@ public static class RegistrationsEndpoints
 
             if (string.IsNullOrWhiteSpace(request.FullName) || string.IsNullOrWhiteSpace(request.Email))
                 return Results.BadRequest(new { message = "Name and email are required." });
+            if (string.IsNullOrWhiteSpace(request.Country) || string.IsNullOrWhiteSpace(request.Phone)
+                || string.IsNullOrWhiteSpace(request.Reason))
+                return Results.BadRequest(new { message = "Country, phone number and reason are required." });
             var email = request.Email.Trim().ToLowerInvariant();
             if (!IsValidEmail(email))
                 return Results.BadRequest(new { message = "Please enter a valid email address." });
-            if (request.FullName.Trim().Length > 200 || (request.Phone?.Length ?? 0) > 50 || (request.Note?.Length ?? 0) > 1000)
+            if (request.FullName.Trim().Length > 200 || request.Phone.Length > 50 || (request.Note?.Length ?? 0) > 1000
+                || request.Country.Length > 100 || request.Reason.Length > 1000
+                || (request.GuestNames?.Length ?? 0) > 500 || (request.DietaryRestrictions?.Length ?? 0) > 500)
                 return Results.BadRequest(new { message = "One of the fields is too long." });
             if (request.GuestsCount is < 1 or > 10)
                 return Results.BadRequest(new { message = "Guests count must be between 1 and 10." });
+            var bringsGuests = request.GuestsCount > 1;
+            if (bringsGuests && string.IsNullOrWhiteSpace(request.GuestNames))
+                return Results.BadRequest(new { message = "Please write the names of the people you bring." });
 
             var ev = await db.Events.Include(e => e.Registrations)
                 .FirstOrDefaultAsync(e => e.Slug == slug && e.Status == EventStatus.Published);
@@ -68,8 +81,8 @@ public static class RegistrationsEndpoints
             var confirmedSeats = ev.Registrations
                 .Where(r => r.Status == RegistrationStatus.Confirmed)
                 .Sum(r => r.GuestsCount);
-            var status = confirmedSeats + request.GuestsCount <= ev.Capacity
-                ? RegistrationStatus.Confirmed
+            var status = ev.RequiresApproval ? RegistrationStatus.Pending
+                : confirmedSeats + request.GuestsCount <= ev.Capacity ? RegistrationStatus.Confirmed
                 : RegistrationStatus.Waitlisted;
 
             // Someone who cancelled can sign up again: (EventId, Email) is unique, so reuse the row.
@@ -78,6 +91,13 @@ public static class RegistrationsEndpoints
             registration.Phone = request.Phone?.Trim();
             registration.GuestsCount = request.GuestsCount;
             registration.Note = request.Note?.Trim();
+            registration.Country = request.Country.Trim();
+            registration.Reason = request.Reason.Trim();
+            registration.GuestNames = bringsGuests ? request.GuestNames!.Trim() : null;
+            registration.IsVegetarian = request.IsVegetarian;
+            registration.DietaryRestrictions = string.IsNullOrWhiteSpace(request.DietaryRestrictions)
+                ? null : request.DietaryRestrictions.Trim();
+            registration.WantsUpdates = request.WantsUpdates;
             registration.Status = status;
             registration.Language = request.Language is "nl" or "ar" ? request.Language : "en";
             registration.CreatedAt = DateTime.UtcNow; // back of the waitlist queue
@@ -85,8 +105,10 @@ public static class RegistrationsEndpoints
             registration.ManageToken ??= Guid.NewGuid();
             if (existing is null) db.Registrations.Add(registration);
 
-            EmailOutbox.Enqueue(db, registration,
-                status == RegistrationStatus.Confirmed ? EmailKind.Confirmed : EmailKind.Waitlisted);
+            // Pending people hear nothing until an admin accepts (ticket) or rejects (sorry email) them.
+            if (status != RegistrationStatus.Pending)
+                EmailOutbox.Enqueue(db, registration,
+                    status == RegistrationStatus.Confirmed ? EmailKind.Confirmed : EmailKind.Waitlisted);
             await db.SaveChangesAsync();
             emailSignal.Wake();
 
@@ -134,7 +156,8 @@ public static class RegistrationsEndpoints
         {
             var registrations = await db.Registrations
                 .Where(r => r.EventId == eventId)
-                .OrderBy(r => r.Status).ThenBy(r => r.CreatedAt)
+                .OrderBy(r => r.Status != RegistrationStatus.Pending) // the ones waiting for a decision first
+                .ThenBy(r => r.Status).ThenBy(r => r.CreatedAt)
                 .ToListAsync();
             var lastEmails = (await db.OutgoingEmails
                     .Where(o => o.Registration!.EventId == eventId)
@@ -153,15 +176,20 @@ public static class RegistrationsEndpoints
             if (ev is null || registration is null) return Results.NotFound();
 
             var previous = registration.Status;
+            if (previous == change.Status) return Results.Ok(ToDto(registration)); // nothing to do, no repeat email
             registration.Status = change.Status;
 
-            // Manual promotion from the waitlist → send the ticket
+            // Accepting (from pending) or promoting (from the waitlist) → send the ticket
             if (previous != RegistrationStatus.Confirmed && change.Status == RegistrationStatus.Confirmed)
                 EmailOutbox.Enqueue(db, registration,
                     previous == RegistrationStatus.Waitlisted ? EmailKind.Promoted : EmailKind.Confirmed);
 
-            // Cancelling a confirmed registration frees seats → auto-promote waitlisted people who fit
-            if (previous == RegistrationStatus.Confirmed && change.Status == RegistrationStatus.Cancelled)
+            if (change.Status == RegistrationStatus.Rejected)
+                EmailOutbox.Enqueue(db, registration, EmailKind.Rejected);
+
+            // Removing a confirmed registration frees seats → auto-promote waitlisted people who fit
+            if (previous == RegistrationStatus.Confirmed
+                && change.Status is RegistrationStatus.Cancelled or RegistrationStatus.Rejected)
                 foreach (var promotedReg in PromoteWaitlisted(ev))
                     EmailOutbox.Enqueue(db, promotedReg, EmailKind.Promoted);
 
@@ -177,11 +205,17 @@ public static class RegistrationsEndpoints
             var registration = await db.Registrations
                 .FirstOrDefaultAsync(r => r.EventId == eventId && r.Id == id);
             if (registration is null) return Results.NotFound();
-            if (registration.Status == RegistrationStatus.Cancelled)
-                return Results.BadRequest(new { message = "Cancelled registrations have no ticket to send." });
 
-            var kind = registration.Status == RegistrationStatus.Confirmed ? EmailKind.Confirmed : EmailKind.Waitlisted;
-            var email = new OutgoingEmail { RegistrationId = registration.Id, Kind = kind };
+            EmailKind? kind = registration.Status switch
+            {
+                RegistrationStatus.Confirmed => EmailKind.Confirmed,
+                RegistrationStatus.Waitlisted => EmailKind.Waitlisted,
+                RegistrationStatus.Rejected => EmailKind.Rejected,
+                _ => null
+            };
+            if (kind is null)
+                return Results.BadRequest(new { message = $"{registration.Status} registrations have no email to send." });
+            var email = new OutgoingEmail { RegistrationId = registration.Id, Kind = kind.Value };
             db.OutgoingEmails.Add(email);
             await db.SaveChangesAsync();
             emailSignal.Wake();
@@ -238,10 +272,12 @@ public static class RegistrationsEndpoints
                 .ToListAsync();
 
             var sb = new StringBuilder();
-            sb.AppendLine("FullName,Email,Phone,Guests,Status,CheckedIn,Note,RegisteredAt");
+            sb.AppendLine("FullName,Email,Phone,Country,Guests,GuestNames,Reason,Vegetarian,DietaryRestrictions,WantsUpdates,Status,CheckedIn,Note,RegisteredAt");
             foreach (var r in rows)
                 sb.AppendLine(string.Join(',',
-                    Csv(r.FullName), Csv(r.Email), Csv(r.Phone ?? ""), r.GuestsCount,
+                    Csv(r.FullName), Csv(r.Email), Csv(r.Phone ?? ""), Csv(r.Country ?? ""), r.GuestsCount,
+                    Csv(r.GuestNames ?? ""), Csv(r.Reason ?? ""), YesNo(r.IsVegetarian),
+                    Csv(r.DietaryRestrictions ?? ""), YesNo(r.WantsUpdates),
                     r.Status, r.CheckedInAt?.ToString("yyyy-MM-dd HH:mm") ?? "",
                     Csv(r.Note ?? ""), r.CreatedAt.ToString("yyyy-MM-dd HH:mm")));
 
@@ -271,7 +307,7 @@ public static class RegistrationsEndpoints
     }
 
     private static bool CanCancel(Registration r) =>
-        r.Status != RegistrationStatus.Cancelled
+        r.Status is not (RegistrationStatus.Cancelled or RegistrationStatus.Rejected)
         && r.Event is { } ev
         && ev.Date >= DateOnly.FromDateTime(TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, EventTimeZone.Amsterdam));
 
@@ -291,6 +327,8 @@ public static class RegistrationsEndpoints
         && !address.Host.StartsWith('.') && !address.Host.EndsWith('.');
 
     public record StatusChange(RegistrationStatus Status);
+
+    private static string YesNo(bool? value) => value switch { true => "Yes", false => "No", null => "" };
 
     private static string Csv(string value) =>
         value.Contains(',') || value.Contains('"') || value.Contains('\n')

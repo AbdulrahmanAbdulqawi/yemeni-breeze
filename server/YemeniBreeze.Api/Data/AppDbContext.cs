@@ -38,6 +38,10 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
             r.Property(x => x.Email).HasMaxLength(300);
             r.Property(x => x.Phone).HasMaxLength(50);
             r.Property(x => x.Note).HasMaxLength(1000);
+            r.Property(x => x.Country).HasMaxLength(100);
+            r.Property(x => x.Reason).HasMaxLength(1000);
+            r.Property(x => x.GuestNames).HasMaxLength(500);
+            r.Property(x => x.DietaryRestrictions).HasMaxLength(500);
             r.HasOne(x => x.Event)
                 .WithMany(x => x.Registrations)
                 .HasForeignKey(x => x.EventId)

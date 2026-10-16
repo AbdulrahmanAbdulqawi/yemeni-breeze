@@ -5,6 +5,20 @@ import { EventDto, GalleryItemDto, TeamMemberDto } from './models';
 
 export type Lang = 'en' | 'nl' | 'ar';
 const LANG_KEY = 'yb_lang';
+const LANGS: readonly Lang[] = ['en', 'nl', 'ar'];
+
+/**
+ * First visit: the first of the browser's preferred languages that the site speaks
+ * ("ar-YE" → ar, "nl-BE" → nl), else English. A language picked in the switcher wins after that.
+ */
+function browserLang(): Lang {
+  const preferred = navigator.languages?.length ? navigator.languages : [navigator.language];
+  for (const tag of preferred) {
+    const base = tag?.toLowerCase().split('-')[0] as Lang;
+    if (LANGS.includes(base)) return base;
+  }
+  return 'en';
+}
 
 @Injectable({ providedIn: 'root' })
 export class LanguageService {
@@ -15,7 +29,7 @@ export class LanguageService {
 
   init() {
     const saved = localStorage.getItem(LANG_KEY) as Lang | null;
-    this.set(saved && ['en', 'nl', 'ar'].includes(saved) ? saved : 'en');
+    this.set(saved && LANGS.includes(saved) ? saved : browserLang());
   }
 
   set(lang: Lang) {

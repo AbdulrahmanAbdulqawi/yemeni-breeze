@@ -59,7 +59,14 @@ type SortKey = 'titleEn' | 'date' | 'status' | 'capacity' | 'confirmedCount' | '
                 <td><span class="badge" [class]="'badge ' + statusClass(event.status)">{{ event.status }}</span></td>
                 <td>{{ event.capacity }}</td>
                 <td>{{ event.confirmedCount }}</td>
-                <td>{{ event.waitlistedCount }}</td>
+                <td>
+                  {{ event.waitlistedCount }}
+                  @if (event.pendingCount) {
+                    <span class="badge badge-pending" [title]="'admin.registrations.pendingReview' | transloco">
+                      {{ event.pendingCount }} {{ 'admin.registrations.pendingShort' | transloco }}
+                    </span>
+                  }
+                </td>
                 <td class="actions">
                   <a [routerLink]="['/admin/events', event.id, 'registrations']" class="btn-link">
                     {{ 'admin.events.registrations' | transloco }}

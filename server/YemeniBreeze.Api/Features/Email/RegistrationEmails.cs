@@ -10,7 +10,7 @@ namespace YemeniBreeze.Api.Features.Email;
 public record EmailContent(string Subject, string Html, string Text, IReadOnlyList<EmailAttachment> Attachments);
 
 /// <summary>
-/// Builds the registration emails (confirmed, promoted, waitlisted, reminder, cancelled) in the site's identity:
+/// Builds the registration emails (confirmed, promoted, waitlisted, reminder, cancelled, rejected) in the site's identity:
 /// espresso browns, cream paper, gold accents, the qamariya logo and its stained-glass colours.
 /// Markup is table-based with inline styles so it survives Gmail, Outlook and Apple Mail.
 /// </summary>
@@ -18,6 +18,10 @@ public static class RegistrationEmails
 {
     public const string LogoContentId = "yb-logo";
     public const string QrContentId = "ticket-qr";
+
+    // Same account the site's footer and contact page link to
+    private const string InstagramUrl = "https://instagram.com/Yemeni.breeze";
+    private const string InstagramHandle = "@Yemeni.breeze";
 
     // Design tokens, mirrored from client/src/styles.scss
     private const string Brown = "#310f02";
@@ -55,6 +59,7 @@ public static class RegistrationEmails
         {
             EmailKind.Waitlisted => RegistrationStatus.Waitlisted,
             EmailKind.Cancelled => RegistrationStatus.Cancelled,
+            EmailKind.Rejected => RegistrationStatus.Rejected,
             _ => RegistrationStatus.Confirmed
         };
         if (r.Status != requiredStatus) return null;
@@ -62,7 +67,7 @@ public static class RegistrationEmails
         var t = Strings(r.Language);
         var baseUrl = publicBaseUrl.TrimEnd('/');
         var eventUrl = $"{baseUrl}/events/{Uri.EscapeDataString(ev.Slug)}";
-        var manageUrl = kind != EmailKind.Cancelled && r.ManageToken is { } token
+        var manageUrl = kind is not (EmailKind.Cancelled or EmailKind.Rejected) && r.ManageToken is { } token
             ? $"{baseUrl}/registrations/{token:D}"
             : null;
         var withTicket = r.Status == RegistrationStatus.Confirmed;
@@ -73,6 +78,7 @@ public static class RegistrationEmails
             EmailKind.Waitlisted => "waitlist",
             EmailKind.Cancelled => "cancelled",
             EmailKind.Reminder => "reminder",
+            EmailKind.Rejected => "rejected",
             _ => "confirmed"
         };
         var subject = string.Format(t[key + "Subject"], EventTitle(r, ev));
@@ -94,6 +100,7 @@ public static class RegistrationEmails
 
         var body = new StringBuilder();
         body.Append(Paragraph(H(intro)));
+        if (AbsoluteUrl(ev.ImageUrl, baseUrl) is { } imageUrl) body.Append(EventImage(imageUrl, eventUrl, EventTitle(r, ev)));
         body.Append(EventCard(r, ev, t));
         if (withTicket) body.Append(TicketCard(r, t));
         if (note is not null) body.Append(Paragraph(H(note)));
@@ -107,6 +114,13 @@ public static class RegistrationEmails
     }
 
     private static string H(string? value) => WebUtility.HtmlEncode(value ?? "");
+
+    /// <summary>Uploaded images are stored as site-relative paths; mail clients need the full address.</summary>
+    private static string? AbsoluteUrl(string? url, string baseUrl) =>
+        string.IsNullOrWhiteSpace(url) ? null
+        : url.StartsWith("http://") || url.StartsWith("https://") ? url
+        : url.StartsWith('/') ? baseUrl + url
+        : null;
 
     private static bool IsRtl(string lang) => lang == "ar";
 
@@ -184,6 +198,13 @@ public static class RegistrationEmails
         </tr>
         """;
 
+    /// <summary>The event's cover photo, linking to the event page.</summary>
+    private static string EventImage(string imageUrl, string eventUrl, string alt) => $"""
+        <a href="{H(eventUrl)}" style="display:block;text-decoration:none;margin:0 0 18px">
+          <img src="{H(imageUrl)}" width="520" alt="{H(alt)}" style="display:block;width:100%;max-width:520px;height:auto;border:0;border-radius:14px"/>
+        </a>
+        """;
+
     private static string EventCard(Registration r, Event ev, IReadOnlyDictionary<string, string> t)
     {
         var rows = new StringBuilder();
@@ -239,7 +260,7 @@ public static class RegistrationEmails
     {
         var dir = IsRtl(lang) ? "rtl" : "ltr";
         var align = IsRtl(lang) ? "right" : "left";
-        var displayUrl = baseUrl.Replace("https://", "").Replace("http://", "");
+        // Gmail drops <html dir>, so every block that holds text carries dir itself.
         return $$"""
             <!doctype html>
             <html dir="{{dir}}" lang="{{lang}}">
@@ -259,11 +280,11 @@ public static class RegistrationEmails
                 }
               </style>
             </head>
-            <body style="margin:0;padding:0;background:{{Surface}}">
-              <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent">{{H(preheader)}}</div>
-              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="{{Surface}}" style="background:{{Surface}}">
+            <body dir="{{dir}}" style="margin:0;padding:0;background:{{Surface}}">
+              <div dir="{{dir}}" style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent">{{H(preheader)}}</div>
+              <table role="presentation" dir="{{dir}}" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="{{Surface}}" style="background:{{Surface}}">
                 <tr><td align="center" style="padding:28px 12px">
-                  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
+                  <table role="presentation" dir="{{dir}}" width="100%" cellpadding="0" cellspacing="0" border="0"
                          style="max-width:600px;background:{{Cream}};border-radius:20px;overflow:hidden;border:1px solid {{Outline}}">
                     <tr><td>{{GlassStrip()}}</td></tr>
                     <tr><td align="center" style="padding:30px 24px 22px">
@@ -271,7 +292,7 @@ public static class RegistrationEmails
                         <img src="cid:{{LogoContentId}}" width="200" alt="Yemen Breeze · نسمات اليمن" style="display:block;width:200px;max-width:70%;height:auto;border:0;margin:0 auto"/>
                       </a>
                     </td></tr>
-                    <tr><td class="yb-pad" bgcolor="{{Brown}}" style="background:{{Brown}};padding:26px 40px;text-align:center">
+                    <tr><td class="yb-pad" dir="{{dir}}" bgcolor="{{Brown}}" style="background:{{Brown}};padding:26px 40px;text-align:center">
                       <h1 class="yb-h1" style="margin:0;font-family:{{HeadingFont(lang)}};font-size:28px;line-height:1.3;font-weight:700;color:{{Gold}}">{{H(heading)}}</h1>
                     </td></tr>
                     <tr><td class="yb-pad" dir="{{dir}}" style="padding:32px 40px 36px;text-align:{{align}};font-family:{{BodyFont(lang)}};color:{{Ink}}">
@@ -279,10 +300,11 @@ public static class RegistrationEmails
                       <p style="margin:30px 0 0;font-size:16px;line-height:1.6;color:{{Ink}}">{{H(t["signoff"])}}<br/>
                         <strong style="font-family:{{HeadingFont(lang)}};color:{{Maroon}};font-size:18px">{{H(t["team"])}}</strong></p>
                     </td></tr>
-                    <tr><td class="yb-pad" bgcolor="{{BrownSoft}}" style="background:{{BrownSoft}};padding:24px 40px;text-align:center;font-family:{{BodyFont(lang)}}">
+                    <tr><td class="yb-pad" dir="{{dir}}" bgcolor="{{BrownSoft}}" style="background:{{BrownSoft}};padding:24px 40px;text-align:center;font-family:{{BodyFont(lang)}}">
                       <div style="font-family:{{HeadingFont(lang)}};font-size:15px;line-height:1.6;color:{{Gold}}">{{H(t["footer"])}}</div>
-                      <div style="padding-top:10px;font-size:13px">
-                        <a href="{{H(baseUrl)}}" style="color:{{Cream}};text-decoration:underline">{{H(displayUrl)}}</a>
+                      <div style="padding-top:10px;font-size:13px;color:{{Cream}}">
+                        {{H(t["followUs"])}}
+                        <a href="{{InstagramUrl}}" style="color:{{Cream}};font-weight:700;text-decoration:underline"><span dir="ltr" style="unicode-bidi:isolate">{{InstagramHandle}}</span></a>
                       </div>
                       <div style="padding-top:10px;font-size:12px;line-height:1.5;color:{{Outline}}">{{H(t["whyReceived"])}}</div>
                     </td></tr>
@@ -317,7 +339,7 @@ public static class RegistrationEmails
         sb.AppendLine($"{t["viewEvent"]}: {eventUrl}").AppendLine();
         if (manageUrl is not null) sb.AppendLine($"{t["cantMakeIt"]} {t["manageLink"]}: {manageUrl}").AppendLine();
         sb.AppendLine(t["signoff"]).AppendLine(t["team"]).AppendLine();
-        sb.AppendLine(t["footer"]).AppendLine(baseUrl);
+        sb.AppendLine(t["footer"]).AppendLine($"{t["followUs"]} {InstagramHandle} — {InstagramUrl}");
         return sb.ToString();
     }
 
@@ -380,128 +402,146 @@ public static class RegistrationEmails
     {
         "nl" => new Dictionary<string, string>
         {
-            ["confirmedSubject"] = "Je bent erbij — {0}",
-            ["confirmedHeading"] = "Je inschrijving is bevestigd!",
-            ["confirmedIntro"] = "Wat fijn dat je erbij bent. Hieronder vind je de details en je persoonlijke toegangsticket.",
-            ["confirmedPreheader"] = "Je toegangsticket met QR-code zit in deze e-mail.",
-            ["promotedSubject"] = "Er is een plek vrijgekomen — {0}",
-            ["promotedHeading"] = "Goed nieuws: je bent van de wachtlijst!",
-            ["promotedIntro"] = "Er is een plek vrijgekomen en die is nu van jou. Hieronder vind je je toegangsticket.",
-            ["promotedPreheader"] = "Er is een plek voor je vrijgekomen — je ticket zit erbij.",
-            ["waitlistSubject"] = "Je staat op de wachtlijst — {0}",
-            ["waitlistHeading"] = "Je staat op de wachtlijst",
-            ["waitlistIntro"] = "Het evenement zit momenteel vol, maar plannen veranderen vaak.",
-            ["waitlistNote"] = "We mailen je direct zodra er een plek vrijkomt — met je ticket erbij.",
+            ["confirmedSubject"] = "Je bent erbij! {0} 🎉",
+            ["confirmedHeading"] = "Joepie, je bent erbij!",
+            ["confirmedIntro"] = "Wat leuk dat je komt! Bewaar deze mail goed: je ticket staat hieronder. Laat de QR-code zien bij de deur, dan regelen wij de rest.",
+            ["confirmedPreheader"] = "Je ticket zit erin — tot snel!",
+            ["promotedSubject"] = "Er is een plek voor je vrij! {0} 🎉",
+            ["promotedHeading"] = "Goed nieuws: er is een plek voor je!",
+            ["promotedIntro"] = "Iemand kon toch niet komen, en die plek is nu van jou! Je ticket staat hieronder. We kijken ernaar uit je te zien.",
+            ["promotedPreheader"] = "Er is een plek voor je vrijgekomen — je ticket zit erin.",
+            ["waitlistSubject"] = "Je staat op de wachtlijst voor {0}",
+            ["waitlistHeading"] = "Je staat op de lijst!",
+            ["waitlistIntro"] = "Het evenement zit nu vol, maar geen zorgen: plannen veranderen vaak.",
+            ["waitlistNote"] = "Zodra er een plek vrijkomt, sturen we je ticket meteen naar je inbox.",
             ["waitlistPreheader"] = "We laten het je meteen weten als er een plek vrijkomt.",
-            ["reminderSubject"] = "Morgen: {0}",
+            ["reminderSubject"] = "Tot morgen bij {0}!",
             ["reminderHeading"] = "Tot morgen!",
-            ["reminderIntro"] = "Een kleine herinnering: we kijken ernaar uit je morgen te verwelkomen. Je ticket staat hieronder — houd het klaar bij de ingang.",
-            ["reminderPreheader"] = "Morgen is het zover — je ticket zit erbij.",
+            ["reminderIntro"] = "Een kleine herinnering: we kijken ernaar uit je morgen te zien! Je ticket staat hieronder, houd het klaar bij de deur.",
+            ["reminderPreheader"] = "Morgen is het zover — je ticket zit erin.",
             ["cancelledSubject"] = "Je inschrijving is geannuleerd — {0}",
-            ["cancelledHeading"] = "Je inschrijving is geannuleerd",
-            ["cancelledIntro"] = "We hebben je inschrijving voor dit evenement geannuleerd. Dank je wel dat je het liet weten — je plek gaat naar iemand op de wachtlijst.",
-            ["cancelledNote"] = "Toch van gedachten veranderd? Je kunt je opnieuw inschrijven op de evenementpagina zolang er plekken zijn.",
-            ["cancelledPreheader"] = "Je annulering is verwerkt.",
+            ["cancelledHeading"] = "Geen probleem, het is geregeld",
+            ["cancelledIntro"] = "We hebben je inschrijving geannuleerd. Fijn dat je het liet weten: je plek gaat nu naar iemand op de wachtlijst.",
+            ["cancelledNote"] = "Toch van gedachten veranderd? Je kunt je gewoon opnieuw inschrijven op de evenementpagina, zolang er plek is.",
+            ["cancelledPreheader"] = "Je annulering is gelukt.",
+            ["rejectedSubject"] = "Over je aanmelding — {0}",
+            ["rejectedHeading"] = "Dank je wel voor je aanmelding",
+            ["rejectedIntro"] = "Wat leuk dat je erbij wilde zijn! Helaas kunnen we je deze keer geen plek geven.",
+            ["rejectedNote"] = "We hopen je heel graag te zien bij een van onze volgende evenementen.",
+            ["rejectedPreheader"] = "Een bericht over je aanmelding.",
             ["cantMakeIt"] = "Kun je toch niet komen?",
             ["manageLink"] = "Annuleer je inschrijving",
             ["dateLabel"] = "Datum",
             ["timeLabel"] = "Tijd",
             ["locationLabel"] = "Locatie",
-            ["ticketLabel"] = "Toegangsticket",
-            ["ticketNote"] = "Laat deze QR-code zien bij de ingang",
+            ["ticketLabel"] = "Je ticket",
+            ["ticketNote"] = "Laat deze QR-code zien bij de deur",
             ["qrAlt"] = "QR-code van je ticket",
             ["refLabel"] = "Ref.",
             ["guest"] = "persoon",
             ["guests"] = "personen",
             ["viewEvent"] = "Bekijk het evenement",
-            ["calendarNote"] = "De agenda-uitnodiging (.ics) zit als bijlage bij deze e-mail.",
-            ["signoff"] = "Tot snel,",
+            ["calendarNote"] = "We hebben een agenda-uitnodiging meegestuurd, zodat je het niet vergeet.",
+            ["signoff"] = "Tot snel!",
             ["team"] = "Team Yemen Breeze",
             ["footer"] = "Wij VERBINDEN culturen. Wij TONEN Jemen. Wij BOUWEN bruggen.",
+            ["followUs"] = "Volg ons op Instagram:",
             ["whyReceived"] = "Je ontvangt deze e-mail omdat je je hebt ingeschreven voor een evenement van Yemen Breeze."
         },
         "ar" => new Dictionary<string, string>
         {
-            ["confirmedSubject"] = "تم تأكيد تسجيلك — {0}",
-            ["confirmedHeading"] = "تم تأكيد تسجيلك!",
-            ["confirmedIntro"] = "يسعدنا انضمامك إلينا. تجد أدناه تفاصيل الفعالية وتذكرة الدخول الخاصة بك.",
-            ["confirmedPreheader"] = "تذكرة الدخول مع رمز QR موجودة في هذه الرسالة.",
-            ["promotedSubject"] = "توفّر مقعد لك — {0}",
-            ["promotedHeading"] = "خبر سار: انتقلت من قائمة الانتظار!",
-            ["promotedIntro"] = "توفّر مقعد وأصبح لك الآن. تجد أدناه تذكرة الدخول الخاصة بك.",
-            ["promotedPreheader"] = "توفّر مقعد لك — تذكرتك مرفقة.",
-            ["waitlistSubject"] = "أنت على قائمة الانتظار — {0}",
-            ["waitlistHeading"] = "أنت على قائمة الانتظار",
-            ["waitlistIntro"] = "الفعالية مكتملة حاليًا، لكن الخطط كثيرًا ما تتغير.",
-            ["waitlistNote"] = "سنراسلك فورًا عند توفّر مقعد — ومعها تذكرتك.",
-            ["waitlistPreheader"] = "سنخبرك فورًا عند توفّر مقعد.",
-            ["reminderSubject"] = "غدًا: {0}",
+            ["confirmedSubject"] = "أهلًا بك! تسجيلك مؤكد في {0} 🎉",
+            ["confirmedHeading"] = "يا هلا! تسجيلك مؤكد",
+            ["confirmedIntro"] = "فرحنا كثيرًا بانضمامك إلينا! احتفظ بهذه الرسالة، فتذكرتك في الأسفل. فقط أظهر رمز QR عند الباب، والباقي علينا.",
+            ["confirmedPreheader"] = "تذكرتك هنا — نراك قريبًا!",
+            ["promotedSubject"] = "خبر حلو: صار لك مقعد في {0} 🎉",
+            ["promotedHeading"] = "خبر حلو: صار لك مقعد!",
+            ["promotedIntro"] = "أحد المسجلين لم يتمكن من الحضور، ومقعده صار لك الآن! تذكرتك في الأسفل، ونحن متحمسون لرؤيتك.",
+            ["promotedPreheader"] = "صار لك مقعد — تذكرتك هنا.",
+            ["waitlistSubject"] = "أنت على قائمة الانتظار في {0}",
+            ["waitlistHeading"] = "اسمك على القائمة!",
+            ["waitlistIntro"] = "الفعالية ممتلئة حاليًا، لكن لا تقلق، فالخطط تتغير كثيرًا.",
+            ["waitlistNote"] = "أول ما يتوفّر مقعد، سنرسل تذكرتك مباشرة إلى بريدك.",
+            ["waitlistPreheader"] = "سنخبرك فور توفّر مقعد.",
+            ["reminderSubject"] = "نراك غدًا في {0}!",
             ["reminderHeading"] = "نراك غدًا!",
-            ["reminderIntro"] = "تذكير صغير: نتطلع لاستقبالك غدًا. تجد تذكرتك أدناه — اجعلها جاهزة عند المدخل.",
-            ["reminderPreheader"] = "الفعالية غدًا — تذكرتك مرفقة.",
-            ["cancelledSubject"] = "تم إلغاء تسجيلك — {0}",
-            ["cancelledHeading"] = "تم إلغاء تسجيلك",
-            ["cancelledIntro"] = "ألغينا تسجيلك في هذه الفعالية. شكرًا لإعلامنا — سيذهب مقعدك إلى أحد المنتظرين.",
-            ["cancelledNote"] = "غيّرت رأيك؟ يمكنك التسجيل مجددًا من صفحة الفعالية ما دامت المقاعد متاحة.",
-            ["cancelledPreheader"] = "تمت معالجة إلغاء تسجيلك.",
+            ["reminderIntro"] = "تذكير صغير: ننتظرك غدًا بكل شوق! تذكرتك في الأسفل، جهّزها عند الباب.",
+            ["reminderPreheader"] = "الموعد غدًا — تذكرتك هنا.",
+            ["cancelledSubject"] = "تم إلغاء تسجيلك في {0}",
+            ["cancelledHeading"] = "ولا يهمك، تم الإلغاء",
+            ["cancelledIntro"] = "ألغينا تسجيلك، وشكرًا لأنك أخبرتنا! سيذهب مقعدك الآن لشخص ينتظر.",
+            ["cancelledNote"] = "غيّرت رأيك؟ يمكنك التسجيل من جديد من صفحة الفعالية ما دامت هناك مقاعد.",
+            ["cancelledPreheader"] = "تم إلغاء تسجيلك بنجاح.",
+            ["rejectedSubject"] = "بخصوص طلب تسجيلك في {0}",
+            ["rejectedHeading"] = "شكرًا لتسجيلك",
+            ["rejectedIntro"] = "سعدنا كثيرًا برغبتك في الانضمام إلينا! للأسف لا نستطيع أن نوفّر لك مقعدًا هذه المرة.",
+            ["rejectedNote"] = "نتمنى أن نراك في إحدى فعالياتنا القادمة.",
+            ["rejectedPreheader"] = "رسالة بخصوص طلب تسجيلك.",
             ["cantMakeIt"] = "لن تتمكن من الحضور؟",
             ["manageLink"] = "ألغِ تسجيلك",
             ["dateLabel"] = "التاريخ",
             ["timeLabel"] = "الوقت",
             ["locationLabel"] = "المكان",
-            ["ticketLabel"] = "تذكرة الدخول",
-            ["ticketNote"] = "أظهر رمز QR هذا عند المدخل",
+            ["ticketLabel"] = "تذكرتك",
+            ["ticketNote"] = "أظهر رمز QR هذا عند الباب",
             ["qrAlt"] = "رمز QR لتذكرتك",
             ["refLabel"] = "المرجع",
             ["guest"] = "شخص",
             ["guests"] = "أشخاص",
             ["viewEvent"] = "عرض الفعالية",
-            ["calendarNote"] = "دعوة التقويم (.ics) مرفقة بهذه الرسالة.",
-            ["signoff"] = "إلى اللقاء قريبًا،",
+            ["calendarNote"] = "أرفقنا لك دعوة تقويم حتى لا تنسى الموعد.",
+            ["signoff"] = "نراك قريبًا!",
             ["team"] = "فريق نسمات اليمن",
             ["footer"] = "نَصِلُ الثقافات. نُظهِرُ اليمن. نَبني الجسور.",
+            ["followUs"] = "تابعنا على إنستغرام:",
             ["whyReceived"] = "تصلك هذه الرسالة لأنك سجّلت في إحدى فعاليات نسمات اليمن."
         },
         _ => new Dictionary<string, string>
         {
-            ["confirmedSubject"] = "You're in — {0}",
-            ["confirmedHeading"] = "Your registration is confirmed!",
-            ["confirmedIntro"] = "We're delighted you're joining us. Your event details and personal entry ticket are below.",
-            ["confirmedPreheader"] = "Your entry ticket with QR code is inside.",
-            ["promotedSubject"] = "A spot opened up — {0}",
-            ["promotedHeading"] = "Good news: you're off the waitlist!",
-            ["promotedIntro"] = "A spot opened up and it's now yours. Your entry ticket is below.",
+            ["confirmedSubject"] = "You're in! {0} 🎉",
+            ["confirmedHeading"] = "Yay, you're in!",
+            ["confirmedIntro"] = "We're so happy you're joining us! Keep this email handy: your ticket is right below. Just show the QR code at the door and we'll take care of the rest.",
+            ["confirmedPreheader"] = "Your ticket is inside — see you there!",
+            ["promotedSubject"] = "A spot opened up for you! {0} 🎉",
+            ["promotedHeading"] = "Good news: a spot opened up!",
+            ["promotedIntro"] = "Someone couldn't make it, and their spot is now yours! Your ticket is right below. We can't wait to see you.",
             ["promotedPreheader"] = "A spot opened up for you — your ticket is inside.",
-            ["waitlistSubject"] = "You're on the waitlist — {0}",
-            ["waitlistHeading"] = "You're on the waitlist",
-            ["waitlistIntro"] = "The event is currently full, but plans often change.",
-            ["waitlistNote"] = "We'll email you the moment a spot opens up — with your ticket included.",
+            ["waitlistSubject"] = "You're on the waitlist for {0}",
+            ["waitlistHeading"] = "You're on the list!",
+            ["waitlistIntro"] = "The event is full right now, but don't worry: plans change all the time.",
+            ["waitlistNote"] = "The moment a spot opens up, we'll send your ticket straight to your inbox.",
             ["waitlistPreheader"] = "We'll let you know the moment a spot opens up.",
-            ["reminderSubject"] = "Tomorrow: {0}",
+            ["reminderSubject"] = "See you tomorrow at {0}!",
             ["reminderHeading"] = "See you tomorrow!",
-            ["reminderIntro"] = "A quick reminder: we're looking forward to welcoming you tomorrow. Your ticket is below — have it ready at the entrance.",
+            ["reminderIntro"] = "Just a little reminder: we're looking forward to seeing you tomorrow! Your ticket is below, so have it ready at the door.",
             ["reminderPreheader"] = "It's tomorrow — your ticket is inside.",
             ["cancelledSubject"] = "Your registration is cancelled — {0}",
-            ["cancelledHeading"] = "Your registration is cancelled",
-            ["cancelledIntro"] = "We've cancelled your registration for this event. Thank you for letting us know — your spot goes to someone on the waitlist.",
-            ["cancelledNote"] = "Changed your mind? You can register again on the event page while spots are available.",
-            ["cancelledPreheader"] = "Your cancellation has been processed.",
+            ["cancelledHeading"] = "No worries, it's cancelled",
+            ["cancelledIntro"] = "We've cancelled your registration. Thanks for letting us know: your spot now goes to someone on the waitlist.",
+            ["cancelledNote"] = "Changed your mind? You can sign up again on the event page while there are spots left.",
+            ["cancelledPreheader"] = "Your cancellation went through.",
+            ["rejectedSubject"] = "About your registration — {0}",
+            ["rejectedHeading"] = "Thanks for signing up",
+            ["rejectedIntro"] = "We loved that you wanted to join us! Unfortunately, we can't offer you a place at this event this time.",
+            ["rejectedNote"] = "We really hope to see you at one of our next events.",
+            ["rejectedPreheader"] = "A message about your registration.",
             ["cantMakeIt"] = "Can't make it after all?",
             ["manageLink"] = "Cancel your registration",
             ["dateLabel"] = "Date",
             ["timeLabel"] = "Time",
             ["locationLabel"] = "Location",
-            ["ticketLabel"] = "Entry ticket",
-            ["ticketNote"] = "Show this QR code at the entrance",
+            ["ticketLabel"] = "Your ticket",
+            ["ticketNote"] = "Show this QR code at the door",
             ["qrAlt"] = "Your ticket QR code",
             ["refLabel"] = "Ref.",
             ["guest"] = "guest",
             ["guests"] = "guests",
             ["viewEvent"] = "View the event",
-            ["calendarNote"] = "A calendar invite (.ics) is attached to this email.",
-            ["signoff"] = "See you soon,",
+            ["calendarNote"] = "We've attached a calendar invite so you don't forget.",
+            ["signoff"] = "See you soon!",
             ["team"] = "The Yemen Breeze team",
             ["footer"] = "We CONNECT cultures. We SHOWCASE Yemen. We BUILD bridges.",
+            ["followUs"] = "Follow us on Instagram:",
             ["whyReceived"] = "You're receiving this email because you registered for a Yemen Breeze event."
         }
     };

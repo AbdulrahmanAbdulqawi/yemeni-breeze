@@ -133,7 +133,7 @@ public class EmailDispatcher(
         var ev = registration.Event!;
         registration.ManageToken ??= Guid.NewGuid();
 
-        var content = RegistrationEmails.Build(registration, ev, item.Kind, options.PublicBaseUrl);
+        var content = RegistrationEmails.Build(registration, ev, item.Kind, options.SiteUrl);
         if (content is null)
         {
             item.Status = EmailStatus.Skipped;

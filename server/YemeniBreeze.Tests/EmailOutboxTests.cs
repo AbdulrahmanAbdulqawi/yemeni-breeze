@@ -77,7 +77,12 @@ public class EmailOutboxTests(EmailApiFactory factory) : IClassFixture<EmailApiF
 
     private Task<HttpResponseMessage> RegisterAsync(string slug, string email, int guests = 1, string? website = null) =>
         _client.PostAsJsonAsync($"/api/events/{slug}/register",
-            new { FullName = "Mail Person", Email = email, GuestsCount = guests, Language = "en", Website = website });
+            new
+            {
+                FullName = "Mail Person", Email = email, GuestsCount = guests, Language = "en", Website = website,
+                Phone = "+3160000000", Country = "Netherlands", Reason = "Curious",
+                GuestNames = guests > 1 ? "A Friend" : null
+            });
 
     private async Task DrainAsync(DateTime? now = null)
     {
