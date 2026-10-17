@@ -139,3 +139,19 @@ main {
   font-size: 0.85rem;
   margin-top: 1.4rem;
 }
+
+.footer-credit {
+  opacity: 0.5;
+  font-size: 0.75rem;
+  margin: 0.4rem 0 0;
+
+  a {
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+
+    &:hover {
+      color: var(--yb-yellow);
+    }
+  }
+}
