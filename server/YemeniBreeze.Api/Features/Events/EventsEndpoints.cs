@@ -13,7 +13,9 @@ public record EventDto(
     DateOnly Date, string StartTime, string EndTime, string Location,
     int Capacity, string? ImageUrl, EventStatus Status, bool IsRegistrationOpen,
     int ConfirmedCount, int WaitlistedCount, int SpotsLeft,
-    bool RequiresApproval, int PendingCount);
+    bool RequiresApproval, int PendingCount,
+    string WhatToExpectEn, string WhatToExpectNl, string WhatToExpectAr,
+    string? DonationUrl);
 
 public record EventInput(
     string Slug,
@@ -21,7 +23,9 @@ public record EventInput(
     string DescriptionEn, string DescriptionNl, string DescriptionAr,
     DateOnly Date, string StartTime, string EndTime, string Location,
     int Capacity, string? ImageUrl, EventStatus Status, bool IsRegistrationOpen,
-    bool RequiresApproval = false);
+    bool RequiresApproval = false,
+    string? WhatToExpectEn = null, string? WhatToExpectNl = null, string? WhatToExpectAr = null,
+    string? DonationUrl = null);
 
 public static class EventsEndpoints
 {
@@ -43,7 +47,9 @@ public static class EventsEndpoints
             e.Date, e.StartTime, e.EndTime, e.Location,
             e.Capacity, e.ImageUrl, e.Status, e.IsRegistrationOpen,
             confirmed, waitlisted, Math.Max(0, e.Capacity - confirmed),
-            e.RequiresApproval, pending);
+            e.RequiresApproval, pending,
+            e.WhatToExpectEn, e.WhatToExpectNl, e.WhatToExpectAr,
+            e.DonationUrl);
     }
 
     public static void MapEventsEndpoints(this IEndpointRouteBuilder app)
@@ -76,6 +82,7 @@ public static class EventsEndpoints
         {
             if (await db.Events.AnyAsync(e => e.Slug == input.Slug))
                 return Results.Conflict(new { message = "An event with this slug already exists." });
+            if (!IsValidDonationUrl(input.DonationUrl)) return Results.BadRequest(InvalidDonationUrl);
 
             var ev = new Event();
             Apply(ev, input);
@@ -95,6 +102,7 @@ public static class EventsEndpoints
             if (ev is null) return Results.NotFound();
             if (await db.Events.AnyAsync(e => e.Slug == input.Slug && e.Id != id))
                 return Results.Conflict(new { message = "An event with this slug already exists." });
+            if (!IsValidDonationUrl(input.DonationUrl)) return Results.BadRequest(InvalidDonationUrl);
 
             var oldImageUrl = ev.ImageUrl;
             Apply(ev, input);
@@ -151,5 +159,19 @@ public static class EventsEndpoints
         ev.Status = input.Status;
         ev.IsRegistrationOpen = input.IsRegistrationOpen;
         ev.RequiresApproval = input.RequiresApproval;
+        ev.WhatToExpectEn = input.WhatToExpectEn?.Trim() ?? "";
+        ev.WhatToExpectNl = input.WhatToExpectNl?.Trim() ?? "";
+        ev.WhatToExpectAr = input.WhatToExpectAr?.Trim() ?? "";
+        ev.DonationUrl = string.IsNullOrWhiteSpace(input.DonationUrl) ? null : input.DonationUrl.Trim();
     }
+
+    /// <summary>The donation link goes into emails, so only a full http(s) address is accepted.</summary>
+    private static bool IsValidDonationUrl(string? url) =>
+        string.IsNullOrWhiteSpace(url)
+        || (url.Trim().Length <= 500
+            && Uri.TryCreate(url.Trim(), UriKind.Absolute, out var uri)
+            && (uri.Scheme == Uri.UriSchemeHttps || uri.Scheme == Uri.UriSchemeHttp));
+
+    private static readonly object InvalidDonationUrl =
+        new { message = "The donation link must be a full web address starting with https://" };
 }

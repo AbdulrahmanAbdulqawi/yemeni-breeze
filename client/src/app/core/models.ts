@@ -25,6 +25,12 @@ export interface EventDto {
   requiresApproval: boolean;
   /** People (seats) waiting for review. */
   pendingCount: number;
+  /** "What to expect" items, one per line. */
+  whatToExpectEn: string;
+  whatToExpectNl: string;
+  whatToExpectAr: string;
+  /** Optional; when set, ticket emails include a donation message with this link. */
+  donationUrl: string | null;
 }
 
 export interface EventInput {
@@ -44,6 +50,10 @@ export interface EventInput {
   status: EventStatus;
   isRegistrationOpen: boolean;
   requiresApproval: boolean;
+  whatToExpectEn: string;
+  whatToExpectNl: string;
+  whatToExpectAr: string;
+  donationUrl: string | null;
 }
 
 export interface RegisterRequest {

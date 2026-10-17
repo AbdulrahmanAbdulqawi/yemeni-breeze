@@ -5,17 +5,21 @@ import { EventDto, GalleryItemDto, TeamMemberDto } from './models';
 
 export type Lang = 'en' | 'nl' | 'ar';
 const LANG_KEY = 'yb_lang';
-const LANGS: readonly Lang[] = ['en', 'nl', 'ar'];
+/**
+ * Languages visitors can pick. Dutch is switched off for now: its translations stay in place,
+ * and someone who had chosen it falls back to their browser language or English.
+ */
+export const SITE_LANGS: readonly Lang[] = ['en', 'ar'];
 
 /**
- * First visit: the first of the browser's preferred languages that the site speaks
- * ("ar-YE" → ar, "nl-BE" → nl), else English. A language picked in the switcher wins after that.
+ * First visit: the first of the browser's preferred languages that the site offers
+ * ("ar-YE" → ar), else English. A language picked in the switcher wins after that.
  */
 function browserLang(): Lang {
   const preferred = navigator.languages?.length ? navigator.languages : [navigator.language];
   for (const tag of preferred) {
     const base = tag?.toLowerCase().split('-')[0] as Lang;
-    if (LANGS.includes(base)) return base;
+    if (SITE_LANGS.includes(base)) return base;
   }
   return 'en';
 }
@@ -29,7 +33,7 @@ export class LanguageService {
 
   init() {
     const saved = localStorage.getItem(LANG_KEY) as Lang | null;
-    this.set(saved && LANGS.includes(saved) ? saved : browserLang());
+    this.set(saved && SITE_LANGS.includes(saved) ? saved : browserLang());
   }
 
   set(lang: Lang) {
@@ -43,7 +47,7 @@ export class LanguageService {
   /** Pick the localized field from a DB entity holding En/Nl/Ar columns. */
   pick(
     entity: EventDto | GalleryItemDto | TeamMemberDto,
-    base: 'title' | 'description' | 'caption' | 'role' | 'bio'
+    base: 'title' | 'description' | 'whatToExpect' | 'caption' | 'role' | 'bio'
   ): string {
     const suffix = this.current() === 'nl' ? 'Nl' : this.current() === 'ar' ? 'Ar' : 'En';
     const record = entity as unknown as Record<string, string>;

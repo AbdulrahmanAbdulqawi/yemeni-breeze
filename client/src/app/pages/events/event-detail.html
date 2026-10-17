@@ -27,6 +27,17 @@
         }
         <p class="detail-desc">{{ lang.pick(ev, 'description') }}</p>
 
+        @if (whatToExpect().length) {
+          <section class="expect">
+            <h2>{{ 'events.whatToExpect' | transloco }}</h2>
+            <ul>
+              @for (item of whatToExpect(); track $index) {
+                <li>{{ item }}</li>
+              }
+            </ul>
+          </section>
+        }
+
         @if (!ev.isRegistrationOpen) {
           <p class="detail-spots">
             <strong class="closed">{{ 'events.registrationClosed' | transloco }}</strong>
@@ -45,9 +56,7 @@
               }
               <span>{{ 'events.reservationRequired' | transloco }}</span>
             </p>
-            @if (ev.requiresApproval) {
-              <p class="waitlist-note">{{ 'events.form.approvalNote' | transloco }}</p>
-            } @else if (ev.spotsLeft <= 0) {
+            @if (!ev.requiresApproval && ev.spotsLeft <= 0) {
               <p class="waitlist-note">{{ 'events.form.waitlistNote' | transloco }}</p>
             }
             <form [formGroup]="form" (ngSubmit)="submit()">

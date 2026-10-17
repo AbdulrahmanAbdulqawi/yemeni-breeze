@@ -136,8 +136,7 @@
       "tooMany": "Te veel pogingen vanaf deze verbinding. Wacht een paar minuten en probeer het opnieuw.",
       "checkFields": "Controleer je antwoorden — bijvoorbeeld of je e-mailadres klopt.",
       "requestTitle": "Vraag een plek aan",
-      "approvalNote": "Ons team bekijkt elke aanvraag. Word je geaccepteerd, dan mailen we je je ticket.",
-      "submitRequest": "Verstuur mijn aanvraag",
+      "submitRequest": "Inschrijven",
       "pendingTitle": "Dank je wel, {{name}}! 💛",
       "pendingText": "Wat leuk dat je erbij wilt zijn! Je aanvraag is binnen en ons team kijkt er heel snel naar. Is er een plekje voor je, dan komt je ticket in je inbox. Houd hem dus in de gaten (en kijk voor de zekerheid ook even in je spammap).",
       "moreEvents": "Bekijk meer evenementen"
@@ -146,7 +145,8 @@
     "limitedAvailability": "Beperkt beschikbaar",
     "reservationRequired": "Reservering vereist",
     "viewGallery": "Bekijk album",
-    "intro": "Gezamenlijke diners, kookworkshops en culturele bijeenkomsten in Amsterdam — schuif bij ons aan tafel."
+    "intro": "Gezamenlijke diners, kookworkshops en culturele bijeenkomsten in Amsterdam — schuif bij ons aan tafel.",
+    "whatToExpect": "Wat kun je verwachten"
   },
   "manage": {
     "title": "Je inschrijving",
@@ -254,7 +254,12 @@
       "emptyIn": "Nog leeg in",
       "translation": "Vertaling",
       "requiresApproval": "Inschrijvingen handmatig goedkeuren",
-      "requiresApprovalHint": "Nieuwe inschrijvingen wachten tot jij ze accepteert of afwijst. Niemand krijgt een e-mail tot je beslist: geaccepteerde mensen krijgen hun ticket, afgewezen mensen een vriendelijk bericht."
+      "requiresApprovalHint": "Nieuwe inschrijvingen wachten tot jij ze accepteert of afwijst. Niemand krijgt een e-mail tot je beslist: geaccepteerde mensen krijgen hun ticket, afgewezen mensen een vriendelijk bericht.",
+      "whatToExpect": "Wat kun je verwachten",
+      "whatToExpectHint": "Eén punt per regel, bijv.\nHuisgemaakt Jemenitisch diner\nLive oudmuziek",
+      "donationUrl": "Donatielink (optioneel)",
+      "donationUrlHint": "Als dit is ingevuld, bevat de bevestigingsmail een kort bericht met een verzoek om een vrijwillige donatie, met deze link. Laat leeg om geen donatiebericht te sturen.",
+      "donationUrlInvalid": "Vul een volledig webadres in dat begint met https://"
     },
     "registrations": {
       "title": "Inschrijvingen",

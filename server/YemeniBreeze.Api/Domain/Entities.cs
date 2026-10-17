@@ -17,6 +17,12 @@ public class Event
     public string DescriptionEn { get; set; } = "";
     public string DescriptionNl { get; set; } = "";
     public string DescriptionAr { get; set; } = "";
+    /// <summary>"What to expect" on the event page: one item per line.</summary>
+    public string WhatToExpectEn { get; set; } = "";
+    public string WhatToExpectNl { get; set; } = "";
+    public string WhatToExpectAr { get; set; } = "";
+    /// <summary>Optional. When set, ticket emails include a short donation message with this link.</summary>
+    public string? DonationUrl { get; set; }
     public DateOnly Date { get; set; }
     public string StartTime { get; set; } = "";
     public string EndTime { get; set; } = "";

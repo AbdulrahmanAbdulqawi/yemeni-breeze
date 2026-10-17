@@ -111,12 +111,19 @@ public static class RegistrationEmails
         }
         if (withTicket) body.Append(TicketCard(r, t));
         if (note is not null) body.Append(Paragraph(H(note)));
+        // Emails that carry the event's details ask people to keep them to registered guests.
+        var askNotToShare = kind is EmailKind.Confirmed or EmailKind.Promoted or EmailKind.Reminder or EmailKind.Waitlisted;
+        if (askNotToShare) body.Append(ShareNote(t, eventUrl));
         if (showEvent) body.Append(Button(t["viewEvent"], eventUrl));
         if (withTicket) body.Append(Small(t["calendarNote"]));
+        // Only in the "you're in" emails, and only when the event has a donation link.
+        var donationUrl = kind is EmailKind.Confirmed or EmailKind.Promoted ? DonationLink(ev) : null;
+        if (donationUrl is not null) body.Append(DonationBlock(t, donationUrl));
         if (manageUrl is not null) body.Append(ManageLink(t, manageUrl));
 
         var html = Layout(r.Language, subject, preheader, heading, body.ToString(), t, baseUrl);
-        var text = PlainText(r, ev, t, heading, greeting, intro, note, withTicket, showEvent ? eventUrl : null, manageUrl, baseUrl);
+        var text = PlainText(r, ev, t, heading, greeting, intro, note, withTicket, showEvent ? eventUrl : null,
+            askNotToShare, donationUrl, manageUrl, baseUrl);
         return new EmailContent(subject, html, text, attachments);
     }
 
@@ -206,6 +213,34 @@ public static class RegistrationEmails
             <div style="font-size:15px;color:{Ink};padding-top:2px">{(ltr ? $"<span dir=\"ltr\" style=\"unicode-bidi:isolate;display:inline-block\">{H(value)}</span>" : H(value))}</div>
           </td>
         </tr>
+        """;
+
+    private static string ShareNote(IReadOnlyDictionary<string, string> t, string eventUrl) => $"""
+        <p style="margin:0 0 18px;padding:12px 16px;background:{SurfaceLow};border:1px dashed {GoldDim};border-radius:10px;font-size:14px;line-height:1.6;color:{Ink}">
+          🙏 {H(t["shareNote"])} <a href="{H(eventUrl)}" style="color:{Maroon};font-weight:700">{H(t["shareNoteLink"])}</a>
+        </p>
+        """;
+
+    /// <summary>The event's donation link, if it is a full http(s) address.</summary>
+    private static string? DonationLink(Event ev) =>
+        Uri.TryCreate(ev.DonationUrl?.Trim(), UriKind.Absolute, out var uri)
+        && (uri.Scheme == Uri.UriSchemeHttps || uri.Scheme == Uri.UriSchemeHttp)
+            ? uri.AbsoluteUri
+            : null;
+
+    private static string DonationBlock(IReadOnlyDictionary<string, string> t, string url) => $"""
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
+               style="margin:26px 0 0;background:{SurfaceLow};border:1px solid {Outline};border-radius:14px">
+          <tr><td style="padding:20px 22px;text-align:center">
+            <div style="font-size:22px;line-height:1">🤍</div>
+            <p style="margin:10px 0 0;font-size:15px;line-height:1.6;color:{Ink}">{H(t["donationText"])}</p>
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" style="margin:16px auto 0">
+              <tr><td style="border:2px solid {GoldDim};border-radius:999px">
+                <a href="{H(url)}" style="display:inline-block;padding:10px 26px;font-size:15px;font-weight:700;color:{Maroon};text-decoration:none;border-radius:999px">{H(t["donationButton"])}</a>
+              </td></tr>
+            </table>
+          </td></tr>
+        </table>
         """;
 
     /// <summary>The event's cover photo, linking to the event page.</summary>
@@ -329,7 +364,7 @@ public static class RegistrationEmails
 
     private static string PlainText(Registration r, Event ev, IReadOnlyDictionary<string, string> t,
         string heading, string greeting, string intro, string? note, bool confirmed,
-        string? eventUrl, string? manageUrl, string baseUrl)
+        string? eventUrl, bool askNotToShare, string? donationUrl, string? manageUrl, string baseUrl)
     {
         var sb = new StringBuilder();
         sb.AppendLine("YEMEN BREEZE · نسمات اليمن").AppendLine();
@@ -351,7 +386,10 @@ public static class RegistrationEmails
             sb.AppendLine(t["ticketNote"]).AppendLine();
         }
         if (note is not null) sb.AppendLine(note).AppendLine();
+        if (askNotToShare && eventUrl is not null)
+            sb.AppendLine(t["shareNote"]).AppendLine($"{t["shareNoteLink"]}: {eventUrl}").AppendLine();
         if (eventUrl is not null) sb.AppendLine($"{t["viewEvent"]}: {eventUrl}").AppendLine();
+        if (donationUrl is not null) sb.AppendLine(t["donationText"]).AppendLine($"{t["donationButton"]}: {donationUrl}").AppendLine();
         if (manageUrl is not null) sb.AppendLine($"{t["cantMakeIt"]} {t["manageLink"]}: {manageUrl}").AppendLine();
         sb.AppendLine(t["signoff"]).AppendLine(t["team"]).AppendLine();
         sb.AppendLine(t["footer"]).AppendLine($"{t["followUs"]} {InstagramHandle} — {InstagramUrl}");
@@ -444,6 +482,10 @@ public static class RegistrationEmails
             ["rejectedNote"] = "We hopen je heel graag te zien bij een van onze volgende evenementen.",
             ["rejectedPreheader"] = "Een bericht over je aanmelding.",
             ["greeting"] = "Beste {0},",
+            ["shareNote"] = "Een klein verzoek: deel de details van dit evenement alsjeblieft niet met mensen die zich niet hebben ingeschreven. Ken je iemand die ook wil komen? Die kan zich inschrijven via onze website.",
+            ["shareNoteLink"] = "Hier inschrijven",
+            ["donationText"] = "Wil je Yemeni Breeze steunen? Dan kun je via de link hieronder een vrijwillige donatie doen. Met je steun kunnen we culturele evenementen blijven organiseren en onze impact in de gemeenschap laten groeien.",
+            ["donationButton"] = "Doneren",
             ["cantMakeIt"] = "Kun je toch niet komen?",
             ["manageLink"] = "Annuleer je inschrijving",
             ["dateLabel"] = "Datum",
@@ -467,7 +509,7 @@ public static class RegistrationEmails
         {
             ["confirmedSubject"] = "أهلًا بك! تسجيلك مؤكد في {0} 🎉",
             ["confirmedHeading"] = "يا هلا! تسجيلك مؤكد",
-            ["confirmedIntro"] = "فرحنا كثيرًا بانضمامك إلينا! احتفظ بهذه الرسالة، فتذكرتك في الأسفل. فقط أظهر رمز QR عند الباب، والباقي علينا.",
+            ["confirmedIntro"] = "يسعدنا انضمامك لنا في هذه الفعالية! احتفظ بهذه الرسالة، فتذكرتك في الأسفل. فقط أظهر رمز QR عند الباب، والباقي علينا.",
             ["confirmedPreheader"] = "تذكرتك هنا — نراك قريبًا!",
             ["promotedSubject"] = "خبر حلو: صار لك مقعد في {0} 🎉",
             ["promotedHeading"] = "خبر حلو: صار لك مقعد!",
@@ -492,6 +534,10 @@ public static class RegistrationEmails
             ["rejectedNote"] = "نتمنى أن نراك في إحدى فعالياتنا القادمة.",
             ["rejectedPreheader"] = "رسالة بخصوص طلب تسجيلك.",
             ["greeting"] = "مرحبًا {0}،",
+            ["shareNote"] = "طلب صغير: نرجو ألّا تشارك تفاصيل الفعالية مع أي شخص غير مسجّل. هل تعرف أحدًا يرغب في الانضمام؟ يمكنه التسجيل عبر موقعنا.",
+            ["shareNoteLink"] = "سجّل من هنا",
+            ["donationText"] = "إذا رغبت في دعم نسمات اليمن، يمكنك تقديم تبرّع طوعي عبر الرابط أدناه. دعمك يساعدنا على الاستمرار في تنظيم الفعاليات الثقافية وتوسيع أثرنا في المجتمع.",
+            ["donationButton"] = "تبرّع الآن",
             ["cantMakeIt"] = "لن تتمكن من الحضور؟",
             ["manageLink"] = "ألغِ تسجيلك",
             ["dateLabel"] = "التاريخ",
@@ -540,6 +586,10 @@ public static class RegistrationEmails
             ["rejectedNote"] = "We really hope to see you at one of our next events.",
             ["rejectedPreheader"] = "A message about your registration.",
             ["greeting"] = "Dear {0},",
+            ["shareNote"] = "A small request: please keep the event details to yourself and don't share them with anyone who hasn't registered. Know someone who'd like to join? They can sign up through our website.",
+            ["shareNoteLink"] = "Register here",
+            ["donationText"] = "If you would like to support Yemeni Breeze, you can make a voluntary donation through the link below. Your support helps us continue organizing cultural events and growing our community impact.",
+            ["donationButton"] = "Donate",
             ["cantMakeIt"] = "Can't make it after all?",
             ["manageLink"] = "Cancel your registration",
             ["dateLabel"] = "Date",

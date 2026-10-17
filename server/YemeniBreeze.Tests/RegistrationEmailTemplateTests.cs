@@ -136,6 +136,54 @@ public class RegistrationEmailTemplateTests
         }
     }
 
+    [Fact]
+    public void Ticket_email_has_the_donation_message_only_when_the_event_has_a_link()
+    {
+        var ev = SampleEvent();
+        var without = RegistrationEmails.Build(SampleRegistration(RegistrationStatus.Confirmed), ev,
+            EmailKind.Confirmed, "https://yemenbreeze.nl")!;
+        Assert.DoesNotContain("voluntary donation", without.Html);
+        Assert.DoesNotContain("voluntary donation", without.Text);
+
+        ev.DonationUrl = "https://www.paypal.com/donate/?hosted_button_id=ABC123";
+        var with = RegistrationEmails.Build(SampleRegistration(RegistrationStatus.Confirmed), ev,
+            EmailKind.Confirmed, "https://yemenbreeze.nl")!;
+        Assert.Contains("If you would like to support Yemeni Breeze, you can make a voluntary donation", with.Html);
+        Assert.Contains("href=\"https://www.paypal.com/donate/?hosted_button_id=ABC123\"", with.Html);
+        Assert.Contains("https://www.paypal.com/donate/?hosted_button_id=ABC123", with.Text);
+    }
+
+    [Theory]
+    [InlineData(RegistrationStatus.Confirmed, EmailKind.Confirmed, true)]
+    [InlineData(RegistrationStatus.Confirmed, EmailKind.Promoted, true)]
+    [InlineData(RegistrationStatus.Confirmed, EmailKind.Reminder, true)]
+    [InlineData(RegistrationStatus.Waitlisted, EmailKind.Waitlisted, true)]
+    [InlineData(RegistrationStatus.Rejected, EmailKind.Rejected, false)]
+    [InlineData(RegistrationStatus.Cancelled, EmailKind.Cancelled, false)]
+    public void Emails_with_event_details_ask_not_to_share_them(RegistrationStatus status, EmailKind kind, bool asks)
+    {
+        var email = RegistrationEmails.Build(SampleRegistration(status), SampleEvent(), kind, "https://yemenbreeze.nl")!;
+
+        const string note = "please keep the event details to yourself"; // no apostrophe: HTML encodes it
+        Assert.Equal(asks, email.Html.Contains(note));
+        Assert.Equal(asks, email.Text.Contains(note));
+        if (asks) Assert.Contains("Register here", email.Html);
+    }
+
+    [Theory]
+    [InlineData(RegistrationStatus.Rejected, EmailKind.Rejected)]
+    [InlineData(RegistrationStatus.Waitlisted, EmailKind.Waitlisted)]
+    [InlineData(RegistrationStatus.Cancelled, EmailKind.Cancelled)]
+    public void Other_emails_never_ask_for_a_donation(RegistrationStatus status, EmailKind kind)
+    {
+        var ev = SampleEvent();
+        ev.DonationUrl = "https://example.org/donate";
+
+        var email = RegistrationEmails.Build(SampleRegistration(status), ev, kind, "https://yemenbreeze.nl")!;
+
+        Assert.DoesNotContain("example.org/donate", email.Html);
+    }
+
     [Theory]
     [InlineData("https://yemenbreeze.nl,https://www.yemenbreeze.nl", "https://yemenbreeze.nl")]
     [InlineData(" https://yemenbreeze.nl/ , https://www.yemenbreeze.nl", "https://yemenbreeze.nl")]

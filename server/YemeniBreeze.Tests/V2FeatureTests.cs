@@ -470,6 +470,52 @@ public class V2FeatureTests : IClassFixture<ApiFactory>
         return (await response.Content.ReadFromJsonAsync<UploadResult>())!;
     }
 
+    [Fact]
+    public async Task What_to_expect_is_saved_and_shown_publicly()
+    {
+        await AuthenticateAsync();
+        var slug = $"expect-{Guid.NewGuid():N}";
+        var payload = new
+        {
+            Slug = slug, TitleEn = "Expect", TitleNl = "Expect", TitleAr = "Expect",
+            DescriptionEn = "", DescriptionNl = "", DescriptionAr = "",
+            Date = new DateOnly(2026, 12, 1), StartTime = "10:00", EndTime = "12:00",
+            Location = "Amsterdam", Capacity = 10, ImageUrl = (string?)null,
+            Status = "Published", IsRegistrationOpen = true,
+            WhatToExpectEn = "  Homemade Yemeni dinner\nLive music  ",
+            WhatToExpectNl = "Huisgemaakt Jemenitisch diner",
+            WhatToExpectAr = "عشاء يمني منزلي"
+        };
+
+        (await _client.PostAsJsonAsync("/api/admin/events", payload)).EnsureSuccessStatusCode();
+        var ev = await _client.GetFromJsonAsync<System.Text.Json.JsonElement>($"/api/events/{slug}");
+
+        Assert.Equal("Homemade Yemeni dinner\nLive music", ev.GetProperty("whatToExpectEn").GetString());
+        Assert.Equal("Huisgemaakt Jemenitisch diner", ev.GetProperty("whatToExpectNl").GetString());
+        Assert.Equal("عشاء يمني منزلي", ev.GetProperty("whatToExpectAr").GetString());
+    }
+
+    [Theory]
+    [InlineData("paypal.me/yemenibreeze")]
+    [InlineData("javascript:alert(1)")]
+    [InlineData("ftp://example.org/donate")]
+    public async Task Donation_link_must_be_a_web_address(string donationUrl)
+    {
+        await AuthenticateAsync();
+        var payload = new
+        {
+            Slug = $"donate-{Guid.NewGuid():N}", TitleEn = "Donate", TitleNl = "Donate", TitleAr = "Donate",
+            DescriptionEn = "", DescriptionNl = "", DescriptionAr = "",
+            Date = new DateOnly(2026, 12, 1), StartTime = "10:00", EndTime = "12:00",
+            Location = "Amsterdam", Capacity = 10, ImageUrl = (string?)null,
+            Status = "Published", IsRegistrationOpen = true, DonationUrl = donationUrl
+        };
+
+        var response = await _client.PostAsJsonAsync("/api/admin/events", payload);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
     private static object EventPayload(string slug, string? imageUrl) => new
     {
         Slug = slug,

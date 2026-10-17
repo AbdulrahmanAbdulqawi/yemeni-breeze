@@ -136,8 +136,7 @@
       "tooMany": "Too many attempts from this connection. Please wait a few minutes and try again.",
       "checkFields": "Please check your answers — for example, that your email address is correct.",
       "requestTitle": "Request a place",
-      "approvalNote": "Our team reviews every request. If you are accepted, we will email you your ticket.",
-      "submitRequest": "Send my request",
+      "submitRequest": "Register",
       "pendingTitle": "Thank you, {{name}}! 💛",
       "pendingText": "We're so happy you want to join us! Your request is in, and our team will look at it very soon. If there's a place for you, your ticket will land in your inbox, so keep an eye out (and peek in your spam folder, just in case).",
       "moreEvents": "Explore more events"
@@ -146,7 +145,8 @@
     "limitedAvailability": "Limited availability",
     "reservationRequired": "Reservation required",
     "viewGallery": "View gallery",
-    "intro": "Communal dinners, cooking workshops, and cultural gatherings in Amsterdam — join us at the table."
+    "intro": "Communal dinners, cooking workshops, and cultural gatherings in Amsterdam — join us at the table.",
+    "whatToExpect": "What to expect"
   },
   "manage": {
     "title": "Your registration",
@@ -254,7 +254,12 @@
       "emptyIn": "Still empty in",
       "translation": "Translation",
       "requiresApproval": "Approve registrations manually",
-      "requiresApprovalHint": "New registrations wait for you to accept or reject them. Nobody gets an email until you decide: accepted people get their ticket, rejected people get a polite message."
+      "requiresApprovalHint": "New registrations wait for you to accept or reject them. Nobody gets an email until you decide: accepted people get their ticket, rejected people get a polite message.",
+      "whatToExpect": "What to expect",
+      "whatToExpectHint": "One item per line, e.g.\nHomemade Yemeni dinner\nLive oud music",
+      "donationUrl": "Donation link (optional)",
+      "donationUrlHint": "When filled in, the confirmation email includes a short message asking for a voluntary donation, with this link. Leave empty to send no donation message.",
+      "donationUrlInvalid": "Please enter a full web address starting with https://"
     },
     "registrations": {
       "title": "Registrations",

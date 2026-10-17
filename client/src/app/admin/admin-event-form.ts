@@ -49,6 +49,11 @@ import { LangSelect } from './ui/lang-select';
               <label for="descriptionNl">{{ 'admin.events.description' | transloco }}</label>
               <textarea id="descriptionNl" formControlName="descriptionNl" rows="5"></textarea>
             </div>
+            <div class="field">
+              <label for="whatToExpectNl">{{ 'admin.events.whatToExpect' | transloco }}</label>
+              <textarea id="whatToExpectNl" formControlName="whatToExpectNl" rows="4"
+                [placeholder]="'admin.events.whatToExpectHint' | transloco"></textarea>
+            </div>
           }
           @case ('ar') {
             <div class="field">
@@ -59,6 +64,11 @@ import { LangSelect } from './ui/lang-select';
               <label for="descriptionAr">{{ 'admin.events.description' | transloco }}</label>
               <textarea id="descriptionAr" formControlName="descriptionAr" rows="5" dir="rtl"></textarea>
             </div>
+            <div class="field">
+              <label for="whatToExpectAr">{{ 'admin.events.whatToExpect' | transloco }}</label>
+              <textarea id="whatToExpectAr" formControlName="whatToExpectAr" rows="4" dir="rtl"
+                [placeholder]="'admin.events.whatToExpectHint' | transloco"></textarea>
+            </div>
           }
           @default {
             <div class="field">
@@ -68,6 +78,11 @@ import { LangSelect } from './ui/lang-select';
             <div class="field">
               <label for="descriptionEn">{{ 'admin.events.description' | transloco }}</label>
               <textarea id="descriptionEn" formControlName="descriptionEn" rows="5"></textarea>
+            </div>
+            <div class="field">
+              <label for="whatToExpectEn">{{ 'admin.events.whatToExpect' | transloco }}</label>
+              <textarea id="whatToExpectEn" formControlName="whatToExpectEn" rows="4"
+                [placeholder]="'admin.events.whatToExpectHint' | transloco"></textarea>
             </div>
           }
         }
@@ -116,6 +131,14 @@ import { LangSelect } from './ui/lang-select';
           {{ 'admin.events.requiresApproval' | transloco }}
         </label>
         <span class="field-hint">{{ 'admin.events.requiresApprovalHint' | transloco }}</span>
+      </div>
+      <div class="field">
+        <label for="donationUrl">{{ 'admin.events.donationUrl' | transloco }}</label>
+        <input id="donationUrl" formControlName="donationUrl" type="url" dir="ltr" placeholder="https://" />
+        @if (form.controls.donationUrl.touched && form.controls.donationUrl.invalid) {
+          <span class="error-text">{{ 'admin.events.donationUrlInvalid' | transloco }}</span>
+        }
+        <span class="field-hint">{{ 'admin.events.donationUrlHint' | transloco }}</span>
       </div>
 
       <h2 class="form-section">{{ 'admin.events.sectionMedia' | transloco }}</h2>
@@ -284,6 +307,9 @@ export class AdminEventForm {
     descriptionEn: [''],
     descriptionNl: [''],
     descriptionAr: [''],
+    whatToExpectEn: [''],
+    whatToExpectNl: [''],
+    whatToExpectAr: [''],
     date: ['', Validators.required],
     startTime: [''],
     endTime: [''],
@@ -292,7 +318,9 @@ export class AdminEventForm {
     imageUrl: [null as string | null],
     status: ['Draft' as EventStatus],
     isRegistrationOpen: [false],
-    requiresApproval: [false]
+    requiresApproval: [false],
+    // Optional; must be a full web address because it goes into emails
+    donationUrl: [null as string | null, [Validators.pattern(/^\s*https?:\/\/\S+\s*$/i), Validators.maxLength(500)]]
   });
 
   /** Live form value, so the "still empty in…" hint tracks typing. */

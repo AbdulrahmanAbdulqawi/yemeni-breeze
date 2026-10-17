@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
-import { Lang, LanguageService } from './language.service';
+import { LanguageService, SITE_LANGS } from './language.service';
 
 /**
  * Site language picker, shared by the public header and the admin top bar.
@@ -133,5 +133,5 @@ import { Lang, LanguageService } from './language.service';
 export class LanguageSwitcher {
   readonly lang = inject(LanguageService);
   readonly transloco = inject(TranslocoService);
-  readonly options: Lang[] = ['en', 'nl', 'ar'];
+  readonly options = SITE_LANGS;
 }

@@ -296,6 +296,10 @@ namespace YemeniBreeze.Api.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("DonationUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("EndTime")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -339,6 +343,18 @@ namespace YemeniBreeze.Api.Migrations
                     b.Property<string>("TitleNl")
                         .IsRequired()
                         .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("WhatToExpectAr")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("WhatToExpectEn")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("WhatToExpectNl")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");

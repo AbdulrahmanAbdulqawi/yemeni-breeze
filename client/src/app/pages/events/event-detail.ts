@@ -40,6 +40,16 @@ export class EventDetail {
     { initialValue: null }
   );
 
+  /** "What to expect" items in the visitor's language (falls back to English), one per line. */
+  readonly whatToExpect = computed(() => {
+    const ev = this.event();
+    if (!ev) return [];
+    return this.lang.pick(ev, 'whatToExpect')
+      .split('\n')
+      .map(line => line.trim().replace(/^[-•*]\s*/, ''))
+      .filter(Boolean);
+  });
+
   readonly album = toSignal(
     combineLatest([toObservable(this.event), this.api.getGallery()]).pipe(
       map(([event, items]) => event ? items.filter(i => i.eventId === event.id) : [])
