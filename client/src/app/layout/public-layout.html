@@ -1,11 +1,11 @@
-<header class="site-header">
+<header class="site-header" #header>
   <div class="container header-inner">
     <a routerLink="/" class="brand" (click)="closeMenu()">
       <img src="/assets/logo.png" alt="Yemen Breeze — نسمات اليمن" class="brand-logo" />
       <span class="brand-name">Yemen Breeze</span>
     </a>
 
-    <button class="menu-toggle" (click)="toggleMenu()" aria-label="Menu">☰</button>
+    <button class="menu-toggle" (click)="toggleMenu()" aria-label="Menu" [attr.aria-expanded]="menuOpen()">☰</button>
 
     <nav class="site-nav" [class.open]="menuOpen()">
       <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" (click)="closeMenu()">{{ 'nav.home' | transloco }}</a>

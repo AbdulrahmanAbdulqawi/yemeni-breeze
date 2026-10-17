@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, ElementRef, HostListener, inject, signal, viewChild } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { CmsPipe } from '../core/cms.pipe';
@@ -19,6 +19,18 @@ export class PublicLayout {
     inject(SeoService).init();
   }
   readonly menuOpen = signal(false);
+  private readonly header = viewChild.required<ElementRef<HTMLElement>>('header');
+
+  /** A tap anywhere outside the header closes the mobile menu. */
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    if (this.menuOpen() && !this.header().nativeElement.contains(event.target as Node)) this.closeMenu();
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscape() {
+    this.closeMenu();
+  }
 
   toggleMenu() {
     this.menuOpen.update(v => !v);
