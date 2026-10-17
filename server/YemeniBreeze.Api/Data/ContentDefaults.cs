@@ -38,8 +38,6 @@ public static class ContentDefaults
         ["home.statViewsValue"] = ("600K+", "600K+", "+600 ألف"),
         ["home.statEvents"] = ("Major events", "Grote evenementen", "فعاليات كبرى"),
         ["home.statEventsValue"] = ("3", "3", "3"),
-        ["home.statMeals"] = ("Meals delivered to camps", "Maaltijden bezorgd bij AZC's", "وجبة وصلت إلى المخيمات"),
-        ["home.statMealsValue"] = ("350", "350", "350"),
         ["home.upcomingTitle"] = ("Upcoming event", "Aankomend evenement", "الفعالية القادمة"),
         ["home.missionTitle"] = ("Why we exist", "Waarom wij bestaan", "لماذا وُجدنا"),
         ["home.missionText"] = (

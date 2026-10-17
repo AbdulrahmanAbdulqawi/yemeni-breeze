@@ -1,4 +1,7 @@
-<section class="section-dark about-hero page-hero">
+<section class="section-dark about-hero page-hero" [class.has-cover]="aboutImage()">
+  @if (aboutImage(); as image) {
+    <div class="cover-photo" [style.background-image]="'url(' + image + ')'"></div>
+  }
   <div class="container">
     <h1>{{ 'about.title' | cms }}</h1>
     <p class="about-intro">{{ 'about.intro' | cms }}</p>
@@ -6,21 +9,16 @@
 </section>
 
 <section class="section">
-  <div class="container narrow story-block" [class.with-image]="aboutImage()" appReveal>
-    @if (aboutImage(); as image) {
-      <img [src]="image" alt="" class="story-image arch" />
-    }
-    <div>
-      <p>{{ 'about.founding' | cms }}</p>
-      <p>{{ 'about.open' | cms }}</p>
-    </div>
+  <div class="container narrow story-block" appReveal>
+    <p class="cms-text">{{ 'about.founding' | cms }}</p>
+    <p class="cms-text">{{ 'about.open' | cms }}</p>
   </div>
 </section>
 
 <section class="section mission">
   <div class="container narrow">
     <h2 class="section-title" appReveal>{{ 'about.missionTitle' | cms }}</h2>
-    <p class="mission-text" appReveal>{{ 'about.missionText' | cms }}</p>
+    <p class="mission-text cms-text" appReveal>{{ 'about.missionText' | cms }}</p>
   </div>
 </section>
 
@@ -42,7 +40,7 @@
 <section class="section section-dark">
   <div class="container narrow">
     <h2 class="section-title">{{ 'about.socialTitle' | cms }}</h2>
-    <p class="social-text">{{ 'about.socialText' | cms }}</p>
+    <p class="social-text cms-text">{{ 'about.socialText' | cms }}</p>
   </div>
 </section>
 

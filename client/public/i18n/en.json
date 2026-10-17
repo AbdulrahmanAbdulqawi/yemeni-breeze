@@ -1,7 +1,7 @@
 {
   "seo": {
     "home": {
-      "title": "Yemen is more than a war",
+      "title": "Yemen is more than just mandi",
       "description": "Yemen Breeze is a youth-led cultural initiative in Amsterdam. We CONNECT cultures, we SHOWCASE Yemen, we BUILD bridges through art, food, and community."
     },
     "about": {
@@ -35,7 +35,7 @@
     "instagram": "Follow us on Instagram"
   },
   "home": {
-    "heroTitle": "Yemen is more than a war",
+    "heroTitle": "Yemen is more than just mandi",
     "heroSubtitle": "We are a youth-led cultural initiative in Amsterdam telling Yemen's story ourselves — through food, music, art, and genuine human connection.",
     "heroCta": "Join our next event",
     "heroSecondary": "Read our story",
@@ -49,7 +49,6 @@
     "statAttendees": "Guests in person",
     "statViews": "Views online",
     "statEvents": "Major events",
-    "statMeals": "Meals delivered to camps",
     "nextEvent": "Next event",
     "upcomingTitle": "Upcoming event",
     "viewAllEvents": "See all events",

@@ -1,7 +1,7 @@
 {
   "seo": {
     "home": {
-      "title": "Jemen is meer dan een oorlog",
+      "title": "Jemen is meer dan alleen mandi",
       "description": "Yemen Breeze is een cultureel jongereninitiatief in Amsterdam. Wij verbinden culturen, tonen Jemen en bouwen bruggen via kunst, eten en community."
     },
     "about": {
@@ -35,7 +35,7 @@
     "instagram": "Volg ons op Instagram"
   },
   "home": {
-    "heroTitle": "Jemen is meer dan een oorlog",
+    "heroTitle": "Jemen is meer dan alleen mandi",
     "heroSubtitle": "Wij zijn een cultureel jongereninitiatief in Amsterdam dat het verhaal van Jemen zelf vertelt — via eten, muziek, kunst en echte menselijke verbinding.",
     "heroCta": "Doe mee met ons volgende evenement",
     "heroSecondary": "Lees ons verhaal",
@@ -49,7 +49,6 @@
     "statAttendees": "Gasten ter plaatse",
     "statViews": "Views online",
     "statEvents": "Grote evenementen",
-    "statMeals": "Maaltijden bezorgd bij AZC's",
     "nextEvent": "Volgend evenement",
     "upcomingTitle": "Aankomend evenement",
     "viewAllEvents": "Bekijk alle evenementen",

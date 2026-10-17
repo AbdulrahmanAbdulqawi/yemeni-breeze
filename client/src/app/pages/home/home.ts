@@ -8,11 +8,10 @@ import { CmsPipe } from '../../core/cms.pipe';
 import { EventCard } from '../../shared/event-card';
 import { CountUp } from '../../shared/motion/count-up.directive';
 import { Reveal } from '../../shared/motion/reveal.directive';
-import { QamariyaHero } from './qamariya-hero';
 
 @Component({
   selector: 'app-home',
-  imports: [RouterLink, CmsPipe, EventCard, QamariyaHero, Reveal, CountUp],
+  imports: [RouterLink, CmsPipe, EventCard, Reveal, CountUp],
   templateUrl: './home.html',
   styleUrl: './home.scss'
 })

@@ -206,6 +206,38 @@ img {
   }
 }
 
+/* ===== Cover photo — the dimmed, slowly zooming photo behind the Home and
+   Our Story heroes. The parent needs position: relative and overflow: hidden. ===== */
+.cover-photo {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  /* Strong enough to read the photo; the brown behind it keeps the copy legible */
+  opacity: 0.5;
+  filter: sepia(0.3);
+
+  @media (prefers-reduced-motion: no-preference) {
+    animation: yb-cover-zoom 20s ease-in-out infinite alternate;
+    will-change: transform;
+  }
+}
+
+@keyframes yb-cover-zoom {
+  from {
+    transform: scale(1);
+  }
+
+  to {
+    transform: scale(1.12);
+  }
+}
+
+/* Admin-edited copy keeps its paragraph breaks (CmsPipe trims stray blank lines) */
+.cms-text {
+  white-space: pre-line;
+}
+
 /* ===== Page hero — wave transition, shared by every simple page hero
    (Events/About/Contact/Gallery). A soft cream wave replaces the old hard
    colour cut into the section below. ===== */

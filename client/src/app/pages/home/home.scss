@@ -5,27 +5,16 @@
   padding: 4.5rem 0 5rem;
   position: relative;
   overflow: hidden;
-  /* Room for the 3D glass layer (app-qamariya-hero) to breathe around the copy */
   min-height: min(86vh, 760px);
   display: grid;
   align-content: center;
-}
-
-.hero-bg {
-  position: absolute;
-  inset: 0;
-  background-size: cover;
-  background-position: center;
-  opacity: 0.22;
-  filter: sepia(0.3);
 }
 
 .hero-inner {
   position: relative;
   z-index: 1;
 
-  /* A soft pool of hero brown behind the copy keeps it legible where the
-     3D glass drifts behind it (mostly on narrow screens). */
+  /* A soft pool of hero brown behind the copy keeps it legible over the photo. */
   &::before {
     content: '';
     position: absolute;

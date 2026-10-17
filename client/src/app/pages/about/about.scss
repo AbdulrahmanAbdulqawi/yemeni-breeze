@@ -5,27 +5,20 @@
   opacity: 0.94;
 }
 
-.container.narrow {
-  max-width: 760px;
-  font-size: 1.08rem;
-}
-
-.story-block.with-image {
-  max-width: 980px;
+/* With a cover photo the hero grows so the photo has room to show */
+.about-hero.has-cover {
+  min-height: min(60vh, 520px);
   display: grid;
-  grid-template-columns: 320px 1fr;
-  gap: 2.2rem;
-  align-items: center;
+  align-content: center;
 
-  @media (max-width: 760px) {
-    grid-template-columns: 1fr;
+  .container {
+    text-shadow: 0 2px 18px rgb(49 15 2 / 0.85);
   }
 }
 
-.story-image {
-  width: 100%;
-  object-fit: cover;
-  --yb-arch-radius: 140px;
+.container.narrow {
+  max-width: 760px;
+  font-size: 1.08rem;
 }
 
 .mission {

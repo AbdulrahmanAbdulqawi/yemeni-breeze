@@ -1,8 +1,7 @@
 <section class="hero" [class.has-image]="heroImage()">
   @if (heroImage(); as image) {
-    <div class="hero-bg" [style.background-image]="'url(' + image + ')'"></div>
+    <div class="cover-photo" [style.background-image]="'url(' + image + ')'"></div>
   }
-  <app-qamariya-hero />
   <div class="container hero-inner">
     <img src="/assets/logo.png" alt="Yemen Breeze — نسمات اليمن" class="hero-logo" />
     <h1 class="hero-title">{{ 'home.heroTitle' | cms }}</h1>
@@ -17,7 +16,7 @@
 <section class="section mission-strip">
   <div class="container">
     <h2 class="section-title" appReveal>{{ 'home.missionTitle' | cms }}</h2>
-    <p class="mission-text" appReveal>{{ 'home.missionText' | cms }}</p>
+    <p class="mission-text cms-text" appReveal>{{ 'home.missionText' | cms }}</p>
   </div>
 </section>
 
@@ -36,10 +35,6 @@
       <div class="stat" appReveal>
         <span class="stat-number" [appCountUp]="'home.statEventsValue' | cms"></span>
         <span class="stat-label">{{ 'home.statEvents' | cms }}</span>
-      </div>
-      <div class="stat" appReveal>
-        <span class="stat-number" [appCountUp]="'home.statMealsValue' | cms"></span>
-        <span class="stat-label">{{ 'home.statMeals' | cms }}</span>
       </div>
     </div>
   </div>
