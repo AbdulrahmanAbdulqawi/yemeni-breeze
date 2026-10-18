@@ -209,6 +209,20 @@ public class RegistrationEmailTemplateTests
     }
 
     [Fact]
+    public void Rejection_email_says_we_will_email_if_a_spot_opens_up()
+    {
+        var email = RegistrationEmails.Build(SampleRegistration(RegistrationStatus.Rejected), SampleEvent(),
+            EmailKind.Rejected, "https://yemenbreeze.nl")!;
+
+        Assert.Contains("we can’t offer you a place at this event just yet.", email.Html);
+        // The note's two parts are separate paragraphs
+        Assert.Contains("we’ll let you know by email.</p>", email.Html);
+        Assert.Contains(">We really hope to see you at the event!</p>", email.Html);
+        Assert.Contains("As soon as a spot becomes available, we’ll let you know by email.\n\nWe really hope to see you at the event!",
+            email.Text.ReplaceLineEndings("\n"));
+    }
+
+    [Fact]
     public void Ticket_email_without_an_exact_address_has_no_address_row()
     {
         var email = RegistrationEmails.Build(SampleRegistration(RegistrationStatus.Confirmed), SampleEvent(),

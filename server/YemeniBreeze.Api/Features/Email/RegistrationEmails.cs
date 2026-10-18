@@ -112,7 +112,10 @@ public static class RegistrationEmails
             body.Append(EventCard(r, ev, t, exactAddress));
         }
         if (withTicket) body.Append(TicketCard(r, t));
-        if (note is not null) body.Append(Paragraph(H(note)));
+        // A blank line in the note starts a new paragraph.
+        if (note is not null)
+            foreach (var part in note.Split("\n\n", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+                body.Append(Paragraph(H(part)));
         // Emails that carry the event's details ask people to keep them to registered guests.
         var askNotToShare = kind is EmailKind.Confirmed or EmailKind.Promoted or EmailKind.Reminder or EmailKind.Waitlisted;
         if (askNotToShare) body.Append(ShareNote(t, eventUrl));
@@ -509,8 +512,8 @@ public static class RegistrationEmails
             ["cancelledNote"] = "Toch van gedachten veranderd? Je kunt je gewoon opnieuw inschrijven op de evenementpagina, zolang er plek is.",
             ["cancelledPreheader"] = "Je annulering is gelukt.",
             ["rejectedSubject"] = "Over je aanmelding — {0}",
-            ["rejectedIntro"] = "Wat leuk dat je erbij wilde zijn! Helaas kunnen we je deze keer geen plek geven.",
-            ["rejectedNote"] = "We hopen je heel graag te zien bij een van onze volgende evenementen.",
+            ["rejectedIntro"] = "Wat leuk dat je erbij wilde zijn! Helaas kunnen we je op dit moment nog geen plek geven bij dit evenement.",
+            ["rejectedNote"] = "Zodra er een plek vrijkomt, laten we het je per e-mail weten.\n\nWe hopen je heel graag te zien bij het evenement!",
             ["rejectedPreheader"] = "Een bericht over je aanmelding.",
             ["greeting"] = "Beste {0},",
             ["shareNote"] = "Een klein verzoek: deel de details van dit evenement alsjeblieft niet met mensen die zich niet hebben ingeschreven. Ken je iemand die ook wil komen? Die kan zich inschrijven via onze website.",
@@ -563,8 +566,8 @@ public static class RegistrationEmails
             ["cancelledNote"] = "غيّرت رأيك؟ يمكنك التسجيل من جديد من صفحة الفعالية ما دامت هناك مقاعد.",
             ["cancelledPreheader"] = "تم إلغاء تسجيلك بنجاح.",
             ["rejectedSubject"] = "بخصوص طلب تسجيلك في {0}",
-            ["rejectedIntro"] = "سعدنا كثيرًا برغبتك في الانضمام إلينا! للأسف لا نستطيع أن نوفّر لك مقعدًا هذه المرة.",
-            ["rejectedNote"] = "نتمنى أن نراك في إحدى فعالياتنا القادمة.",
+            ["rejectedIntro"] = "سعدنا كثيرًا برغبتك في الانضمام إلينا! للأسف لا نستطيع أن نوفّر لك مقعدًا في هذه الفعالية حتى الآن.",
+            ["rejectedNote"] = "بمجرد أن يتوفّر مقعد، سنخبرك بذلك عبر البريد الإلكتروني.\n\nنتمنى حقًا أن نراك في الفعالية!",
             ["rejectedPreheader"] = "رسالة بخصوص طلب تسجيلك.",
             ["greeting"] = "مرحبًا {0}،",
             ["shareNote"] = "طلب صغير: نرجو ألّا تشارك تفاصيل الفعالية مع أي شخص غير مسجّل. هل تعرف أحدًا يرغب في الانضمام؟ يمكنه التسجيل عبر موقعنا.",
@@ -617,8 +620,8 @@ public static class RegistrationEmails
             ["cancelledNote"] = "Changed your mind? You can sign up again on the event page while there are spots left.",
             ["cancelledPreheader"] = "Your cancellation went through.",
             ["rejectedSubject"] = "About your registration — {0}",
-            ["rejectedIntro"] = "We loved that you wanted to join us! Unfortunately, we can't offer you a place at this event this time.",
-            ["rejectedNote"] = "We really hope to see you at one of our next events.",
+            ["rejectedIntro"] = "We loved that you wanted to join us! Unfortunately, we can’t offer you a place at this event just yet.",
+            ["rejectedNote"] = "As soon as a spot becomes available, we’ll let you know by email.\n\nWe really hope to see you at the event!",
             ["rejectedPreheader"] = "A message about your registration.",
             ["greeting"] = "Dear {0},",
             ["shareNote"] = "A small request: please keep the event details to yourself and don't share them with anyone who hasn't registered. Know someone who'd like to join? They can sign up through our website.",
