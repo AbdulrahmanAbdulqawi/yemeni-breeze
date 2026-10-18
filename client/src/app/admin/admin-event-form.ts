@@ -28,6 +28,12 @@ import { LangSelect } from './ui/lang-select';
           <input id="location" formControlName="location" />
         </div>
       </div>
+      <div class="field">
+        <label for="exactAddress">🔒 {{ 'admin.events.exactAddress' | transloco }}</label>
+        <textarea id="exactAddress" formControlName="exactAddress" rows="2"
+          [placeholder]="'admin.events.exactAddressPlaceholder' | transloco"></textarea>
+        <span class="field-hint">{{ 'admin.events.exactAddressHint' | transloco }}</span>
+      </div>
 
       <div class="lang-block">
         <div class="lang-block-head">
@@ -320,7 +326,9 @@ export class AdminEventForm {
     isRegistrationOpen: [false],
     requiresApproval: [false],
     // Optional; must be a full web address because it goes into emails
-    donationUrl: [null as string | null, [Validators.pattern(/^\s*https?:\/\/\S+\s*$/i), Validators.maxLength(500)]]
+    donationUrl: [null as string | null, [Validators.pattern(/^\s*https?:\/\/\S+\s*$/i), Validators.maxLength(500)]],
+    // Private: never shown on the site, only sent in the emails of people who have a spot
+    exactAddress: [null as string | null, Validators.maxLength(500)]
   });
 
   /** Live form value, so the "still empty in…" hint tracks typing. */

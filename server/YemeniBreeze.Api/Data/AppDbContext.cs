@@ -30,6 +30,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
             e.Property(x => x.TitleAr).HasMaxLength(200);
             e.Property(x => x.Slug).HasMaxLength(200);
             e.Property(x => x.DonationUrl).HasMaxLength(500);
+            e.Property(x => x.ExactAddress).HasMaxLength(500);
             e.Property(x => x.Location).HasMaxLength(300);
         });
 

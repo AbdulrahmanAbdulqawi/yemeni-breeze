@@ -71,6 +71,8 @@ public static class RegistrationEmails
             ? $"{baseUrl}/registrations/{token:D}"
             : null;
         var withTicket = r.Status == RegistrationStatus.Confirmed;
+        // The exact address is private: only people with a spot (ticket, promoted, reminder) get it.
+        var exactAddress = withTicket && !string.IsNullOrWhiteSpace(ev.ExactAddress) ? ev.ExactAddress.Trim() : null;
 
         var key = kind switch
         {
@@ -98,7 +100,7 @@ public static class RegistrationEmails
         {
             attachments.Add(new("ticket.png", GenerateTicketQr(r.TicketCode), "image/png", QrContentId));
             attachments.Add(new("yemen-breeze-event.ics",
-                Encoding.UTF8.GetBytes(BuildIcs(r, ev, eventUrl)), "text/calendar"));
+                Encoding.UTF8.GetBytes(BuildIcs(r, ev, eventUrl, exactAddress)), "text/calendar"));
         }
 
         var body = new StringBuilder();
@@ -107,7 +109,7 @@ public static class RegistrationEmails
         if (showEvent)
         {
             if (AbsoluteUrl(ev.ImageUrl, baseUrl) is { } imageUrl) body.Append(EventImage(imageUrl, eventUrl, EventTitle(r, ev)));
-            body.Append(EventCard(r, ev, t));
+            body.Append(EventCard(r, ev, t, exactAddress));
         }
         if (withTicket) body.Append(TicketCard(r, t));
         if (note is not null) body.Append(Paragraph(H(note)));
@@ -123,7 +125,7 @@ public static class RegistrationEmails
 
         var html = Layout(r.Language, subject, preheader, heading, body.ToString(), t, baseUrl);
         var text = PlainText(r, ev, t, heading, greeting, intro, note, withTicket, showEvent ? eventUrl : null,
-            askNotToShare, donationUrl, manageUrl, baseUrl);
+            askNotToShare, donationUrl, manageUrl, baseUrl, exactAddress);
         return new EmailContent(subject, html, text, attachments);
     }
 
@@ -215,6 +217,28 @@ public static class RegistrationEmails
         </tr>
         """;
 
+    private static string MapsUrl(string address) =>
+        $"https://www.google.com/maps/search/?api=1&query={Uri.EscapeDataString(address)}";
+
+    /// <summary>The private exact address, keeping its line breaks, with a link to open it in maps.</summary>
+    private static string AddressRow(IReadOnlyDictionary<string, string> t, string address)
+    {
+        // Each line keeps its own direction, so a Dutch address reads right inside an Arabic email.
+        var lines = string.Join("<br/>", address.Split('\n')
+            .Select(l => l.Trim()).Where(l => l.Length > 0)
+            .Select(l => $"<span dir=\"auto\" style=\"unicode-bidi:isolate\">{H(l)}</span>"));
+        return $"""
+            <tr>
+              <td width="34" valign="top" style="padding:10px 0 10px;font-size:18px;line-height:1">🏠</td>
+              <td valign="top" style="padding:8px 0">
+                <div style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:{Maroon};font-weight:700">{H(t["addressLabel"])}</div>
+                <div style="font-size:15px;line-height:1.5;color:{Ink};padding-top:2px;font-weight:700">{lines}</div>
+                <div style="font-size:13px;padding-top:4px"><a href="{H(MapsUrl(address))}" style="color:{Maroon};font-weight:700">{H(t["openInMaps"])}</a></div>
+              </td>
+            </tr>
+            """;
+    }
+
     private static string ShareNote(IReadOnlyDictionary<string, string> t, string eventUrl) => $"""
         <p style="margin:0 0 18px;padding:12px 16px;background:{SurfaceLow};border:1px dashed {GoldDim};border-radius:10px;font-size:14px;line-height:1.6;color:{Ink}">
           🙏 {H(t["shareNote"])} <a href="{H(eventUrl)}" style="color:{Maroon};font-weight:700">{H(t["shareNoteLink"])}</a>
@@ -250,12 +274,13 @@ public static class RegistrationEmails
         </a>
         """;
 
-    private static string EventCard(Registration r, Event ev, IReadOnlyDictionary<string, string> t)
+    private static string EventCard(Registration r, Event ev, IReadOnlyDictionary<string, string> t, string? exactAddress)
     {
         var rows = new StringBuilder();
         rows.Append(DetailRow("📅", t["dateLabel"], FormatDate(ev.Date, r.Language)));
         if (!string.IsNullOrWhiteSpace(ev.StartTime)) rows.Append(DetailRow("🕓", t["timeLabel"], TimeRange(ev), ltr: true));
         if (!string.IsNullOrWhiteSpace(ev.Location)) rows.Append(DetailRow("📍", t["locationLabel"], ev.Location));
+        if (exactAddress is not null) rows.Append(AddressRow(t, exactAddress));
 
         return $"""
             <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
@@ -364,7 +389,8 @@ public static class RegistrationEmails
 
     private static string PlainText(Registration r, Event ev, IReadOnlyDictionary<string, string> t,
         string heading, string greeting, string intro, string? note, bool confirmed,
-        string? eventUrl, bool askNotToShare, string? donationUrl, string? manageUrl, string baseUrl)
+        string? eventUrl, bool askNotToShare, string? donationUrl, string? manageUrl, string baseUrl,
+        string? exactAddress)
     {
         var sb = new StringBuilder();
         sb.AppendLine("YEMEN BREEZE · نسمات اليمن").AppendLine();
@@ -377,6 +403,11 @@ public static class RegistrationEmails
             sb.AppendLine($"{t["dateLabel"]}: {FormatDate(ev.Date, r.Language)}");
             if (!string.IsNullOrWhiteSpace(ev.StartTime)) sb.AppendLine($"{t["timeLabel"]}: \u2066{TimeRange(ev)}\u2069");
             if (!string.IsNullOrWhiteSpace(ev.Location)) sb.AppendLine($"{t["locationLabel"]}: {ev.Location}");
+            if (exactAddress is not null)
+            {
+                sb.AppendLine($"{t["addressLabel"]}: {exactAddress.Replace("\r", "").Replace("\n", ", ")}");
+                sb.AppendLine($"{t["openInMaps"]}: {MapsUrl(exactAddress)}");
+            }
             sb.AppendLine();
         }
         if (confirmed)
@@ -402,7 +433,7 @@ public static class RegistrationEmails
         .Replace("\\", "\\\\").Replace(";", "\\;").Replace(",", "\\,")
         .Replace("\r\n", "\\n").Replace("\n", "\\n");
 
-    private static string BuildIcs(Registration r, Event ev, string eventUrl)
+    private static string BuildIcs(Registration r, Event ev, string eventUrl, string? exactAddress)
     {
         static string LocalStamp(DateOnly date, string time)
         {
@@ -442,7 +473,7 @@ public static class RegistrationEmails
             DTSTART;TZID=Europe/Amsterdam:{LocalStamp(ev.Date, ev.StartTime)}
             DTEND;TZID=Europe/Amsterdam:{LocalStamp(ev.Date, ev.EndTime)}
             SUMMARY:{IcsText(EventTitle(r, ev))}
-            LOCATION:{IcsText(ev.Location)}
+            LOCATION:{IcsText(exactAddress ?? ev.Location)}
             URL:{eventUrl}
             END:VEVENT
             END:VCALENDAR
@@ -491,6 +522,8 @@ public static class RegistrationEmails
             ["dateLabel"] = "Datum",
             ["timeLabel"] = "Tijd",
             ["locationLabel"] = "Locatie",
+            ["addressLabel"] = "Adres",
+            ["openInMaps"] = "Bekijk op de kaart",
             ["ticketLabel"] = "Je ticket",
             ["ticketNote"] = "Laat deze QR-code zien bij de deur",
             ["qrAlt"] = "QR-code van je ticket",
@@ -543,6 +576,8 @@ public static class RegistrationEmails
             ["dateLabel"] = "التاريخ",
             ["timeLabel"] = "الوقت",
             ["locationLabel"] = "المكان",
+            ["addressLabel"] = "العنوان",
+            ["openInMaps"] = "افتح في الخرائط",
             ["ticketLabel"] = "تذكرتك",
             ["ticketNote"] = "أظهر رمز QR هذا عند الباب",
             ["qrAlt"] = "رمز QR لتذكرتك",
@@ -595,6 +630,8 @@ public static class RegistrationEmails
             ["dateLabel"] = "Date",
             ["timeLabel"] = "Time",
             ["locationLabel"] = "Location",
+            ["addressLabel"] = "Address",
+            ["openInMaps"] = "Open in Maps",
             ["ticketLabel"] = "Your ticket",
             ["ticketNote"] = "Show this QR code at the door",
             ["qrAlt"] = "Your ticket QR code",

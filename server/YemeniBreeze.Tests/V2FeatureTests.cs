@@ -516,6 +516,31 @@ public class V2FeatureTests : IClassFixture<ApiFactory>
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 
+    [Fact]
+    public async Task Exact_address_is_only_visible_to_the_admin()
+    {
+        await AuthenticateAsync();
+        var slug = $"address-{Guid.NewGuid():N}";
+        var payload = new
+        {
+            Slug = slug, TitleEn = "Address", TitleNl = "Address", TitleAr = "Address",
+            DescriptionEn = "", DescriptionNl = "", DescriptionAr = "",
+            Date = new DateOnly(2026, 12, 1), StartTime = "10:00", EndTime = "12:00",
+            Location = "Rotterdam", Capacity = 10, ImageUrl = (string?)null,
+            Status = "Published", IsRegistrationOpen = true, ExactAddress = "  Secret Street 7, Rotterdam  "
+        };
+
+        (await _client.PostAsJsonAsync("/api/admin/events", payload)).EnsureSuccessStatusCode();
+
+        var adminList = await _client.GetStringAsync("/api/admin/events");
+        Assert.Contains("\"exactAddress\":\"Secret Street 7, Rotterdam\"", adminList);
+
+        var publicEvent = await _client.GetStringAsync($"/api/events/{slug}");
+        var publicList = await _client.GetStringAsync("/api/events");
+        Assert.DoesNotContain("Secret Street", publicEvent);
+        Assert.DoesNotContain("Secret Street", publicList);
+    }
+
     private static object EventPayload(string slug, string? imageUrl) => new
     {
         Slug = slug,

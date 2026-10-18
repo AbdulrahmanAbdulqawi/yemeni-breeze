@@ -31,6 +31,8 @@ export interface EventDto {
   whatToExpectAr: string;
   /** Optional; when set, ticket emails include a donation message with this link. */
   donationUrl: string | null;
+  /** Private; only filled in on admin requests. Sent only in the emails of people who have a spot. */
+  exactAddress: string | null;
 }
 
 export interface EventInput {
@@ -54,6 +56,7 @@ export interface EventInput {
   whatToExpectNl: string;
   whatToExpectAr: string;
   donationUrl: string | null;
+  exactAddress: string | null;
 }
 
 export interface RegisterRequest {

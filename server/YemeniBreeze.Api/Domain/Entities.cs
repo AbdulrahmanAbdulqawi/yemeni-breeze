@@ -23,6 +23,11 @@ public class Event
     public string WhatToExpectAr { get; set; } = "";
     /// <summary>Optional. When set, ticket emails include a short donation message with this link.</summary>
     public string? DonationUrl { get; set; }
+    /// <summary>
+    /// Optional, private. The exact address (street, house number, door…). Never shown on the site;
+    /// only sent in the emails of people who have a spot (ticket, promoted, reminder).
+    /// </summary>
+    public string? ExactAddress { get; set; }
     public DateOnly Date { get; set; }
     public string StartTime { get; set; } = "";
     public string EndTime { get; set; } = "";

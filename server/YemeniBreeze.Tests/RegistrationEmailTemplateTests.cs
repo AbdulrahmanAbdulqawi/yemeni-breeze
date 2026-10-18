@@ -185,6 +185,40 @@ public class RegistrationEmailTemplateTests
     }
 
     [Theory]
+    [InlineData(RegistrationStatus.Confirmed, EmailKind.Confirmed, true)]
+    [InlineData(RegistrationStatus.Confirmed, EmailKind.Promoted, true)]
+    [InlineData(RegistrationStatus.Confirmed, EmailKind.Reminder, true)]
+    [InlineData(RegistrationStatus.Waitlisted, EmailKind.Waitlisted, false)]
+    [InlineData(RegistrationStatus.Rejected, EmailKind.Rejected, false)]
+    [InlineData(RegistrationStatus.Cancelled, EmailKind.Cancelled, false)]
+    public void Exact_address_is_only_sent_to_people_with_a_spot(RegistrationStatus status, EmailKind kind, bool sent)
+    {
+        var ev = SampleEvent();
+        ev.ExactAddress = "Coolsingel 40\n3011 AD Rotterdam";
+
+        var email = RegistrationEmails.Build(SampleRegistration(status), ev, kind, "https://yemenbreeze.nl")!;
+
+        Assert.Equal(sent, email.Html.Contains("Coolsingel 40"));
+        Assert.Equal(sent, email.Text.Contains("Coolsingel 40"));
+        if (!sent) return;
+        Assert.Contains("Coolsingel 40</span><br/><span dir=\"auto\" style=\"unicode-bidi:isolate\">3011 AD Rotterdam</span>", email.Html);
+        Assert.Contains("https://www.google.com/maps/search/?api=1&amp;query=Coolsingel%2040%0A3011%20AD%20Rotterdam", email.Html);
+        Assert.Contains("Address: Coolsingel 40, 3011 AD Rotterdam", email.Text);
+        var ics = System.Text.Encoding.UTF8.GetString(email.Attachments.Single(a => a.FileName.EndsWith(".ics")).Content);
+        Assert.Contains("LOCATION:Coolsingel 40\\n3011 AD Rotterdam", ics);
+    }
+
+    [Fact]
+    public void Ticket_email_without_an_exact_address_has_no_address_row()
+    {
+        var email = RegistrationEmails.Build(SampleRegistration(RegistrationStatus.Confirmed), SampleEvent(),
+            EmailKind.Confirmed, "https://yemenbreeze.nl")!;
+
+        Assert.DoesNotContain("Open in Maps", email.Html);
+        Assert.DoesNotContain("Address:", email.Text);
+    }
+
+    [Theory]
     [InlineData("https://yemenbreeze.nl,https://www.yemenbreeze.nl", "https://yemenbreeze.nl")]
     [InlineData(" https://yemenbreeze.nl/ , https://www.yemenbreeze.nl", "https://yemenbreeze.nl")]
     [InlineData("https://yemenbreeze.nl", "https://yemenbreeze.nl")]

@@ -15,7 +15,9 @@ public record EventDto(
     int ConfirmedCount, int WaitlistedCount, int SpotsLeft,
     bool RequiresApproval, int PendingCount,
     string WhatToExpectEn, string WhatToExpectNl, string WhatToExpectAr,
-    string? DonationUrl);
+    string? DonationUrl,
+    // Private: filled in for the admin only, always null on the public site.
+    string? ExactAddress);
 
 public record EventInput(
     string Slug,
@@ -25,11 +27,13 @@ public record EventInput(
     int Capacity, string? ImageUrl, EventStatus Status, bool IsRegistrationOpen,
     bool RequiresApproval = false,
     string? WhatToExpectEn = null, string? WhatToExpectNl = null, string? WhatToExpectAr = null,
-    string? DonationUrl = null);
+    string? DonationUrl = null,
+    string? ExactAddress = null);
 
 public static class EventsEndpoints
 {
-    public static EventDto ToDto(this Event e)
+    /// <param name="includePrivate">Only for the admin: adds the exact address, which visitors must never see.</param>
+    public static EventDto ToDto(this Event e, bool includePrivate = false)
     {
         var confirmed = e.Registrations
             .Where(r => r.Status == RegistrationStatus.Confirmed)
@@ -49,7 +53,8 @@ public static class EventsEndpoints
             confirmed, waitlisted, Math.Max(0, e.Capacity - confirmed),
             e.RequiresApproval, pending,
             e.WhatToExpectEn, e.WhatToExpectNl, e.WhatToExpectAr,
-            e.DonationUrl);
+            e.DonationUrl,
+            includePrivate ? e.ExactAddress : null);
     }
 
     public static void MapEventsEndpoints(this IEndpointRouteBuilder app)
@@ -76,13 +81,14 @@ public static class EventsEndpoints
             (await db.Events.Include(e => e.Registrations)
                 .OrderByDescending(e => e.Date)
                 .ToListAsync())
-            .Select(e => e.ToDto()));
+            .Select(e => e.ToDto(includePrivate: true)));
 
         admin.MapPost("/", async (EventInput input, AppDbContext db) =>
         {
             if (await db.Events.AnyAsync(e => e.Slug == input.Slug))
                 return Results.Conflict(new { message = "An event with this slug already exists." });
             if (!IsValidDonationUrl(input.DonationUrl)) return Results.BadRequest(InvalidDonationUrl);
+            if (input.ExactAddress?.Trim().Length > 500) return Results.BadRequest(AddressTooLong);
 
             var ev = new Event();
             Apply(ev, input);
@@ -92,7 +98,7 @@ public static class EventsEndpoints
             db.MediaFolders.Add(new MediaFolder { Name = ev.TitleEn, EventId = ev.Id });
             await db.SaveChangesAsync();
 
-            return Results.Created($"/api/events/{ev.Slug}", ev.ToDto());
+            return Results.Created($"/api/events/{ev.Slug}", ev.ToDto(includePrivate: true));
         });
 
         admin.MapPut("/{id:int}", async (int id, EventInput input, AppDbContext db, StorageService storage) =>
@@ -103,6 +109,7 @@ public static class EventsEndpoints
             if (await db.Events.AnyAsync(e => e.Slug == input.Slug && e.Id != id))
                 return Results.Conflict(new { message = "An event with this slug already exists." });
             if (!IsValidDonationUrl(input.DonationUrl)) return Results.BadRequest(InvalidDonationUrl);
+            if (input.ExactAddress?.Trim().Length > 500) return Results.BadRequest(AddressTooLong);
 
             var oldImageUrl = ev.ImageUrl;
             Apply(ev, input);
@@ -114,7 +121,7 @@ public static class EventsEndpoints
 
             if (oldImageUrl != ev.ImageUrl) await DeleteImageAsync(storage, oldImageUrl);
 
-            return Results.Ok(ev.ToDto());
+            return Results.Ok(ev.ToDto(includePrivate: true));
         });
 
         admin.MapDelete("/{id:int}", async (int id, AppDbContext db, StorageService storage) =>
@@ -163,6 +170,7 @@ public static class EventsEndpoints
         ev.WhatToExpectNl = input.WhatToExpectNl?.Trim() ?? "";
         ev.WhatToExpectAr = input.WhatToExpectAr?.Trim() ?? "";
         ev.DonationUrl = string.IsNullOrWhiteSpace(input.DonationUrl) ? null : input.DonationUrl.Trim();
+        ev.ExactAddress = string.IsNullOrWhiteSpace(input.ExactAddress) ? null : input.ExactAddress.Trim();
     }
 
     /// <summary>The donation link goes into emails, so only a full http(s) address is accepted.</summary>
@@ -174,4 +182,7 @@ public static class EventsEndpoints
 
     private static readonly object InvalidDonationUrl =
         new { message = "The donation link must be a full web address starting with https://" };
+
+    private static readonly object AddressTooLong =
+        new { message = "The exact address can be at most 500 characters." };
 }
