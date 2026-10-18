@@ -2,6 +2,7 @@ import { Component, HostListener, computed, effect, inject, input, signal } from
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { LocalizedDatePipe } from '../../core/localized-date.pipe';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { NgTemplateOutlet } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { combineLatest, map, switchMap } from 'rxjs';
@@ -16,7 +17,7 @@ type YesNo = 'yes' | 'no';
 
 @Component({
   selector: 'app-event-detail',
-  imports: [ReactiveFormsModule, TranslocoPipe, LocalizedDatePipe, RouterLink, Reveal],
+  imports: [ReactiveFormsModule, TranslocoPipe, LocalizedDatePipe, RouterLink, Reveal, NgTemplateOutlet],
   templateUrl: './event-detail.html',
   styleUrl: './event-detail.scss'
 })
@@ -48,6 +49,12 @@ export class EventDetail {
       .split('\n')
       .map(line => line.trim().replace(/^[-•*]\s*/, ''))
       .filter(Boolean);
+  });
+
+  /** The event's optional donation link, shown as a voluntary "support us" box on the registration card. */
+  readonly donationUrl = computed(() => {
+    const url = this.event()?.donationUrl?.trim();
+    return url && /^https?:\/\//i.test(url) ? url : null;
   });
 
   readonly album = toSignal(

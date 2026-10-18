@@ -146,6 +146,34 @@
   }
 }
 
+.donate-box {
+  margin-top: 1.5rem;
+  padding: 1.1rem 1.2rem;
+  background: var(--yb-surface-low);
+  border: 1px solid var(--yb-outline);
+  border-inline-start: 4px solid var(--yb-gold-dim);
+  border-radius: var(--yb-radius);
+  text-align: start;
+
+  h3 {
+    font-size: 1.1rem;
+    margin: 0 0 0.4rem;
+    color: var(--yb-maroon);
+  }
+
+  p {
+    margin: 0 0 0.9rem;
+    font-size: 0.95rem;
+    line-height: 1.55;
+  }
+
+  .donate-note {
+    margin: 0.6rem 0 0;
+    font-size: 0.8rem;
+    color: var(--ad-muted, #52443f);
+  }
+}
+
 .guest-details {
   border-inline-start: 3px solid var(--yb-gold);
   padding-inline-start: 1rem;

@@ -146,7 +146,13 @@
     "reservationRequired": "Reservation required",
     "viewGallery": "View gallery",
     "intro": "Communal dinners, cooking workshops, and cultural gatherings in Amsterdam — join us at the table.",
-    "whatToExpect": "What to expect"
+    "whatToExpect": "What to expect",
+    "donate": {
+      "title": "Support Yemeni Breeze",
+      "text": "If you would like to support Yemeni Breeze, you can make a voluntary donation. Your support helps us continue organizing cultural events and growing our community impact.",
+      "button": "Donate",
+      "note": "Completely optional — it doesn't affect your registration."
+    }
   },
   "manage": {
     "title": "Your registration",

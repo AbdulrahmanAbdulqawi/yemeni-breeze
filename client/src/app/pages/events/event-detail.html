@@ -151,12 +151,14 @@
                 {{ (submitting() ? 'events.form.submitting' : ev.requiresApproval ? 'events.form.submitRequest' : 'events.form.submit') | transloco }}
               </button>
             </form>
+            <ng-container [ngTemplateOutlet]="donateBox" />
           } @else if (result() === 'Confirmed') {
             <div class="result confirmed" animate.enter="yb-rise-in">
               <span class="result-icon">🎉</span>
               <h2>{{ 'events.form.confirmedTitle' | transloco }}</h2>
               <p>{{ 'events.form.confirmedText' | transloco }}</p>
               <p class="result-mail">✉️ {{ 'events.form.checkInbox' | transloco }}</p>
+              <ng-container [ngTemplateOutlet]="donateBox" />
               <a routerLink="/events" class="btn btn-outline">{{ 'nav.events' | transloco }}</a>
             </div>
           } @else if (result() === 'Pending') {
@@ -164,6 +166,7 @@
               <span class="result-icon">📨</span>
               <h2>{{ 'events.form.pendingTitle' | transloco: { name: firstName() } }}</h2>
               <p>{{ 'events.form.pendingText' | transloco }}</p>
+              <ng-container [ngTemplateOutlet]="donateBox" />
               <a routerLink="/events" class="btn btn-outline">{{ 'events.form.moreEvents' | transloco }}</a>
             </div>
           } @else {
@@ -238,3 +241,16 @@
     </div>
   }
 }
+
+<ng-template #donateBox>
+  @if (donationUrl(); as url) {
+    <aside class="donate-box" [attr.aria-label]="'events.donate.title' | transloco">
+      <h3>{{ 'events.donate.title' | transloco }}</h3>
+      <p>{{ 'events.donate.text' | transloco }}</p>
+      <a class="btn btn-outline donate-btn" [href]="url" target="_blank" rel="noopener">
+        💛 {{ 'events.donate.button' | transloco }}
+      </a>
+      <p class="donate-note">{{ 'events.donate.note' | transloco }}</p>
+    </aside>
+  }
+</ng-template>

@@ -146,7 +146,13 @@
     "reservationRequired": "Reservering vereist",
     "viewGallery": "Bekijk album",
     "intro": "Gezamenlijke diners, kookworkshops en culturele bijeenkomsten in Amsterdam — schuif bij ons aan tafel.",
-    "whatToExpect": "Wat kun je verwachten"
+    "whatToExpect": "Wat kun je verwachten",
+    "donate": {
+      "title": "Steun Yemeni Breeze",
+      "text": "Wil je Yemeni Breeze steunen? Dan kun je een vrijwillige donatie doen. Met je steun kunnen we culturele evenementen blijven organiseren en onze impact in de gemeenschap laten groeien.",
+      "button": "Doneren",
+      "note": "Helemaal vrijwillig — het heeft geen invloed op je inschrijving."
+    }
   },
   "manage": {
     "title": "Je inschrijving",
