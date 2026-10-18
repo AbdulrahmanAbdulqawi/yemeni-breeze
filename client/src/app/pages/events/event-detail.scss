@@ -146,8 +146,9 @@
   }
 }
 
+/* Only shown after registering, between the message and the "more events" button */
 .donate-box {
-  margin-top: 1.5rem;
+  margin: 1.5rem 0;
   padding: 1.1rem 1.2rem;
   background: var(--yb-surface-low);
   border: 1px solid var(--yb-outline);

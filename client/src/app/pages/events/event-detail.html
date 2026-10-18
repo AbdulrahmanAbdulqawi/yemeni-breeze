@@ -151,7 +151,6 @@
                 {{ (submitting() ? 'events.form.submitting' : ev.requiresApproval ? 'events.form.submitRequest' : 'events.form.submit') | transloco }}
               </button>
             </form>
-            <ng-container [ngTemplateOutlet]="donateBox" />
           } @else if (result() === 'Confirmed') {
             <div class="result confirmed" animate.enter="yb-rise-in">
               <span class="result-icon">🎉</span>

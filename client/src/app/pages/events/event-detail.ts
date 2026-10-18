@@ -51,7 +51,7 @@ export class EventDetail {
       .filter(Boolean);
   });
 
-  /** The event's optional donation link, shown as a voluntary "support us" box on the registration card. */
+  /** The event's optional donation link, shown as a voluntary "support us" box after someone registers. */
   readonly donationUrl = computed(() => {
     const url = this.event()?.donationUrl?.trim();
     return url && /^https?:\/\//i.test(url) ? url : null;
