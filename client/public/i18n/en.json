@@ -204,7 +204,8 @@
     "send": "Send message",
     "sending": "Sending…",
     "sent": "Thank you — we will get back to you soon.",
-    "error": "Could not send your message. Please try again."
+    "error": "Could not send your message. Please try again.",
+    "emailTitle": "Email us"
   },
   "admin": {
     "login": {

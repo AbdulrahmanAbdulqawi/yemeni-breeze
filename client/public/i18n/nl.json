@@ -204,7 +204,8 @@
     "send": "Verstuur bericht",
     "sending": "Versturen…",
     "sent": "Dank je — we nemen snel contact op.",
-    "error": "Bericht kon niet worden verzonden. Probeer het opnieuw."
+    "error": "Bericht kon niet worden verzonden. Probeer het opnieuw.",
+    "emailTitle": "Mail ons"
   },
   "admin": {
     "login": {
