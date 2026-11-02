@@ -496,6 +496,8 @@ export class FeedbackPage {
   readonly token = input.required<string>();
   /** One-tap answer from the email: ?met=yes|partly|no */
   readonly met = input<string>();
+  /** One-tap answer from the email: ?join=yes|maybe|no */
+  readonly join = input<string>();
   /** The guest's language, carried in the email link: ?lang=ar */
   readonly langParam = input<string>(undefined, { alias: 'lang' });
 
@@ -540,11 +542,19 @@ export class FeedbackPage {
         this.state.set('ready');
 
         // They tapped an answer in the email: keep it right away, even if they go no further.
-        const tapped = this.met();
-        if (!this.a.metExpectations && tapped && (FEEDBACK_OPTIONS.met as readonly string[]).includes(tapped)) {
-          this.a.metExpectations = tapped;
-          this.api.saveFeedback(token, this.a, false).subscribe({ error: () => {} });
+        // A tap is a deliberate choice, so it replaces an earlier answer to the same question.
+        let tappedChanged = false;
+        const met = this.met();
+        if (met && (FEEDBACK_OPTIONS.met as readonly string[]).includes(met) && this.a.metExpectations !== met) {
+          this.a.metExpectations = met;
+          tappedChanged = true;
         }
+        const join = this.join();
+        if (join && (FEEDBACK_OPTIONS.join as readonly string[]).includes(join) && this.a.joinCommunity !== join) {
+          this.a.joinCommunity = join;
+          tappedChanged = true;
+        }
+        if (tappedChanged) this.api.saveFeedback(token, this.a, false).subscribe({ error: () => {} });
       },
       error: err => this.state.set(err.status === 404 || err.status === 400 ? 'notFound' : 'error')
     });

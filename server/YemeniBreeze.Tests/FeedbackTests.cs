@@ -212,6 +212,8 @@ public class FeedbackTests(EmailApiFactory factory) : IClassFixture<EmailApiFact
 
         Assert.Contains("ليلة يمنية", email.Subject);
         Assert.Contains($"https://yemenbreeze.nl/feedback/{token:D}?lang=ar&amp;met=yes", email.Html);
+        Assert.Contains($"https://yemenbreeze.nl/feedback/{token:D}?lang=ar&amp;join=maybe", email.Html);
+        Assert.Contains("هل تودّ أن تكون جزءًا من مجتمعنا؟", email.Html);
         Assert.Contains("dir=\"rtl\"", email.Html);
         Assert.DoesNotContain("cid:ticket-qr", email.Html);
         Assert.Single(email.Attachments); // just the logo: no ticket, no calendar file

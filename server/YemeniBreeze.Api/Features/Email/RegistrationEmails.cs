@@ -145,17 +145,18 @@ public static class RegistrationEmails
         var subject = string.Format(t["feedbackSubject"], title);
         var heading = t["feedbackHeading"];
         var greeting = string.Format(t["greeting"], FirstName(r.FullName));
-        string[] metCodes = ["yes", "partly", "no"];
 
-        var quickAnswers = string.Concat(metCodes.Select(code => $"""
-            <td style="padding:4px">
-              <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
-                <td bgcolor="#ffffff" style="background:#ffffff;border:1px solid {Outline};border-radius:999px">
-                  <a href="{H(formUrl)}&amp;met={code}" style="display:inline-block;padding:9px 16px;font-size:14px;color:{Ink};text-decoration:none;border-radius:999px;white-space:nowrap">{H(t["feedbackMet_" + code])}</a>
-                </td>
-              </tr></table>
-            </td>
-            """));
+        // A question answered with one tap: each answer links to the form with it filled in
+        // (?met=yes, ?join=maybe…). Pills are inline so they wrap onto a second line on phones.
+        string QuickQuestion(string question, string param, string[] codes, string labelPrefix)
+        {
+            var pills = string.Concat(codes.Select(code =>
+                $"""<a href="{H(formUrl)}&amp;{param}={code}" style="display:inline-block;margin:4px;padding:9px 16px;background:#ffffff;border:1px solid {Outline};border-radius:999px;font-size:14px;line-height:1.3;color:{Ink};text-decoration:none;white-space:nowrap">{H(t[labelPrefix + code])}</a>"""));
+            return $"""
+                <p style="margin:0 0 8px;font-size:16px;font-weight:700;color:{Brown};text-align:center">{H(question)}</p>
+                <div style="text-align:center;margin:0 0 20px">{pills}</div>
+                """;
+        }
 
         var body = new StringBuilder();
         body.Append(Paragraph(H(greeting)));
@@ -169,11 +170,9 @@ public static class RegistrationEmails
                 <div style="font-size:13px;color:{Maroon};padding-top:4px">{H(FormatDate(ev.Date, r.Language))}</div>
               </td></tr>
             </table>
-            <p style="margin:0 0 10px;font-size:16px;font-weight:700;color:{Brown};text-align:center">{H(t["feedbackQuick"])}</p>
-            <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" style="margin:0 auto">
-              <tr>{quickAnswers}</tr>
-            </table>
             """);
+        body.Append(QuickQuestion(t["feedbackQuick"], "met", ["yes", "partly", "no"], "feedbackMet_"));
+        body.Append(QuickQuestion(t["feedbackJoinQuick"], "join", ["yes", "maybe", "no"], "feedbackJoin_"));
         body.Append(Button(t["feedbackButton"], formUrl));
         body.Append(Small(t["feedbackButtonNote"]));
         // Same donation box as the ticket email, when the event has a donation link.
@@ -595,6 +594,10 @@ public static class RegistrationEmails
             ["feedbackMet_yes"] = "Ja, zeker!",
             ["feedbackMet_partly"] = "Min of meer",
             ["feedbackMet_no"] = "Niet helemaal",
+            ["feedbackJoinQuick"] = "Wil je deel uitmaken van onze gemeenschap?",
+            ["feedbackJoin_yes"] = "Ja, zeker!",
+            ["feedbackJoin_maybe"] = "Misschien, vertel meer",
+            ["feedbackJoin_no"] = "Nu even niet",
             ["feedbackButton"] = "Deel je gedachten",
             ["feedbackButtonNote"] = "Het duurt ongeveer 1 minuut.",
             ["feedbackClosing"] = "Samen maken we er iets bijzonders van! ❤️",
@@ -661,6 +664,10 @@ public static class RegistrationEmails
             ["feedbackMet_yes"] = "نعم، بالتأكيد!",
             ["feedbackMet_partly"] = "إلى حدٍّ ما",
             ["feedbackMet_no"] = "ليس تمامًا",
+            ["feedbackJoinQuick"] = "هل تودّ أن تكون جزءًا من مجتمعنا؟",
+            ["feedbackJoin_yes"] = "نعم، بالتأكيد!",
+            ["feedbackJoin_maybe"] = "ربما، أخبرني أكثر",
+            ["feedbackJoin_no"] = "ليس الآن",
             ["feedbackButton"] = "شاركنا رأيك",
             ["feedbackButtonNote"] = "يستغرق حوالي دقيقة واحدة.",
             ["feedbackClosing"] = "معًا نصنع شيئًا مميزًا! ❤️",
@@ -727,6 +734,10 @@ public static class RegistrationEmails
             ["feedbackMet_yes"] = "Yes, absolutely!",
             ["feedbackMet_partly"] = "More or less",
             ["feedbackMet_no"] = "Not quite",
+            ["feedbackJoinQuick"] = "Would you like to be part of our community?",
+            ["feedbackJoin_yes"] = "Yes, definitely!",
+            ["feedbackJoin_maybe"] = "Maybe, tell me more",
+            ["feedbackJoin_no"] = "Not at the moment",
             ["feedbackButton"] = "Share your thoughts",
             ["feedbackButtonNote"] = "It takes about 1 minute.",
             ["feedbackClosing"] = "Together, we can create something special! ❤️",
