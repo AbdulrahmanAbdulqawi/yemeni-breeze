@@ -145,18 +145,8 @@ public static class RegistrationEmails
         var subject = string.Format(t["feedbackSubject"], title);
         var heading = t["feedbackHeading"];
         var greeting = string.Format(t["greeting"], FirstName(r.FullName));
-
-        // A question answered with one tap: each answer links to the form with it filled in
-        // (?met=yes, ?join=maybe…). Pills are inline so they wrap onto a second line on phones.
-        string QuickQuestion(string question, string param, string[] codes, string labelPrefix)
-        {
-            var pills = string.Concat(codes.Select(code =>
-                $"""<a href="{H(formUrl)}&amp;{param}={code}" style="display:inline-block;margin:4px;padding:9px 16px;background:#ffffff;border:1px solid {Outline};border-radius:999px;font-size:14px;line-height:1.3;color:{Ink};text-decoration:none;white-space:nowrap">{H(t[labelPrefix + code])}</a>"""));
-            return $"""
-                <p style="margin:0 0 8px;font-size:16px;font-weight:700;color:{Brown};text-align:center">{H(question)}</p>
-                <div style="text-align:center;margin:0 0 20px">{pills}</div>
-                """;
-        }
+        // "Take part" opens the form straight at its take-part step.
+        var takePartUrl = formUrl + "&step=2";
 
         var body = new StringBuilder();
         body.Append(Paragraph(H(greeting)));
@@ -172,9 +162,13 @@ public static class RegistrationEmails
               </td></tr>
             </table>
             """);
-        body.Append(QuickQuestion(t["feedbackQuick"], "met", ["yes", "partly", "no"], "feedbackMet_"));
-        body.Append(QuickQuestion(t["feedbackJoinQuick"], "join", ["yes", "maybe", "no"], "feedbackJoin_"));
-        body.Append(Button(t["feedbackButton"], formUrl));
+        // Two buttons side by side; inline so they stack on narrow phone screens.
+        body.Append($"""
+            <div style="text-align:center;margin:8px 0 0">
+              <a href="{H(formUrl)}" style="display:inline-block;margin:6px;padding:13px 30px;background:{Maroon};border:2px solid {Maroon};border-radius:999px;font-size:15px;font-weight:700;color:{Cream};text-decoration:none;line-height:1.35;max-width:100%;box-sizing:border-box">{H(t["feedbackButton"])}</a>
+              <a href="{H(takePartUrl)}" style="display:inline-block;margin:6px;padding:13px 30px;background:#ffffff;border:2px solid {Maroon};border-radius:999px;font-size:15px;font-weight:700;color:{Maroon};text-decoration:none;line-height:1.35;max-width:100%;box-sizing:border-box">{H(t["feedbackTakePart"])}</a>
+            </div>
+            """);
         body.Append(Small(t["feedbackButtonNote"]));
         // Same donation box as the ticket email, when the event has a donation link.
         var donationUrl = DonationLink(ev);
@@ -191,7 +185,8 @@ public static class RegistrationEmails
         text.AppendLine(t["feedbackIntro2"]).AppendLine();
         text.AppendLine(t["feedbackInvite"]).AppendLine();
         text.AppendLine($"{title} — {FormatDate(ev.Date, r.Language)}").AppendLine();
-        text.AppendLine($"{t["feedbackButton"]}: {formUrl}").AppendLine(t["feedbackButtonNote"]).AppendLine();
+        text.AppendLine($"{t["feedbackButton"]}: {formUrl}");
+        text.AppendLine($"{t["feedbackTakePart"]}: {takePartUrl}").AppendLine(t["feedbackButtonNote"]).AppendLine();
         if (donationUrl is not null) text.AppendLine(t["donationText"]).AppendLine($"{t["donationButton"]}: {donationUrl}").AppendLine();
         text.AppendLine(t["feedbackClosing"]).AppendLine();
         text.AppendLine(t["team"]).AppendLine();
@@ -593,15 +588,8 @@ public static class RegistrationEmails
             ["feedbackIntro"] = "Bedankt dat je deel uitmaakte van onze Jemenitische bijeenkomst! We hopen dat je net zo hebt genoten als wij van het samenbrengen van iedereen om onze Jemenitische cultuur te vieren.",
             ["feedbackIntro2"] = "We horen graag je mening, ideeën en suggesties. Vertel ons over je ervaring: wat vond je mooi, en wat kunnen we de volgende keer beter doen? Jouw mening is belangrijk voor ons en helpt ons onze volgende bijeenkomsten nog beter te maken.",
             ["feedbackInvite"] = "We nodigen je ook graag uit om deel te nemen aan onze komende evenementen! Wil je ook vrijwilligen of helpen met de organisatie? Dat zouden we heel fijn vinden.",
-            ["feedbackQuick"] = "Voldeed het evenement aan je verwachtingen?",
-            ["feedbackMet_yes"] = "Ja, zeker!",
-            ["feedbackMet_partly"] = "Min of meer",
-            ["feedbackMet_no"] = "Niet helemaal",
-            ["feedbackJoinQuick"] = "Wil je deelnemen aan onze komende evenementen?",
-            ["feedbackJoin_yes"] = "Ja, zeker!",
-            ["feedbackJoin_maybe"] = "Misschien, vertel meer",
-            ["feedbackJoin_no"] = "Nu even niet",
-            ["feedbackButton"] = "Deel je gedachten",
+            ["feedbackButton"] = "Deel je mening",
+            ["feedbackTakePart"] = "Doe mee aan onze komende evenementen",
             ["feedbackButtonNote"] = "Het duurt ongeveer 1 minuut.",
             ["feedbackClosing"] = "We kijken ernaar uit om van je te horen en je snel weer te zien!",
             ["feedbackPreheader"] = "Vertel ons wat je mooi vond en wat beter kan — 1 minuut.",
@@ -664,15 +652,8 @@ public static class RegistrationEmails
             ["feedbackIntro"] = "شكرًا لكونك جزءًا من لقائنا اليمني! نتمنى أن تكون قد استمتعت بالتجربة بقدر ما استمتعنا بجمع الجميع للاحتفاء بثقافتنا اليمنية.",
             ["feedbackIntro2"] = "يسعدنا أن نتعرّف على رأيك وأفكارك واقتراحاتك. شاركنا تجربتك، وأخبرنا بما أعجبك وما يمكننا تحسينه في المرات القادمة؛ فرأيك يهمّنا ويساعدنا على تطوير لقاءاتنا المقبلة.",
             ["feedbackInvite"] = "كما يسعدنا أن ندعوك للمشاركة في فعالياتنا القادمة! وإن كنت ترغب في التطوّع أو المساعدة في التنظيم، فسيسعدنا ذلك كثيرًا.",
-            ["feedbackQuick"] = "هل كانت الفعالية على قدر توقعاتك؟",
-            ["feedbackMet_yes"] = "نعم، بالتأكيد!",
-            ["feedbackMet_partly"] = "إلى حدٍّ ما",
-            ["feedbackMet_no"] = "ليس تمامًا",
-            ["feedbackJoinQuick"] = "هل تودّ المشاركة في فعالياتنا القادمة؟",
-            ["feedbackJoin_yes"] = "نعم، بالتأكيد!",
-            ["feedbackJoin_maybe"] = "ربما، أخبرني أكثر",
-            ["feedbackJoin_no"] = "ليس الآن",
             ["feedbackButton"] = "شاركنا رأيك",
+            ["feedbackTakePart"] = "شارك في فعالياتنا القادمة",
             ["feedbackButtonNote"] = "يستغرق حوالي دقيقة واحدة.",
             ["feedbackClosing"] = "نتطلّع إلى سماع رأيك ورؤيتك مجددًا!",
             ["feedbackPreheader"] = "أخبرنا بما أحببته وبما يمكن أن نحسّنه — دقيقة واحدة فقط.",
@@ -735,15 +716,8 @@ public static class RegistrationEmails
             ["feedbackIntro"] = "Thank you for being part of our Yemeni gathering! We hope you enjoyed the experience as much as we enjoyed bringing everyone together to celebrate our Yemeni culture.",
             ["feedbackIntro2"] = "We would love to hear your thoughts, ideas and suggestions. Tell us about your experience: what you enjoyed, and what we could do better next time. Your feedback matters to us and helps us shape our future gatherings.",
             ["feedbackInvite"] = "We would also love to invite you to take part in our upcoming events! Whether you would like to participate, volunteer or help with the organisation, we would be delighted to have you with us.",
-            ["feedbackQuick"] = "Did the event meet your expectations?",
-            ["feedbackMet_yes"] = "Yes, absolutely!",
-            ["feedbackMet_partly"] = "More or less",
-            ["feedbackMet_no"] = "Not quite",
-            ["feedbackJoinQuick"] = "Would you like to take part in our upcoming events?",
-            ["feedbackJoin_yes"] = "Yes, definitely!",
-            ["feedbackJoin_maybe"] = "Maybe, tell me more",
-            ["feedbackJoin_no"] = "Not at the moment",
-            ["feedbackButton"] = "Share your thoughts",
+            ["feedbackButton"] = "Share your review",
+            ["feedbackTakePart"] = "Take part in our upcoming events",
             ["feedbackButtonNote"] = "It takes about 1 minute.",
             ["feedbackClosing"] = "We look forward to hearing from you and seeing you again!",
             ["feedbackPreheader"] = "Tell us what you loved and what we can do better — 1 minute.",

@@ -199,7 +199,7 @@ public class FeedbackTests(EmailApiFactory factory) : IClassFixture<EmailApiFact
     }
 
     [Fact]
-    public void Feedback_email_links_to_the_form_with_one_tap_answers_in_the_guest_language()
+    public void Feedback_email_has_review_and_take_part_buttons_in_the_guest_language()
     {
         var token = Guid.NewGuid();
         var ev = new Event { Slug = "night", TitleEn = "Yemeni Night", TitleAr = "ليلة يمنية", Date = new DateOnly(2026, 10, 25) };
@@ -211,9 +211,12 @@ public class FeedbackTests(EmailApiFactory factory) : IClassFixture<EmailApiFact
         var email = RegistrationEmails.Build(registration, ev, EmailKind.Feedback, "https://yemenbreeze.nl/")!;
 
         Assert.Contains("ليلة يمنية", email.Subject);
-        Assert.Contains($"https://yemenbreeze.nl/feedback/{token:D}?lang=ar&amp;met=yes", email.Html);
-        Assert.Contains($"https://yemenbreeze.nl/feedback/{token:D}?lang=ar&amp;join=maybe", email.Html);
-        Assert.Contains("هل تودّ المشاركة في فعالياتنا القادمة؟", email.Html);
+        Assert.Contains($"href=\"https://yemenbreeze.nl/feedback/{token:D}?lang=ar\"", email.Html);
+        Assert.Contains($"href=\"https://yemenbreeze.nl/feedback/{token:D}?lang=ar&amp;step=2\"", email.Html);
+        Assert.Contains("شاركنا رأيك", email.Html);
+        Assert.Contains("شارك في فعالياتنا القادمة", email.Html);
+        Assert.DoesNotContain("met=", email.Html); // no one-tap answers any more
+        Assert.DoesNotContain("join=", email.Html);
         Assert.Contains("dir=\"rtl\"", email.Html);
         Assert.DoesNotContain("cid:ticket-qr", email.Html);
         Assert.Single(email.Attachments); // just the logo: no ticket, no calendar file

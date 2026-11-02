@@ -498,6 +498,8 @@ export class FeedbackPage {
   readonly met = input<string>();
   /** One-tap answer from the email: ?join=yes|maybe|no */
   readonly join = input<string>();
+  /** The email's "Take part" button opens the form at the take-part step: ?step=2 */
+  readonly startStep = input<string>(undefined, { alias: 'step' });
   /** The guest's language, carried in the email link: ?lang=ar */
   readonly langParam = input<string>(undefined, { alias: 'lang' });
 
@@ -539,6 +541,12 @@ export class FeedbackPage {
         this.form.set(form);
         this.a = { ...emptyAnswers(), ...(form.answers ?? {}) };
         this.finished.set(form.isComplete);
+        // "Take part" from the email: go straight to that step, even after they finished,
+        // so they can add or change how they'd like to take part.
+        if (this.startStep() === '2') {
+          this.finished.set(false);
+          this.step.set(2);
+        }
         this.state.set('ready');
 
         // They tapped an answer in the email: keep it right away, even if they go no further.
