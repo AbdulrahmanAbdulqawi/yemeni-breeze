@@ -220,4 +220,44 @@ public class FeedbackTests(EmailApiFactory factory) : IClassFixture<EmailApiFact
         registration.Status = RegistrationStatus.Cancelled;
         Assert.Null(RegistrationEmails.Build(registration, ev, EmailKind.Feedback, "https://yemenbreeze.nl"));
     }
+
+    [Fact]
+    public void Feedback_email_has_the_donation_box_only_when_the_event_has_a_donation_link()
+    {
+        var registration = new Registration
+        {
+            FullName = "Amina Saleh", Email = "a@b.test", Status = RegistrationStatus.Confirmed, Language = "en",
+            ManageToken = Guid.NewGuid()
+        };
+        var ev = new Event { Slug = "night", TitleEn = "Yemeni Night", Date = new DateOnly(2026, 10, 25) };
+
+        var without = RegistrationEmails.Build(registration, ev, EmailKind.Feedback, "https://yemenbreeze.nl")!;
+        Assert.DoesNotContain("voluntary donation", without.Html);
+
+        ev.DonationUrl = "https://donate.example.org/yemen-breeze";
+        var with = RegistrationEmails.Build(registration, ev, EmailKind.Feedback, "https://yemenbreeze.nl")!;
+        Assert.Contains("voluntary donation", with.Html);
+        Assert.Contains("https://donate.example.org/yemen-breeze", with.Html);
+        Assert.Contains("Donate: https://donate.example.org/yemen-breeze", with.Text);
+    }
+
+    [Fact]
+    public void Feedback_email_signs_off_with_the_team_but_not_see_you_soon()
+    {
+        var registration = new Registration
+        {
+            FullName = "Amina Saleh", Email = "a@b.test", Status = RegistrationStatus.Confirmed, Language = "en",
+            ManageToken = Guid.NewGuid()
+        };
+        var ev = new Event { Slug = "night", TitleEn = "Yemeni Night", Date = new DateOnly(2026, 10, 25) };
+
+        var feedback = RegistrationEmails.Build(registration, ev, EmailKind.Feedback, "https://yemenbreeze.nl")!;
+        Assert.DoesNotContain("See you soon", feedback.Html);
+        Assert.DoesNotContain("See you soon", feedback.Text);
+        Assert.Contains("The Yemen Breeze team", feedback.Html);
+
+        // The ticket email still has it
+        var ticket = RegistrationEmails.Build(registration, ev, EmailKind.Confirmed, "https://yemenbreeze.nl")!;
+        Assert.Contains("See you soon", ticket.Html);
+    }
 }

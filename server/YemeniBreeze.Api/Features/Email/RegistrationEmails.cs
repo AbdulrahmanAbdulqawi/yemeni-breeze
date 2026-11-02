@@ -176,9 +176,12 @@ public static class RegistrationEmails
             """);
         body.Append(Button(t["feedbackButton"], formUrl));
         body.Append(Small(t["feedbackButtonNote"]));
+        // Same donation box as the ticket email, when the event has a donation link.
+        var donationUrl = DonationLink(ev);
+        if (donationUrl is not null) body.Append(DonationBlock(t, donationUrl));
         body.Append($"""<p style="margin:26px 0 0;font-size:16px;line-height:1.65;color:{Ink};text-align:center">{H(t["feedbackClosing"])}</p>""");
 
-        var html = Layout(r.Language, subject, t["feedbackPreheader"], heading, body.ToString(), t, baseUrl);
+        var html = Layout(r.Language, subject, t["feedbackPreheader"], heading, body.ToString(), t, baseUrl, withSignoff: false);
 
         var text = new StringBuilder();
         text.AppendLine("YEMEN BREEZE · نسمات اليمن").AppendLine();
@@ -188,8 +191,9 @@ public static class RegistrationEmails
         text.AppendLine(t["feedbackIntro2"]).AppendLine();
         text.AppendLine($"{title} — {FormatDate(ev.Date, r.Language)}").AppendLine();
         text.AppendLine($"{t["feedbackButton"]}: {formUrl}").AppendLine(t["feedbackButtonNote"]).AppendLine();
+        if (donationUrl is not null) text.AppendLine(t["donationText"]).AppendLine($"{t["donationButton"]}: {donationUrl}").AppendLine();
         text.AppendLine(t["feedbackClosing"]).AppendLine();
-        text.AppendLine(t["signoff"]).AppendLine(t["team"]).AppendLine();
+        text.AppendLine(t["team"]).AppendLine();
         text.AppendLine(t["footer"]).AppendLine($"{t["followUs"]} {InstagramHandle} — {InstagramUrl}");
 
         return new EmailContent(subject, html, text.ToString(),
@@ -393,9 +397,13 @@ public static class RegistrationEmails
     }
 
     private static string Layout(string lang, string subject, string preheader, string heading, string body,
-        IReadOnlyDictionary<string, string> t, string baseUrl)
+        IReadOnlyDictionary<string, string> t, string baseUrl, bool withSignoff = true)
     {
         var dir = IsRtl(lang) ? "rtl" : "ltr";
+        // "See you soon!" above the team name; left out where it doesn't fit (the after-event feedback email).
+        var signoff = withSignoff ? H(t["signoff"]) + "<br/>" : "";
+        // Without it, the team name sits centered under the email's centered closing line.
+        var signoffAlign = withSignoff ? "" : "text-align:center;";
         var align = IsRtl(lang) ? "right" : "left";
         // Gmail drops <html dir>, so every block that holds text carries dir itself.
         return $$"""
@@ -434,7 +442,7 @@ public static class RegistrationEmails
                     </td></tr>
                     <tr><td class="yb-pad" dir="{{dir}}" style="padding:32px 40px 36px;text-align:{{align}};font-family:{{BodyFont(lang)}};color:{{Ink}}">
                       {{body}}
-                      <p style="margin:30px 0 0;font-size:16px;line-height:1.6;color:{{Ink}}">{{H(t["signoff"])}}<br/>
+                      <p style="margin:30px 0 0;font-size:16px;line-height:1.6;color:{{Ink}};{{signoffAlign}}">{{signoff}}
                         <strong style="font-family:{{HeadingFont(lang)}};color:{{Maroon}};font-size:18px">{{H(t["team"])}}</strong></p>
                     </td></tr>
                     <tr><td class="yb-pad" dir="{{dir}}" bgcolor="{{BrownSoft}}" style="background:{{BrownSoft}};padding:24px 40px;text-align:center;font-family:{{BodyFont(lang)}}">
@@ -588,9 +596,9 @@ public static class RegistrationEmails
             ["feedbackMet_partly"] = "Min of meer",
             ["feedbackMet_no"] = "Niet helemaal",
             ["feedbackButton"] = "Deel je gedachten",
-            ["feedbackButtonNote"] = "Het duurt ongeveer 3 minuten.",
+            ["feedbackButtonNote"] = "Het duurt ongeveer 1 minuut.",
             ["feedbackClosing"] = "Samen maken we er iets bijzonders van! ❤️",
-            ["feedbackPreheader"] = "Vertel ons wat je mooi vond en wat beter kan — 3 minuten.",
+            ["feedbackPreheader"] = "Vertel ons wat je mooi vond en wat beter kan — 1 minuut.",
             ["greeting"] = "Beste {0},",
             ["shareNote"] = "Een klein verzoek: deel de details van dit evenement alsjeblieft niet met mensen die zich niet hebben ingeschreven. Ken je iemand die ook wil komen? Die kan zich inschrijven via onze website.",
             ["shareNoteLink"] = "Hier inschrijven",
@@ -654,9 +662,9 @@ public static class RegistrationEmails
             ["feedbackMet_partly"] = "إلى حدٍّ ما",
             ["feedbackMet_no"] = "ليس تمامًا",
             ["feedbackButton"] = "شاركنا رأيك",
-            ["feedbackButtonNote"] = "يستغرق حوالي ٣ دقائق.",
+            ["feedbackButtonNote"] = "يستغرق حوالي دقيقة واحدة.",
             ["feedbackClosing"] = "معًا نصنع شيئًا مميزًا! ❤️",
-            ["feedbackPreheader"] = "أخبرنا بما أحببته وبما يمكن أن نحسّنه — ٣ دقائق فقط.",
+            ["feedbackPreheader"] = "أخبرنا بما أحببته وبما يمكن أن نحسّنه — دقيقة واحدة فقط.",
             ["greeting"] = "مرحبًا {0}،",
             ["shareNote"] = "طلب صغير: نرجو ألّا تشارك تفاصيل الفعالية مع أي شخص غير مسجّل. هل تعرف أحدًا يرغب في الانضمام؟ يمكنه التسجيل عبر موقعنا.",
             ["shareNoteLink"] = "سجّل من هنا",
@@ -720,9 +728,9 @@ public static class RegistrationEmails
             ["feedbackMet_partly"] = "More or less",
             ["feedbackMet_no"] = "Not quite",
             ["feedbackButton"] = "Share your thoughts",
-            ["feedbackButtonNote"] = "It takes about 3 minutes.",
+            ["feedbackButtonNote"] = "It takes about 1 minute.",
             ["feedbackClosing"] = "Together, we can create something special! ❤️",
-            ["feedbackPreheader"] = "Tell us what you loved and what we can do better — 3 minutes.",
+            ["feedbackPreheader"] = "Tell us what you loved and what we can do better — 1 minute.",
             ["greeting"] = "Dear {0},",
             ["shareNote"] = "A small request: please keep the event details to yourself and don't share them with anyone who hasn't registered. Know someone who'd like to join? They can sign up through our website.",
             ["shareNoteLink"] = "Register here",
