@@ -379,6 +379,9 @@ namespace YemeniBreeze.Api.Migrations
                         .HasMaxLength(2000)
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTime?>("ContactedAt")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Contributions")
                         .HasMaxLength(300)
                         .HasColumnType("TEXT");

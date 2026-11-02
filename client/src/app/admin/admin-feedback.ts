@@ -136,32 +136,7 @@ type RowFilter = 'all' | 'join' | 'unfinished';
     }
   `,
   styles: `
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-      gap: 0.8rem;
-      margin-bottom: 1rem;
-    }
-
     .stat {
-      background: var(--ad-surface, #fff);
-      border: 1px solid var(--ad-border, #e4dcc9);
-      border-radius: var(--ad-radius, 10px);
-      padding: 0.9rem 1rem;
-      display: flex;
-      flex-direction: column;
-
-      .num {
-        font-size: 1.7rem;
-        font-weight: 700;
-        line-height: 1.1;
-      }
-
-      .lbl {
-        color: var(--ad-muted, #7c6a5c);
-        font-size: 0.85rem;
-      }
-
       .sub {
         font-size: 0.78rem;
         color: #a8670f;

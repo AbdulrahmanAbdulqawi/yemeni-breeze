@@ -162,6 +162,25 @@ export interface FeedbackSummary {
 }
 
 export type FeedbackAudience = 'checkedIn' | 'confirmed';
+
+/** Someone who said yes or maybe to taking part, with their latest answers. */
+export interface Volunteer {
+  /** Their latest feedback response. */
+  id: number;
+  fullName: string;
+  email: string;
+  phone: string | null;
+  language: string;
+  interest: 'yes' | 'maybe';
+  contributions: string[];
+  contributionsOther: string | null;
+  ideas: string | null;
+  anythingElse: string | null;
+  event: { id: number; titleEn: string; titleNl: string; titleAr: string; date: string };
+  eventsCount: number;
+  updatedAt: string;
+  contacted: boolean;
+}
 export type EmailStatus = 'Pending' | 'Sent' | 'Failed' | 'Skipped';
 
 /** The "manage my registration" page, reached via the private link in emails. */

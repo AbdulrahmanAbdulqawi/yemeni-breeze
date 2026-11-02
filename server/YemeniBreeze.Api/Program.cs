@@ -99,6 +99,7 @@ app.MapFoldersEndpoints();
 app.MapContentEndpoints();
 app.MapTeamEndpoints();
 app.MapFeedbackEndpoints();
+app.MapVolunteerEndpoints();
 
 using (var scope = app.Services.CreateScope())
 {

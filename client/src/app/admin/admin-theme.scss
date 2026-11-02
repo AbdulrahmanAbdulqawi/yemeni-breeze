@@ -182,3 +182,33 @@
     }
   }
 }
+
+/* Stat tiles at the top of the Feedback and Volunteers pages */
+.admin-shell {
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 0.8rem;
+    margin-bottom: 1.1rem;
+  }
+
+  .stat {
+    background: var(--ad-surface);
+    border: 1px solid var(--ad-border);
+    border-radius: var(--ad-radius);
+    padding: 0.9rem 1rem;
+    display: flex;
+    flex-direction: column;
+
+    .num {
+      font-size: 1.7rem;
+      font-weight: 700;
+      line-height: 1.1;
+    }
+
+    .lbl {
+      color: var(--ad-muted);
+      font-size: 0.85rem;
+    }
+  }
+}

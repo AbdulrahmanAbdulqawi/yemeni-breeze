@@ -36,6 +36,15 @@ import { ToastHost } from './ui/toast-host';
             </svg>
             {{ 'admin.nav.events' | transloco }}
           </a>
+          <a routerLink="/admin/volunteers" routerLinkActive="active" (click)="navOpen.set(false)">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" />
+            </svg>
+            {{ 'admin.nav.volunteers' | transloco }}
+            @if (newVolunteers() > 0) {
+              <span class="nav-count">{{ newVolunteers() }}</span>
+            }
+          </a>
 
           <a routerLink="/admin/media" routerLinkActive="active" (click)="navOpen.set(false)">
             <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -350,19 +359,30 @@ export class AdminLayout {
   readonly lang = inject(LanguageService);
   readonly navOpen = signal(false);
   readonly unread = signal(0);
+  /** People who want to take part and nobody has contacted yet. */
+  readonly newVolunteers = signal(0);
 
   constructor() {
-    this.loadUnread();
+    this.loadCounts();
     this.router.events
       .pipe(filter(e => e instanceof NavigationEnd))
-      .subscribe(() => this.loadUnread());
+      .subscribe(() => this.loadCounts());
   }
 
-  private loadUnread() {
+  private loadCounts() {
     this.api.adminGetMessages().subscribe({
       next: messages => this.unread.set(messages.filter(m => !m.isRead).length),
       error: () => this.unread.set(0)
     });
+    this.api.adminGetVolunteers().subscribe({
+      next: people => this.newVolunteers.set(people.filter(p => !p.contacted).length),
+      error: () => this.newVolunteers.set(0)
+    });
+  }
+
+  /** The Volunteers page calls this after marking someone, so the sidebar count follows at once. */
+  setNewVolunteers(count: number) {
+    this.newVolunteers.set(count);
   }
 
   logout() {

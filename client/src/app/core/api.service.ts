@@ -13,6 +13,7 @@ import {
   FeedbackAudience,
   FeedbackForm,
   FeedbackSummary,
+  Volunteer,
   GalleryItemDto,
   GalleryPageDto,
   LoginResponse,
@@ -151,6 +152,18 @@ export class ApiService {
 
   feedbackCsvUrl(eventId: number) {
     return `/api/admin/events/${eventId}/feedback/export.csv`;
+  }
+
+  adminGetVolunteers() {
+    return this.http.get<Volunteer[]>('/api/admin/volunteers');
+  }
+
+  adminSetVolunteerContacted(id: number, contacted: boolean) {
+    return this.http.post<{ contacted: boolean }>(`/api/admin/volunteers/${id}/contacted`, { contacted });
+  }
+
+  volunteersCsvUrl() {
+    return '/api/admin/volunteers/export.csv';
   }
 
   adminAddGalleryItem(input: Omit<GalleryItemDto, 'id'>) {

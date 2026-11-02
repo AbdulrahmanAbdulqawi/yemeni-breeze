@@ -124,6 +124,8 @@ public class FeedbackResponse
 
     /// <summary>True once they pressed "Send" on the last step. Earlier steps are saved as they go.</summary>
     public bool IsComplete { get; set; }
+    /// <summary>When the team marked this person as contacted on the Volunteers page. Null = not yet.</summary>
+    public DateTime? ContactedAt { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 }

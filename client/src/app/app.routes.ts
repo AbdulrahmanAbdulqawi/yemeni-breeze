@@ -34,6 +34,7 @@ export const routes: Routes = [
       { path: 'events/:eventId/feedback', loadComponent: () => import('./admin/admin-feedback').then(m => m.AdminFeedback) },
       { path: 'events/:eventId/checkin', loadComponent: () => import('./admin/admin-checkin').then(m => m.AdminCheckin) },
       { path: 'events/:id', loadComponent: () => import('./admin/admin-event-form').then(m => m.AdminEventForm) },
+      { path: 'volunteers', loadComponent: () => import('./admin/admin-volunteers').then(m => m.AdminVolunteers) },
       { path: 'media', loadComponent: () => import('./admin/media/media-studio').then(m => m.MediaStudio) },
       { path: 'gallery', redirectTo: 'media', pathMatch: 'full' },
       { path: 'messages', loadComponent: () => import('./admin/admin-messages').then(m => m.AdminMessages) },
