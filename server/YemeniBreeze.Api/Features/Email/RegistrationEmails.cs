@@ -162,6 +162,7 @@ public static class RegistrationEmails
         body.Append(Paragraph(H(greeting)));
         body.Append(Paragraph(H(t["feedbackIntro"])));
         body.Append(Paragraph(H(t["feedbackIntro2"])));
+        body.Append(Paragraph(H(t["feedbackInvite"])));
         body.Append($"""
             <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
                    style="margin:6px 0 22px;background:{SurfaceLow};border:1px solid {Outline};border-radius:14px">
@@ -188,6 +189,7 @@ public static class RegistrationEmails
         text.AppendLine(greeting).AppendLine();
         text.AppendLine(t["feedbackIntro"]).AppendLine();
         text.AppendLine(t["feedbackIntro2"]).AppendLine();
+        text.AppendLine(t["feedbackInvite"]).AppendLine();
         text.AppendLine($"{title} — {FormatDate(ev.Date, r.Language)}").AppendLine();
         text.AppendLine($"{t["feedbackButton"]}: {formUrl}").AppendLine(t["feedbackButtonNote"]).AppendLine();
         if (donationUrl is not null) text.AppendLine(t["donationText"]).AppendLine($"{t["donationButton"]}: {donationUrl}").AppendLine();
@@ -588,19 +590,20 @@ public static class RegistrationEmails
             ["rejectedPreheader"] = "Een bericht over je aanmelding.",
             ["feedbackSubject"] = "Hoe was {0}? We horen het graag",
             ["feedbackHeading"] = "Hoe was de bijeenkomst?",
-            ["feedbackIntro"] = "Dank je wel dat je erbij was op onze Jemenitische bijeenkomst! We hopen dat je er net zo van genoten hebt als wij van het samenbrengen van iedereen.",
-            ["feedbackIntro2"] = "We horen graag je gedachten, ideeën en suggesties. We willen een warme gemeenschap bouwen waarin we samen de Jemenitische cultuur, tradities, het eten, de muziek en het erfgoed vieren. Met jouw feedback maken we de volgende bijeenkomsten nog mooier!",
+            ["feedbackIntro"] = "Bedankt dat je deel uitmaakte van onze Jemenitische bijeenkomst! We hopen dat je net zo hebt genoten als wij van het samenbrengen van iedereen om onze Jemenitische cultuur te vieren.",
+            ["feedbackIntro2"] = "We horen graag je mening, ideeën en suggesties. Vertel ons over je ervaring: wat vond je mooi, en wat kunnen we de volgende keer beter doen? Jouw mening is belangrijk voor ons en helpt ons onze volgende bijeenkomsten nog beter te maken.",
+            ["feedbackInvite"] = "We nodigen je ook graag uit om deel te nemen aan onze komende evenementen! Wil je ook vrijwilligen of helpen met de organisatie? Dat zouden we heel fijn vinden.",
             ["feedbackQuick"] = "Voldeed het evenement aan je verwachtingen?",
             ["feedbackMet_yes"] = "Ja, zeker!",
             ["feedbackMet_partly"] = "Min of meer",
             ["feedbackMet_no"] = "Niet helemaal",
-            ["feedbackJoinQuick"] = "Wil je deel uitmaken van onze gemeenschap?",
+            ["feedbackJoinQuick"] = "Wil je deelnemen aan onze komende evenementen?",
             ["feedbackJoin_yes"] = "Ja, zeker!",
             ["feedbackJoin_maybe"] = "Misschien, vertel meer",
             ["feedbackJoin_no"] = "Nu even niet",
             ["feedbackButton"] = "Deel je gedachten",
             ["feedbackButtonNote"] = "Het duurt ongeveer 1 minuut.",
-            ["feedbackClosing"] = "Samen maken we er iets bijzonders van! ❤️",
+            ["feedbackClosing"] = "We kijken ernaar uit om van je te horen en je snel weer te zien!",
             ["feedbackPreheader"] = "Vertel ons wat je mooi vond en wat beter kan — 1 minuut.",
             ["greeting"] = "Beste {0},",
             ["shareNote"] = "Een klein verzoek: deel de details van dit evenement alsjeblieft niet met mensen die zich niet hebben ingeschreven. Ken je iemand die ook wil komen? Die kan zich inschrijven via onze website.",
@@ -658,19 +661,20 @@ public static class RegistrationEmails
             ["rejectedPreheader"] = "رسالة بخصوص طلب تسجيلك.",
             ["feedbackSubject"] = "ما رأيك في {0}؟ يهمّنا أن نسمع منك",
             ["feedbackHeading"] = "كيف كانت الأمسية؟",
-            ["feedbackIntro"] = "شكرًا لأنك كنت جزءًا من لقائنا اليمني! نتمنى أن تكون استمتعت بالتجربة كما استمتعنا نحن بجمع الجميع.",
-            ["feedbackIntro2"] = "يسعدنا أن نسمع أفكارك واقتراحاتك. هدفنا أن نبني مجتمعًا دافئًا نحتفي فيه معًا بالثقافة اليمنية وتقاليدها وأكلها وموسيقاها وتراثها. رأيك سيساعدنا على جعل لقاءاتنا القادمة أجمل!",
+            ["feedbackIntro"] = "شكرًا لكونك جزءًا من لقائنا اليمني! نتمنى أن تكون قد استمتعت بالتجربة بقدر ما استمتعنا بجمع الجميع للاحتفاء بثقافتنا اليمنية.",
+            ["feedbackIntro2"] = "يسعدنا أن نتعرّف على رأيك وأفكارك واقتراحاتك. شاركنا تجربتك، وأخبرنا بما أعجبك وما يمكننا تحسينه في المرات القادمة؛ فرأيك يهمّنا ويساعدنا على تطوير لقاءاتنا المقبلة.",
+            ["feedbackInvite"] = "كما يسعدنا أن ندعوك للمشاركة في فعالياتنا القادمة! وإن كنت ترغب في التطوّع أو المساعدة في التنظيم، فسيسعدنا ذلك كثيرًا.",
             ["feedbackQuick"] = "هل كانت الفعالية على قدر توقعاتك؟",
             ["feedbackMet_yes"] = "نعم، بالتأكيد!",
             ["feedbackMet_partly"] = "إلى حدٍّ ما",
             ["feedbackMet_no"] = "ليس تمامًا",
-            ["feedbackJoinQuick"] = "هل تودّ أن تكون جزءًا من مجتمعنا؟",
+            ["feedbackJoinQuick"] = "هل تودّ المشاركة في فعالياتنا القادمة؟",
             ["feedbackJoin_yes"] = "نعم، بالتأكيد!",
             ["feedbackJoin_maybe"] = "ربما، أخبرني أكثر",
             ["feedbackJoin_no"] = "ليس الآن",
             ["feedbackButton"] = "شاركنا رأيك",
             ["feedbackButtonNote"] = "يستغرق حوالي دقيقة واحدة.",
-            ["feedbackClosing"] = "معًا نصنع شيئًا مميزًا! ❤️",
+            ["feedbackClosing"] = "نتطلّع إلى سماع رأيك ورؤيتك مجددًا!",
             ["feedbackPreheader"] = "أخبرنا بما أحببته وبما يمكن أن نحسّنه — دقيقة واحدة فقط.",
             ["greeting"] = "مرحبًا {0}،",
             ["shareNote"] = "طلب صغير: نرجو ألّا تشارك تفاصيل الفعالية مع أي شخص غير مسجّل. هل تعرف أحدًا يرغب في الانضمام؟ يمكنه التسجيل عبر موقعنا.",
@@ -728,19 +732,20 @@ public static class RegistrationEmails
             ["rejectedPreheader"] = "A message about your registration.",
             ["feedbackSubject"] = "How was {0}? We'd love your thoughts",
             ["feedbackHeading"] = "How was the gathering?",
-            ["feedbackIntro"] = "Thank you for being part of our Yemeni gathering! We hope you enjoyed the experience as much as we enjoyed bringing everyone together.",
-            ["feedbackIntro2"] = "We would love to hear your thoughts, ideas and suggestions. Our aim is to create a welcoming community where we can celebrate Yemeni culture, traditions, food, music and heritage together. Your feedback will help us make future gatherings even better!",
+            ["feedbackIntro"] = "Thank you for being part of our Yemeni gathering! We hope you enjoyed the experience as much as we enjoyed bringing everyone together to celebrate our Yemeni culture.",
+            ["feedbackIntro2"] = "We would love to hear your thoughts, ideas and suggestions. Tell us about your experience: what you enjoyed, and what we could do better next time. Your feedback matters to us and helps us shape our future gatherings.",
+            ["feedbackInvite"] = "We would also love to invite you to take part in our upcoming events! Whether you would like to participate, volunteer or help with the organisation, we would be delighted to have you with us.",
             ["feedbackQuick"] = "Did the event meet your expectations?",
             ["feedbackMet_yes"] = "Yes, absolutely!",
             ["feedbackMet_partly"] = "More or less",
             ["feedbackMet_no"] = "Not quite",
-            ["feedbackJoinQuick"] = "Would you like to be part of our community?",
+            ["feedbackJoinQuick"] = "Would you like to take part in our upcoming events?",
             ["feedbackJoin_yes"] = "Yes, definitely!",
             ["feedbackJoin_maybe"] = "Maybe, tell me more",
             ["feedbackJoin_no"] = "Not at the moment",
             ["feedbackButton"] = "Share your thoughts",
             ["feedbackButtonNote"] = "It takes about 1 minute.",
-            ["feedbackClosing"] = "Together, we can create something special! ❤️",
+            ["feedbackClosing"] = "We look forward to hearing from you and seeing you again!",
             ["feedbackPreheader"] = "Tell us what you loved and what we can do better — 1 minute.",
             ["greeting"] = "Dear {0},",
             ["shareNote"] = "A small request: please keep the event details to yourself and don't share them with anyone who hasn't registered. Know someone who'd like to join? They can sign up through our website.",
