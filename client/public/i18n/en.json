@@ -558,7 +558,12 @@
       "empty": "No answers yet. They'll show up here as people fill in the form.",
       "noMatch": "No answers match this filter.",
       "other": "Other",
-      "nothingYet": "Opened the form but has not saved any answers yet."
+      "nothingYet": "Opened the form but has not saved any answers yet.",
+      "audienceOne": "One person",
+      "pickPerson": "Pick a confirmed guest",
+      "pickFirst": "Pick a guest first.",
+      "confirmSendOne": "Send the feedback email to {{name}} ({{email}})? They get it even if they had it before.",
+      "queuedOne": "Feedback email on its way to {{name}}."
     }
   },
   "language": "Language"

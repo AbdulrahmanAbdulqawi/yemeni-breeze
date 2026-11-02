@@ -5,7 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { ApiService } from '../core/api.service';
-import { EventDto, FeedbackAudience, FeedbackRow, FeedbackSummary } from '../core/models';
+import { EventDto, FeedbackAudience, FeedbackRow, FeedbackSummary, RegistrationDto } from '../core/models';
 import { FEEDBACK_QUESTIONS } from '../pages/feedback/feedback-options';
 import { ConfirmService } from './ui/confirm.service';
 import { ToastService } from './ui/toast.service';
@@ -63,6 +63,19 @@ type RowFilter = 'all' | 'join' | 'unfinished';
             <input type="radio" name="audience" value="confirmed" [ngModel]="audience()" (ngModelChange)="audience.set($event)" />
             {{ 'admin.feedback.audienceConfirmed' | transloco: { n: s.confirmed } }}
           </label>
+          <label class="radio">
+            <input type="radio" name="audience" value="one" [ngModel]="audience()" (ngModelChange)="audience.set($event)" />
+            {{ 'admin.feedback.audienceOne' | transloco }}
+          </label>
+          @if (audience() === 'one') {
+            <select class="ad-select person" [ngModel]="personId()" (ngModelChange)="personId.set($event)"
+                    [attr.aria-label]="'admin.feedback.pickPerson' | transloco">
+              <option [ngValue]="null">{{ 'admin.feedback.pickPerson' | transloco }}</option>
+              @for (guest of confirmedGuests(); track guest.id) {
+                <option [ngValue]="guest.id">{{ guest.fullName }} · {{ guest.email }}</option>
+              }
+            </select>
+          }
           <button class="btn btn-primary" [disabled]="sending()" (click)="send()">
             {{ (sending() ? 'admin.feedback.sending' : 'admin.feedback.send') | transloco }}
           </button>
@@ -206,6 +219,10 @@ type RowFilter = 'all' | 'join' | 'unfinished';
       }
     }
 
+    .person {
+      max-width: 100%;
+    }
+
     .radio {
       display: inline-flex;
       align-items: center;
@@ -331,7 +348,10 @@ export class AdminFeedback {
   readonly summary = signal<FeedbackSummary | null>(null);
   readonly loading = signal(true);
   readonly sending = signal(false);
-  readonly audience = signal<FeedbackAudience>('checkedIn');
+  readonly audience = signal<FeedbackAudience | 'one'>('checkedIn');
+  /** For "One person": the confirmed guest to send to. */
+  readonly personId = signal<number | null>(null);
+  readonly confirmedGuests = signal<RegistrationDto[]>([]);
   readonly query = signal('');
   readonly filter = signal<RowFilter>('all');
 
@@ -353,6 +373,8 @@ export class AdminFeedback {
       untracked(() => {
         this.load(id);
         this.api.adminGetEvents().subscribe(events => this.event.set(events.find(e => e.id === id) ?? null));
+        this.api.adminGetRegistrations(id).subscribe(rows => this.confirmedGuests.set(
+          rows.filter(r => r.status === 'Confirmed').sort((a, b) => a.fullName.localeCompare(b.fullName))));
       });
     });
   }
@@ -386,6 +408,7 @@ export class AdminFeedback {
 
   async send() {
     const audience = this.audience();
+    if (audience === 'one') return this.sendToOne();
     const group = this.transloco.translate(
       audience === 'checkedIn' ? 'admin.feedback.groupCheckedIn' : 'admin.feedback.groupConfirmed');
     const ok = await this.confirm.ask({
@@ -404,6 +427,33 @@ export class AdminFeedback {
         this.load(+this.eventId());
         // The dispatcher sends within seconds; refresh so "emails sent" catches up.
         if (queued) setTimeout(() => this.load(+this.eventId()), 4000);
+      },
+      error: () => {
+        this.sending.set(false);
+        this.toasts.error(this.transloco.translate('admin.media.genericError'));
+      }
+    });
+  }
+
+  private async sendToOne() {
+    const guest = this.confirmedGuests().find(g => g.id === this.personId());
+    if (!guest) {
+      this.toasts.error(this.transloco.translate('admin.feedback.pickFirst'));
+      return;
+    }
+    const ok = await this.confirm.ask({
+      message: this.transloco.translate('admin.feedback.confirmSendOne', { name: guest.fullName, email: guest.email }),
+      confirmLabel: this.transloco.translate('admin.feedback.send'),
+      cancelLabel: this.transloco.translate('admin.media.cancel')
+    });
+    if (!ok) return;
+
+    this.sending.set(true);
+    this.api.adminSendFeedbackEmailTo(+this.eventId(), guest.id).subscribe({
+      next: () => {
+        this.sending.set(false);
+        this.toasts.success(this.transloco.translate('admin.feedback.queuedOne', { name: guest.fullName }));
+        setTimeout(() => this.load(+this.eventId()), 4000);
       },
       error: () => {
         this.sending.set(false);

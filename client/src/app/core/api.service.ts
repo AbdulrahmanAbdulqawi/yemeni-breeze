@@ -145,6 +145,10 @@ export class ApiService {
     return this.http.post<{ queued: number }>(`/api/admin/events/${eventId}/feedback/send`, { audience });
   }
 
+  adminSendFeedbackEmailTo(eventId: number, registrationId: number) {
+    return this.http.post<{ queued: number }>(`/api/admin/events/${eventId}/feedback/send/${registrationId}`, {});
+  }
+
   feedbackCsvUrl(eventId: number) {
     return `/api/admin/events/${eventId}/feedback/export.csv`;
   }

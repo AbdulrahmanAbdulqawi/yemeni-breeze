@@ -194,6 +194,24 @@ public static class FeedbackEndpoints
             return Results.Ok(new { queued = due.Count });
         });
 
+        // Sends to one confirmed guest, even if they already got it: for testing on yourself,
+        // or for someone who lost the email.
+        admin.MapPost("/send/{registrationId:int}",
+            async (int eventId, int registrationId, AppDbContext db, EmailSignal emailSignal) =>
+        {
+            var registration = await db.Registrations
+                .FirstOrDefaultAsync(r => r.EventId == eventId && r.Id == registrationId);
+            if (registration is null) return Results.NotFound();
+            if (registration.Status != RegistrationStatus.Confirmed)
+                return Results.BadRequest(new { message = "Only confirmed guests can get the feedback email." });
+
+            registration.ManageToken ??= Guid.NewGuid();
+            EmailOutbox.Enqueue(db, registration, EmailKind.Feedback);
+            await db.SaveChangesAsync();
+            emailSignal.Wake();
+            return Results.Ok(new { queued = 1 });
+        });
+
         admin.MapGet("/export.csv", async (int eventId, AppDbContext db) =>
         {
             var rows = await Rows(db, eventId);

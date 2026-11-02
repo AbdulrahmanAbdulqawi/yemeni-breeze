@@ -93,6 +93,25 @@ public class FeedbackTests(EmailApiFactory factory) : IClassFixture<EmailApiFact
     }
 
     [Fact]
+    public async Task Send_to_one_person_reaches_just_them_even_a_second_time()
+    {
+        await AuthenticateAsync();
+        var ev = await CreatePastEventAsync();
+        var me = await AddGuestAsync(ev.Id, "just-me@feedback.test");
+        await AddGuestAsync(ev.Id, "someone-else@feedback.test");
+        var cancelled = await AddGuestAsync(ev.Id, "not-me@feedback.test", RegistrationStatus.Cancelled);
+
+        for (var i = 0; i < 2; i++)
+            (await _client.PostAsync($"/api/admin/events/{ev.Id}/feedback/send/{me.Id}", null)).EnsureSuccessStatusCode();
+        await DrainAsync();
+
+        Assert.Equal(2, factory.Resend.Sent.Count(s => s.To == "just-me@feedback.test"));
+        Assert.DoesNotContain(factory.Resend.Sent, s => s.To == "someone-else@feedback.test");
+        Assert.Equal(HttpStatusCode.BadRequest,
+            (await _client.PostAsync($"/api/admin/events/{ev.Id}/feedback/send/{cancelled.Id}", null)).StatusCode);
+    }
+
+    [Fact]
     public async Task Send_rejects_an_unknown_audience()
     {
         await AuthenticateAsync();

@@ -558,7 +558,12 @@
       "empty": "Nog geen antwoorden. Ze verschijnen hier zodra mensen het formulier invullen.",
       "noMatch": "Geen antwoorden voor dit filter.",
       "other": "Anders",
-      "nothingYet": "Heeft het formulier geopend, maar nog geen antwoorden opgeslagen."
+      "nothingYet": "Heeft het formulier geopend, maar nog geen antwoorden opgeslagen.",
+      "audienceOne": "Eén persoon",
+      "pickPerson": "Kies een bevestigde gast",
+      "pickFirst": "Kies eerst een gast.",
+      "confirmSendOne": "De feedbackmail versturen naar {{name}} ({{email}})? Ook als die hem al eerder kreeg.",
+      "queuedOne": "De feedbackmail is onderweg naar {{name}}."
     }
   },
   "language": "Taal"
