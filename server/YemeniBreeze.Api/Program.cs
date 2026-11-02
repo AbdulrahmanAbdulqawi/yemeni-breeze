@@ -9,6 +9,7 @@ using YemeniBreeze.Api.Features.Contact;
 using YemeniBreeze.Api.Features.Content;
 using YemeniBreeze.Api.Features.Email;
 using YemeniBreeze.Api.Features.Events;
+using YemeniBreeze.Api.Features.Feedback;
 using YemeniBreeze.Api.Features.Gallery;
 using YemeniBreeze.Api.Features.Media;
 using YemeniBreeze.Api.Features.Registrations;
@@ -97,6 +98,7 @@ app.MapSettingsEndpoints();
 app.MapFoldersEndpoints();
 app.MapContentEndpoints();
 app.MapTeamEndpoints();
+app.MapFeedbackEndpoints();
 
 using (var scope = app.Services.CreateScope())
 {

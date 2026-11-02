@@ -14,7 +14,8 @@ export const routes: Routes = [
       { path: 'gallery', loadComponent: () => import('./pages/gallery/gallery-page').then(m => m.GalleryPage) },
       { path: 'contact', loadComponent: () => import('./pages/contact/contact-page').then(m => m.ContactPage) },
       { path: 'team/:slug', loadComponent: () => import('./pages/team/team-member-page').then(m => m.TeamMemberPage) },
-      { path: 'registrations/:token', loadComponent: () => import('./pages/registration/manage-registration').then(m => m.ManageRegistration) }
+      { path: 'registrations/:token', loadComponent: () => import('./pages/registration/manage-registration').then(m => m.ManageRegistration) },
+      { path: 'feedback/:token', loadComponent: () => import('./pages/feedback/feedback-page').then(m => m.FeedbackPage) }
     ]
   },
   {
@@ -30,6 +31,7 @@ export const routes: Routes = [
       { path: 'events', loadComponent: () => import('./admin/admin-events').then(m => m.AdminEvents) },
       { path: 'events/new', loadComponent: () => import('./admin/admin-event-form').then(m => m.AdminEventForm) },
       { path: 'events/:eventId/registrations', loadComponent: () => import('./admin/admin-registrations').then(m => m.AdminRegistrations) },
+      { path: 'events/:eventId/feedback', loadComponent: () => import('./admin/admin-feedback').then(m => m.AdminFeedback) },
       { path: 'events/:eventId/checkin', loadComponent: () => import('./admin/admin-checkin').then(m => m.AdminCheckin) },
       { path: 'events/:id', loadComponent: () => import('./admin/admin-event-form').then(m => m.AdminEventForm) },
       { path: 'media', loadComponent: () => import('./admin/media/media-studio').then(m => m.MediaStudio) },

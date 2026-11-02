@@ -66,6 +66,7 @@ public static class RegistrationEmails
 
         var t = Strings(r.Language);
         var baseUrl = publicBaseUrl.TrimEnd('/');
+        if (kind == EmailKind.Feedback) return BuildFeedback(r, ev, t, baseUrl);
         var eventUrl = $"{baseUrl}/events/{Uri.EscapeDataString(ev.Slug)}";
         var manageUrl = kind is not (EmailKind.Cancelled or EmailKind.Rejected) && r.ManageToken is { } token
             ? $"{baseUrl}/registrations/{token:D}"
@@ -130,6 +131,69 @@ public static class RegistrationEmails
         var text = PlainText(r, ev, t, heading, greeting, intro, note, withTicket, showEvent ? eventUrl : null,
             askNotToShare, donationUrl, manageUrl, baseUrl, exactAddress);
         return new EmailContent(subject, html, text, attachments);
+    }
+
+    /// <summary>
+    /// "How was the gathering?": thanks the guest, asks one question they can answer with a tap,
+    /// and links to the full feedback form. The links carry their private token, so the form
+    /// knows who they are without asking.
+    /// </summary>
+    private static EmailContent BuildFeedback(Registration r, Event ev, IReadOnlyDictionary<string, string> t, string baseUrl)
+    {
+        var title = EventTitle(r, ev);
+        var formUrl = $"{baseUrl}/feedback/{r.ManageToken:D}?lang={Uri.EscapeDataString(r.Language)}";
+        var subject = string.Format(t["feedbackSubject"], title);
+        var heading = t["feedbackHeading"];
+        var greeting = string.Format(t["greeting"], FirstName(r.FullName));
+        string[] metCodes = ["yes", "partly", "no"];
+
+        var quickAnswers = string.Concat(metCodes.Select(code => $"""
+            <td style="padding:4px">
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
+                <td bgcolor="#ffffff" style="background:#ffffff;border:1px solid {Outline};border-radius:999px">
+                  <a href="{H(formUrl)}&amp;met={code}" style="display:inline-block;padding:9px 16px;font-size:14px;color:{Ink};text-decoration:none;border-radius:999px;white-space:nowrap">{H(t["feedbackMet_" + code])}</a>
+                </td>
+              </tr></table>
+            </td>
+            """));
+
+        var body = new StringBuilder();
+        body.Append(Paragraph(H(greeting)));
+        body.Append(Paragraph(H(t["feedbackIntro"])));
+        body.Append(Paragraph(H(t["feedbackIntro2"])));
+        body.Append($"""
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
+                   style="margin:6px 0 22px;background:{SurfaceLow};border:1px solid {Outline};border-radius:14px">
+              <tr><td style="padding:16px 22px">
+                <div style="font-family:{HeadingFont(r.Language)};font-size:19px;line-height:1.3;color:{Maroon};font-weight:700">{H(title)}</div>
+                <div style="font-size:13px;color:{Maroon};padding-top:4px">{H(FormatDate(ev.Date, r.Language))}</div>
+              </td></tr>
+            </table>
+            <p style="margin:0 0 10px;font-size:16px;font-weight:700;color:{Brown};text-align:center">{H(t["feedbackQuick"])}</p>
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" style="margin:0 auto">
+              <tr>{quickAnswers}</tr>
+            </table>
+            """);
+        body.Append(Button(t["feedbackButton"], formUrl));
+        body.Append(Small(t["feedbackButtonNote"]));
+        body.Append($"""<p style="margin:26px 0 0;font-size:16px;line-height:1.65;color:{Ink};text-align:center">{H(t["feedbackClosing"])}</p>""");
+
+        var html = Layout(r.Language, subject, t["feedbackPreheader"], heading, body.ToString(), t, baseUrl);
+
+        var text = new StringBuilder();
+        text.AppendLine("YEMEN BREEZE · نسمات اليمن").AppendLine();
+        text.AppendLine(heading).AppendLine();
+        text.AppendLine(greeting).AppendLine();
+        text.AppendLine(t["feedbackIntro"]).AppendLine();
+        text.AppendLine(t["feedbackIntro2"]).AppendLine();
+        text.AppendLine($"{title} — {FormatDate(ev.Date, r.Language)}").AppendLine();
+        text.AppendLine($"{t["feedbackButton"]}: {formUrl}").AppendLine(t["feedbackButtonNote"]).AppendLine();
+        text.AppendLine(t["feedbackClosing"]).AppendLine();
+        text.AppendLine(t["signoff"]).AppendLine(t["team"]).AppendLine();
+        text.AppendLine(t["footer"]).AppendLine($"{t["followUs"]} {InstagramHandle} — {InstagramUrl}");
+
+        return new EmailContent(subject, html, text.ToString(),
+            [new("yemen-breeze.png", Logo.Value, "image/png", LogoContentId)]);
     }
 
     private static string H(string? value) => WebUtility.HtmlEncode(value ?? "");
@@ -515,6 +579,18 @@ public static class RegistrationEmails
             ["rejectedIntro"] = "Wat leuk dat je erbij wilde zijn! Helaas kunnen we je op dit moment nog geen plek geven bij dit evenement.",
             ["rejectedNote"] = "Zodra er een plek vrijkomt, laten we het je per e-mail weten.\n\nWe hopen je heel graag te zien bij het evenement!",
             ["rejectedPreheader"] = "Een bericht over je aanmelding.",
+            ["feedbackSubject"] = "Hoe was {0}? We horen het graag",
+            ["feedbackHeading"] = "Hoe was de bijeenkomst?",
+            ["feedbackIntro"] = "Dank je wel dat je erbij was op onze Jemenitische bijeenkomst! We hopen dat je er net zo van genoten hebt als wij van het samenbrengen van iedereen.",
+            ["feedbackIntro2"] = "We horen graag je gedachten, ideeën en suggesties. We willen een warme gemeenschap bouwen waarin we samen de Jemenitische cultuur, tradities, het eten, de muziek en het erfgoed vieren. Met jouw feedback maken we de volgende bijeenkomsten nog mooier!",
+            ["feedbackQuick"] = "Voldeed het evenement aan je verwachtingen?",
+            ["feedbackMet_yes"] = "Ja, zeker!",
+            ["feedbackMet_partly"] = "Min of meer",
+            ["feedbackMet_no"] = "Niet helemaal",
+            ["feedbackButton"] = "Deel je gedachten",
+            ["feedbackButtonNote"] = "Het duurt ongeveer 3 minuten.",
+            ["feedbackClosing"] = "Samen maken we er iets bijzonders van! ❤️",
+            ["feedbackPreheader"] = "Vertel ons wat je mooi vond en wat beter kan — 3 minuten.",
             ["greeting"] = "Beste {0},",
             ["shareNote"] = "Een klein verzoek: deel de details van dit evenement alsjeblieft niet met mensen die zich niet hebben ingeschreven. Ken je iemand die ook wil komen? Die kan zich inschrijven via onze website.",
             ["shareNoteLink"] = "Hier inschrijven",
@@ -569,6 +645,18 @@ public static class RegistrationEmails
             ["rejectedIntro"] = "سعدنا كثيرًا برغبتك في الانضمام إلينا! للأسف لا نستطيع أن نوفّر لك مقعدًا في هذه الفعالية حتى الآن.",
             ["rejectedNote"] = "بمجرد أن يتوفّر مقعد، سنخبرك بذلك عبر البريد الإلكتروني.\n\nنتمنى حقًا أن نراك في الفعالية!",
             ["rejectedPreheader"] = "رسالة بخصوص طلب تسجيلك.",
+            ["feedbackSubject"] = "ما رأيك في {0}؟ يهمّنا أن نسمع منك",
+            ["feedbackHeading"] = "كيف كانت الأمسية؟",
+            ["feedbackIntro"] = "شكرًا لأنك كنت جزءًا من لقائنا اليمني! نتمنى أن تكون استمتعت بالتجربة كما استمتعنا نحن بجمع الجميع.",
+            ["feedbackIntro2"] = "يسعدنا أن نسمع أفكارك واقتراحاتك. هدفنا أن نبني مجتمعًا دافئًا نحتفي فيه معًا بالثقافة اليمنية وتقاليدها وأكلها وموسيقاها وتراثها. رأيك سيساعدنا على جعل لقاءاتنا القادمة أجمل!",
+            ["feedbackQuick"] = "هل كانت الفعالية على قدر توقعاتك؟",
+            ["feedbackMet_yes"] = "نعم، بالتأكيد!",
+            ["feedbackMet_partly"] = "إلى حدٍّ ما",
+            ["feedbackMet_no"] = "ليس تمامًا",
+            ["feedbackButton"] = "شاركنا رأيك",
+            ["feedbackButtonNote"] = "يستغرق حوالي ٣ دقائق.",
+            ["feedbackClosing"] = "معًا نصنع شيئًا مميزًا! ❤️",
+            ["feedbackPreheader"] = "أخبرنا بما أحببته وبما يمكن أن نحسّنه — ٣ دقائق فقط.",
             ["greeting"] = "مرحبًا {0}،",
             ["shareNote"] = "طلب صغير: نرجو ألّا تشارك تفاصيل الفعالية مع أي شخص غير مسجّل. هل تعرف أحدًا يرغب في الانضمام؟ يمكنه التسجيل عبر موقعنا.",
             ["shareNoteLink"] = "سجّل من هنا",
@@ -623,6 +711,18 @@ public static class RegistrationEmails
             ["rejectedIntro"] = "We loved that you wanted to join us! Unfortunately, we can’t offer you a place at this event just yet.",
             ["rejectedNote"] = "As soon as a spot becomes available, we’ll let you know by email.\n\nWe really hope to see you at the event!",
             ["rejectedPreheader"] = "A message about your registration.",
+            ["feedbackSubject"] = "How was {0}? We'd love your thoughts",
+            ["feedbackHeading"] = "How was the gathering?",
+            ["feedbackIntro"] = "Thank you for being part of our Yemeni gathering! We hope you enjoyed the experience as much as we enjoyed bringing everyone together.",
+            ["feedbackIntro2"] = "We would love to hear your thoughts, ideas and suggestions. Our aim is to create a welcoming community where we can celebrate Yemeni culture, traditions, food, music and heritage together. Your feedback will help us make future gatherings even better!",
+            ["feedbackQuick"] = "Did the event meet your expectations?",
+            ["feedbackMet_yes"] = "Yes, absolutely!",
+            ["feedbackMet_partly"] = "More or less",
+            ["feedbackMet_no"] = "Not quite",
+            ["feedbackButton"] = "Share your thoughts",
+            ["feedbackButtonNote"] = "It takes about 3 minutes.",
+            ["feedbackClosing"] = "Together, we can create something special! ❤️",
+            ["feedbackPreheader"] = "Tell us what you loved and what we can do better — 3 minutes.",
             ["greeting"] = "Dear {0},",
             ["shareNote"] = "A small request: please keep the event details to yourself and don't share them with anyone who hasn't registered. Know someone who'd like to join? They can sign up through our website.",
             ["shareNoteLink"] = "Register here",

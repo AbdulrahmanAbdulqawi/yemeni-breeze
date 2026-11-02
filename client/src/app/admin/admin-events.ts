@@ -71,6 +71,9 @@ type SortKey = 'titleEn' | 'date' | 'status' | 'capacity' | 'confirmedCount' | '
                   <a [routerLink]="['/admin/events', event.id, 'registrations']" class="btn-link">
                     {{ 'admin.events.registrations' | transloco }}
                   </a>
+                  <a [routerLink]="['/admin/events', event.id, 'feedback']" class="btn-link">
+                    {{ 'admin.feedback.title' | transloco }}
+                  </a>
                   <a [routerLink]="['/admin/events', event.id]" class="btn-link">
                     {{ 'admin.events.edit' | transloco }}
                   </a>

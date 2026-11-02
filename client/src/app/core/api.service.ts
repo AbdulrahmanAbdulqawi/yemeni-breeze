@@ -9,6 +9,10 @@ import {
   ContentDict,
   EventDto,
   EventInput,
+  FeedbackAnswers,
+  FeedbackAudience,
+  FeedbackForm,
+  FeedbackSummary,
   GalleryItemDto,
   GalleryPageDto,
   LoginResponse,
@@ -69,6 +73,14 @@ export class ApiService {
     return this.http.post<ManagedRegistration>(`/api/registrations/manage/${token}/cancel`, {});
   }
 
+  getFeedbackForm(token: string) {
+    return this.http.get<FeedbackForm>(`/api/feedback/${token}`);
+  }
+
+  saveFeedback(token: string, answers: FeedbackAnswers, complete: boolean) {
+    return this.http.put<FeedbackForm>(`/api/feedback/${token}`, { answers, complete });
+  }
+
   getGallery() {
     return this.http.get<GalleryItemDto[]>('/api/gallery');
   }
@@ -123,6 +135,18 @@ export class ApiService {
 
   registrationsCsvUrl(eventId: number) {
     return `/api/admin/events/${eventId}/registrations/export.csv`;
+  }
+
+  adminGetFeedback(eventId: number) {
+    return this.http.get<FeedbackSummary>(`/api/admin/events/${eventId}/feedback`);
+  }
+
+  adminSendFeedbackEmails(eventId: number, audience: FeedbackAudience) {
+    return this.http.post<{ queued: number }>(`/api/admin/events/${eventId}/feedback/send`, { audience });
+  }
+
+  feedbackCsvUrl(eventId: number) {
+    return `/api/admin/events/${eventId}/feedback/export.csv`;
   }
 
   adminAddGalleryItem(input: Omit<GalleryItemDto, 'id'>) {

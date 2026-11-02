@@ -86,7 +86,46 @@ public enum EmailKind
     Waitlisted = 2,
     Cancelled = 3,
     Reminder = 4,
-    Rejected = 5
+    Rejected = 5,
+    /// <summary>"How was the gathering?" — sent by an admin after the event, links to the feedback form.</summary>
+    Feedback = 6
+}
+
+/// <summary>
+/// One guest's answers to the after-event feedback form. Reached through the private link in the
+/// feedback email, so it belongs to a registration and holds no name or email of its own.
+/// Multiple-choice answers are stored as comma-separated option codes (see FeedbackOptions).
+/// </summary>
+public class FeedbackResponse
+{
+    public int Id { get; set; }
+    public int RegistrationId { get; set; }
+    public Registration? Registration { get; set; }
+    public int EventId { get; set; }
+
+    public string? Expectations { get; set; }
+    public string? ExpectationsOther { get; set; }
+    public string? MetExpectations { get; set; }
+    public string? Improvements { get; set; }
+    public string? FavouritePart { get; set; }
+    public string? JoinCommunity { get; set; }
+    public string? Contributions { get; set; }
+    public string? ContributionsOther { get; set; }
+    public string? Dishes { get; set; }
+    public string? RegionalFood { get; set; }
+    public string? Music { get; set; }
+    public string? Dances { get; set; }
+    public string? DancesOther { get; set; }
+    public string? Traditions { get; set; }
+    public string? Missing { get; set; }
+    public string? Engagement { get; set; }
+    public string? Ideas { get; set; }
+    public string? AnythingElse { get; set; }
+
+    /// <summary>True once they pressed "Send" on the last step. Earlier steps are saved as they go.</summary>
+    public bool IsComplete { get; set; }
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 }
 
 public enum EmailStatus

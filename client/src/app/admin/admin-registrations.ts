@@ -20,6 +20,9 @@ import { EmptyState, Spinner } from './ui/state-views';
       <a [routerLink]="['/admin/events', eventId(), 'checkin']" class="btn btn-primary">
         {{ 'admin.checkin.title' | transloco }}
       </a>
+      <a [routerLink]="['/admin/events', eventId(), 'feedback']" class="btn btn-primary">
+        {{ 'admin.feedback.title' | transloco }}
+      </a>
       <button class="btn btn-primary" (click)="exportCsv()">
         {{ 'admin.registrations.exportCsv' | transloco }}
       </button>

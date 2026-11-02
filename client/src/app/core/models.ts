@@ -106,7 +106,62 @@ export interface RegistrationDto {
   wantsUpdates: boolean;
 }
 
-export type EmailKind = 'Confirmed' | 'Promoted' | 'Waitlisted' | 'Cancelled' | 'Reminder' | 'Rejected';
+export type EmailKind = 'Confirmed' | 'Promoted' | 'Waitlisted' | 'Cancelled' | 'Reminder' | 'Rejected' | 'Feedback';
+
+/** Answers to the after-event feedback form. Lists hold option codes. */
+export interface FeedbackAnswers {
+  expectations: string[];
+  expectationsOther: string | null;
+  metExpectations: string | null;
+  improvements: string | null;
+  favouritePart: string | null;
+  joinCommunity: string | null;
+  contributions: string[];
+  contributionsOther: string | null;
+  dishes: string | null;
+  regionalFood: string | null;
+  music: string[];
+  dances: string[];
+  dancesOther: string | null;
+  traditions: string | null;
+  missing: string | null;
+  engagement: string | null;
+  ideas: string | null;
+  anythingElse: string | null;
+}
+
+/** The feedback page, reached via the private link in the feedback email. */
+export interface FeedbackForm {
+  firstName: string;
+  language: string;
+  event: { titleEn: string; titleNl: string; titleAr: string; date: string };
+  answers: FeedbackAnswers | null;
+  isComplete: boolean;
+}
+
+export interface FeedbackRow {
+  id: number;
+  registrationId: number;
+  fullName: string;
+  email: string;
+  phone: string | null;
+  answers: FeedbackAnswers;
+  isComplete: boolean;
+  updatedAt: string;
+}
+
+export interface FeedbackSummary {
+  confirmed: number;
+  checkedIn: number;
+  emailsSent: number;
+  emailsPending: number;
+  responses: number;
+  completed: number;
+  wantToJoin: number;
+  rows: FeedbackRow[];
+}
+
+export type FeedbackAudience = 'checkedIn' | 'confirmed';
 export type EmailStatus = 'Pending' | 'Sent' | 'Failed' | 'Skipped';
 
 /** The "manage my registration" page, reached via the private link in emails. */

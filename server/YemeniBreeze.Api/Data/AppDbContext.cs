@@ -17,6 +17,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<ContentBlock> ContentBlocks => Set<ContentBlock>();
     public DbSet<TeamMember> TeamMembers => Set<TeamMember>();
     public DbSet<OutgoingEmail> OutgoingEmails => Set<OutgoingEmail>();
+    public DbSet<FeedbackResponse> FeedbackResponses => Set<FeedbackResponse>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -63,6 +64,31 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
             o.Property(x => x.LastError).HasMaxLength(1000);
             o.HasIndex(x => new { x.Status, x.NextAttemptAt });
             o.HasIndex(x => new { x.RegistrationId, x.Kind });
+        });
+
+        builder.Entity<FeedbackResponse>(f =>
+        {
+            f.HasOne(x => x.Registration)
+                .WithMany()
+                .HasForeignKey(x => x.RegistrationId)
+                .OnDelete(DeleteBehavior.Cascade);
+            f.HasIndex(x => x.RegistrationId).IsUnique();
+            f.HasIndex(x => x.EventId);
+            foreach (var codes in new[] { nameof(FeedbackResponse.Expectations), nameof(FeedbackResponse.Contributions),
+                         nameof(FeedbackResponse.Music), nameof(FeedbackResponse.Dances) })
+                f.Property(codes).HasMaxLength(300);
+            f.Property(x => x.MetExpectations).HasMaxLength(20);
+            f.Property(x => x.JoinCommunity).HasMaxLength(20);
+            foreach (var text in new[]
+                     {
+                         nameof(FeedbackResponse.ExpectationsOther), nameof(FeedbackResponse.Improvements),
+                         nameof(FeedbackResponse.FavouritePart), nameof(FeedbackResponse.ContributionsOther),
+                         nameof(FeedbackResponse.Dishes), nameof(FeedbackResponse.RegionalFood),
+                         nameof(FeedbackResponse.DancesOther), nameof(FeedbackResponse.Traditions),
+                         nameof(FeedbackResponse.Missing), nameof(FeedbackResponse.Engagement),
+                         nameof(FeedbackResponse.Ideas), nameof(FeedbackResponse.AnythingElse)
+                     })
+                f.Property(text).HasMaxLength(2000);
         });
 
         builder.Entity<SiteSetting>(s =>
