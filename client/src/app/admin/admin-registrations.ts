@@ -15,8 +15,7 @@ import { EmptyState, Spinner } from './ui/state-views';
   selector: 'app-admin-registrations',
   imports: [TranslocoPipe, DatePipe, RouterLink, FormsModule, PageHeader, EmptyState, Spinner],
   template: `
-    <app-page-header [heading]="'admin.registrations.title' | transloco">
-      <a routerLink="/admin/events" class="btn btn-outline">←</a>
+    <app-page-header [heading]="'admin.registrations.title' | transloco" back="/admin/events">
       <a [routerLink]="['/admin/events', eventId(), 'checkin']" class="btn btn-primary">
         {{ 'admin.checkin.title' | transloco }}
       </a>

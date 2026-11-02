@@ -2,7 +2,6 @@ import { Component, computed, effect, inject, input, signal, untracked } from '@
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { RouterLink } from '@angular/router';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { ApiService } from '../core/api.service';
 import { EventDto, FeedbackAudience, FeedbackRow, FeedbackSummary, RegistrationDto } from '../core/models';
@@ -17,10 +16,10 @@ type RowFilter = 'all' | 'join' | 'unfinished';
 /** One event's feedback: send the email, see who answered and what, export it all. */
 @Component({
   selector: 'app-admin-feedback',
-  imports: [TranslocoPipe, DatePipe, RouterLink, FormsModule, PageHeader, EmptyState, Spinner],
+  imports: [TranslocoPipe, DatePipe, FormsModule, PageHeader, EmptyState, Spinner],
   template: `
-    <app-page-header [heading]="('admin.feedback.title' | transloco) + (event() ? ' · ' + event()!.titleEn : '')">
-      <a [routerLink]="['/admin/events', eventId(), 'registrations']" class="btn btn-outline">←</a>
+    <app-page-header [heading]="('admin.feedback.title' | transloco) + (event() ? ' · ' + event()!.titleEn : '')"
+                     [back]="['/admin/events', eventId(), 'registrations']">
       <button class="btn btn-primary" [disabled]="!summary()?.responses" (click)="exportCsv()">
         {{ 'admin.feedback.exportCsv' | transloco }}
       </button>
@@ -94,26 +93,14 @@ type RowFilter = 'all' | 'join' | 'unfinished';
         </div>
 
         @for (row of visible(); track row.id) {
-          <details class="card answer" [open]="visible().length <= 3">
+          <details class="card answer">
             <summary>
+              <span class="chevron" aria-hidden="true">›</span>
               <span class="who">
                 <strong>{{ row.fullName }}</strong>
                 <span class="muted">{{ row.email }}{{ row.phone ? ' · ' + row.phone : '' }}</span>
               </span>
-              <span class="tags">
-                @if (row.answers.joinCommunity; as join) {
-                  <span class="badge" [class]="'badge ' + (join === 'yes' ? 'badge-confirmed' : join === 'maybe' ? 'badge-waitlisted' : 'badge-cancelled')">
-                    {{ 'feedback.options.join.' + join | transloco }}
-                  </span>
-                }
-                @if (row.answers.metExpectations; as met) {
-                  <span class="badge badge-neutral">{{ 'feedback.options.met.' + met | transloco }}</span>
-                }
-                <span class="badge" [class]="'badge ' + (row.isComplete ? 'badge-confirmed' : 'badge-pending')">
-                  {{ (row.isComplete ? 'admin.feedback.finished' : 'admin.feedback.inProgress') | transloco }}
-                </span>
-                <span class="muted when">{{ row.updatedAt | date: 'short' }}</span>
-              </span>
+              <span class="muted when">{{ row.updatedAt | date: 'short' }}</span>
             </summary>
             @if (!hasAnswers(row)) {
               <p class="muted nothing">{{ 'admin.feedback.nothingYet' | transloco }}</p>
@@ -245,7 +232,6 @@ type RowFilter = 'all' | 'join' | 'unfinished';
 
       summary {
         display: flex;
-        justify-content: space-between;
         align-items: center;
         flex-wrap: wrap;
         gap: 0.5rem 1rem;
@@ -277,18 +263,29 @@ type RowFilter = 'all' | 'join' | 'unfinished';
       display: flex;
       flex-direction: column;
       min-width: 0;
+      margin-inline-end: auto;
     }
 
-    .tags {
-      display: flex;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 0.4rem;
+    /* Points to the text when closed, down when open. In Arabic the browser already
+       mirrors "›" to "‹", so it only needs turning the other way to point down. */
+    .chevron {
+      display: inline-block;
+      font-size: 1.4rem;
+      line-height: 1;
+      color: var(--ad-muted, #7c6a5c);
+      transition: transform 0.15s ease;
     }
 
-    .badge-neutral {
-      background: var(--yb-surface);
-      color: var(--yb-brown);
+    .answer[open] .chevron {
+      transform: rotate(90deg);
+    }
+
+    :host-context([dir='rtl']) .answer[open] .chevron {
+      transform: rotate(-90deg);
+    }
+
+    .answer summary:hover .chevron {
+      color: var(--yb-maroon);
     }
 
     .when {

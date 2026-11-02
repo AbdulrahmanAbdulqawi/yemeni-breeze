@@ -497,7 +497,8 @@
       "search": "Zoeken",
       "filterAll": "Alle statussen",
       "noResults": "Geen resultaten voor je zoekopdracht.",
-      "saved": "Opgeslagen"
+      "saved": "Opgeslagen",
+      "back": "Terug"
     },
     "content": {
       "title": "Inhoud",
@@ -553,8 +554,6 @@
       "filterAll": "Alle antwoorden",
       "filterJoin": "Wil meedoen",
       "filterUnfinished": "Niet afgerond",
-      "finished": "Afgerond",
-      "inProgress": "Niet afgerond",
       "empty": "Nog geen antwoorden. Ze verschijnen hier zodra mensen het formulier invullen.",
       "noMatch": "Geen antwoorden voor dit filter.",
       "other": "Anders",

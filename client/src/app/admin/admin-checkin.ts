@@ -1,20 +1,17 @@
 import { Component, OnDestroy, computed, effect, inject, input, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { Html5Qrcode } from 'html5-qrcode';
 import { ApiService } from '../core/api.service';
 import { RegistrationDto } from '../core/models';
+import { PageHeader } from './ui/page-header';
 
 @Component({
   selector: 'app-admin-checkin',
-  imports: [FormsModule, TranslocoPipe, DatePipe, RouterLink],
+  imports: [FormsModule, TranslocoPipe, DatePipe, PageHeader],
   template: `
-    <div class="admin-head">
-      <h1>{{ 'admin.checkin.title' | transloco }}</h1>
-      <a [routerLink]="['/admin/events', eventId(), 'registrations']" class="btn btn-outline">←</a>
-    </div>
+    <app-page-header [heading]="'admin.checkin.title' | transloco" [back]="['/admin/events', eventId(), 'registrations']" />
 
     <p class="counter">
       <span class="counter-number">{{ checkedInSeats() }}</span> / {{ confirmedSeats() }}
@@ -80,13 +77,6 @@ import { RegistrationDto } from '../core/models';
     </div>
   `,
   styles: `
-    .admin-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 0.6rem;
-    }
-
     .counter {
       font-size: 1.1rem;
 

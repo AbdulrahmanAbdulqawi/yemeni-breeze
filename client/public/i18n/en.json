@@ -497,7 +497,8 @@
       "search": "Search",
       "filterAll": "All statuses",
       "noResults": "No results match your search.",
-      "saved": "Saved"
+      "saved": "Saved",
+      "back": "Back"
     },
     "content": {
       "title": "Content",
@@ -553,8 +554,6 @@
       "filterAll": "All answers",
       "filterJoin": "Want to join",
       "filterUnfinished": "Not finished",
-      "finished": "Finished",
-      "inProgress": "Not finished",
       "empty": "No answers yet. They'll show up here as people fill in the form.",
       "noMatch": "No answers match this filter.",
       "other": "Other",

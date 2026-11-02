@@ -14,7 +14,7 @@ import { LangSelect } from './ui/lang-select';
   selector: 'app-admin-event-form',
   imports: [ReactiveFormsModule, TranslocoPipe, PageHeader, LangSelect],
   template: `
-    <app-page-header [heading]="(isNew() ? 'admin.events.new' : 'admin.events.edit') | transloco" />
+    <app-page-header [heading]="(isNew() ? 'admin.events.new' : 'admin.events.edit') | transloco" back="/admin/events" />
 
     <form class="card event-form" [formGroup]="form" (ngSubmit)="save()">
       <h2 class="form-section">{{ 'admin.events.sectionDetails' | transloco }}</h2>
