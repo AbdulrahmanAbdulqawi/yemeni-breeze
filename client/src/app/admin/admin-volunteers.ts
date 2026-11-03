@@ -13,7 +13,6 @@ import { PageHeader } from './ui/page-header';
 import { EmptyState, Spinner } from './ui/state-views';
 import { ToastService } from './ui/toast.service';
 
-type SourceFilter = 'all' | 'website' | 'yes' | 'maybe';
 type Badge = { label: string; css: string };
 
 const KNOWN_ROLES: readonly string[] = FEEDBACK_OPTIONS.contributions;
@@ -33,7 +32,7 @@ const KNOWN_ROLES: readonly string[] = FEEDBACK_OPTIONS.contributions;
       </button>
     </app-page-header>
 
-    <nav class="ad-tabs" [attr.aria-label]="'admin.volunteers.sections' | transloco">
+    <nav class="section-tabs" [attr.aria-label]="'admin.volunteers.sections' | transloco">
       <a class="on" aria-current="page">{{ 'admin.volunteers.tabPeople' | transloco }}</a>
       <a routerLink="/admin/volunteers/form">{{ 'admin.volunteers.tabForm' | transloco }}</a>
     </nav>
@@ -66,14 +65,6 @@ const KNOWN_ROLES: readonly string[] = FEEDBACK_OPTIONS.contributions;
         <input class="ad-search" type="search" [ngModel]="query()" (ngModelChange)="query.set($event)"
                [placeholder]="'admin.volunteers.searchPlaceholder' | transloco"
                [attr.aria-label]="'admin.common.search' | transloco" />
-        <div class="segmented" role="group" [attr.aria-label]="'admin.volunteers.sourceLabel' | transloco">
-          @for (option of sourceOptions; track option.value) {
-            <button type="button" [class.on]="source() === option.value" [attr.aria-pressed]="source() === option.value"
-                    (click)="source.set(option.value)">
-              {{ option.label | transloco }}
-            </button>
-          }
-        </div>
       </div>
 
       <div class="roles" role="group" [attr.aria-label]="'admin.volunteers.rolesLabel' | transloco">
@@ -693,16 +684,8 @@ export class AdminVolunteers {
   readonly loading = signal(true);
   readonly saving = signal(false);
   readonly query = signal('');
-  readonly source = signal<SourceFilter>('all');
   readonly role = signal<string>('all');
   readonly selectedEmail = signal<string | null>(null);
-
-  readonly sourceOptions: { value: SourceFilter; label: string }[] = [
-    { value: 'all', label: 'admin.volunteers.sourceAll' },
-    { value: 'website', label: 'admin.volunteers.sourceWebsite' },
-    { value: 'yes', label: 'admin.volunteers.sourceYes' },
-    { value: 'maybe', label: 'admin.volunteers.sourceMaybe' }
-  ];
 
   /** The usual roles, then any choice added in the form editor or found in someone's answers. */
   readonly roleCodes = computed(() => {
@@ -718,10 +701,8 @@ export class AdminVolunteers {
 
   readonly visible = computed(() => {
     const q = this.query().trim().toLowerCase();
-    const source = this.source();
     const role = this.role();
     return this.people()
-      .filter(p => source === 'all' || (source === 'website' ? !!p.signup : p.feedback?.interest === source))
       .filter(p => role === 'all' || p.contributions.includes(role))
       .filter(p => !q || `${p.fullName} ${p.email} ${p.phone ?? ''}`.toLowerCase().includes(q));
   });

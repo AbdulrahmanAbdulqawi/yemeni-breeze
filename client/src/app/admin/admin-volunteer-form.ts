@@ -42,7 +42,7 @@ const newId = (prefix: string) => `${prefix}-${Math.random().toString(36).slice(
       </button>
     </app-page-header>
 
-    <nav class="ad-tabs" [attr.aria-label]="'admin.volunteers.sections' | transloco">
+    <nav class="section-tabs" [attr.aria-label]="'admin.volunteers.sections' | transloco">
       <a routerLink="/admin/volunteers">{{ 'admin.volunteers.tabPeople' | transloco }}</a>
       <a class="on" aria-current="page">{{ 'admin.volunteers.tabForm' | transloco }}</a>
     </nav>
