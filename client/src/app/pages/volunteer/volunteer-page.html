@@ -13,10 +13,7 @@
         @for (n of [1, 2, 3]; track n) {
           <li class="card card-content step" appReveal>
             <span class="step-n" aria-hidden="true">{{ n }}</span>
-            <div>
-              <h3>{{ 'volunteer.step' + n + 'Title' | transloco }}</h3>
-              <p>{{ 'volunteer.step' + n + 'Text' | transloco }}</p>
-            </div>
+            <h3>{{ 'volunteer.step' + n + 'Title' | transloco }}</h3>
           </li>
         }
       </ol>

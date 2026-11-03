@@ -39,16 +39,11 @@
 .step {
   display: flex;
   gap: 0.9rem;
-  align-items: flex-start;
+  align-items: center;
 
   h3 {
     font-size: 1.05rem;
-    margin: 0 0 0.15rem;
-  }
-
-  p {
     margin: 0;
-    font-size: 0.95rem;
   }
 }
 
