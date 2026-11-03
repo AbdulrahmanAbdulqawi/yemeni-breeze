@@ -3,6 +3,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { ApiService } from '../../core/api.service';
 import { CmsPipe } from '../../core/cms.pipe';
+import { isPastEvent } from '../../core/event-time';
 import { LanguageService } from '../../core/language.service';
 import { EventDto } from '../../core/models';
 import { EventCard } from '../../shared/event-card';
@@ -22,11 +23,11 @@ export class EventsList {
 
   readonly upcoming = computed(() =>
     this.events()
-      .filter(e => e.status === 'Published')
+      .filter(e => e.status === 'Published' && !isPastEvent(e))
       .sort((a, b) => a.date.localeCompare(b.date)));
 
   readonly past = computed(() =>
     this.events()
-      .filter(e => e.status === 'Past')
+      .filter(e => isPastEvent(e))
       .sort((a, b) => b.date.localeCompare(a.date)));
 }

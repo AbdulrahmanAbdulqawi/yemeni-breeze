@@ -6,6 +6,7 @@ import { gsap } from 'gsap';
 import { map } from 'rxjs';
 import { ApiService } from '../../core/api.service';
 import { CmsPipe } from '../../core/cms.pipe';
+import { isPastEvent } from '../../core/event-time';
 import { EventCard } from '../../shared/event-card';
 import { CountUp } from '../../shared/motion/count-up.directive';
 import { Reveal } from '../../shared/motion/reveal.directive';
@@ -22,7 +23,7 @@ export class Home {
   readonly nextEvent = toSignal(
     this.api.getEvents().pipe(
       map(events => events
-        .filter(e => e.status === 'Published' && e.isRegistrationOpen)
+        .filter(e => e.status === 'Published' && e.isRegistrationOpen && !isPastEvent(e))
         .sort((a, b) => a.date.localeCompare(b.date))[0] ?? null)
     ),
     { initialValue: null }

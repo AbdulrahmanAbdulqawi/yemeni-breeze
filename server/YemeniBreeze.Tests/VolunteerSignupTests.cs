@@ -111,6 +111,11 @@ public class VolunteerSignupTests(EmailApiFactory factory) : IClassFixture<Email
         Assert.Contains("vrijwilliger", thanks.Subject);
         Assert.Contains("Beste Nadia", thanks.Html);
         Assert.Contains("https://yemenbreeze.nl/events", thanks.Text);
+
+        var english = RegistrationEmails.BuildVolunteerThanks(
+            new VolunteerSignup { FullName = "Omar Saleh", Email = "omar@signup.test", Language = "en" }, "https://yemenbreeze.nl");
+        Assert.Equal("Thank you for your volunteer application", english.Subject);
+        Assert.Contains("We have your volunteer application.", english.Text);
     }
 
     [Fact]

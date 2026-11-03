@@ -340,10 +340,10 @@
     "errorSend": "Your sign-up could not be sent. Please check your answers and try again.",
     "errorBusy": "Too many tries in a short time. Please wait a few minutes and try again.",
     "thanksTitle": "Thank you, {{name}}!",
-    "thanksText": "We have your sign-up. Someone from the team will get in touch with you soon.",
+    "thanksText": "We have your application. Someone from the team will get in touch with you soon.",
     "thanksCopy": "We also sent a copy to",
     "seeEvents": "See upcoming events",
-    "another": "Sign up someone else"
+    "another": "Send another application"
   },
   "admin": {
     "login": {

@@ -89,7 +89,7 @@ public enum EmailKind
     Rejected = 5,
     /// <summary>"How was the gathering?" — sent by an admin after the event, links to the feedback form.</summary>
     Feedback = 6,
-    /// <summary>"Thanks for signing up" — sent to someone who signed up on the Volunteer page.</summary>
+    /// <summary>"Thanks for your application" — sent to someone who applied on the Volunteer page.</summary>
     VolunteerThanks = 7
 }
 
