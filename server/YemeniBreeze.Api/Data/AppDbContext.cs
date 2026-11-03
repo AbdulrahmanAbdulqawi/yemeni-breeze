@@ -18,6 +18,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<TeamMember> TeamMembers => Set<TeamMember>();
     public DbSet<OutgoingEmail> OutgoingEmails => Set<OutgoingEmail>();
     public DbSet<FeedbackResponse> FeedbackResponses => Set<FeedbackResponse>();
+    public DbSet<VolunteerSignup> VolunteerSignups => Set<VolunteerSignup>();
+    public DbSet<VolunteerForm> VolunteerForms => Set<VolunteerForm>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -61,6 +63,10 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
                 .WithMany()
                 .HasForeignKey(x => x.RegistrationId)
                 .OnDelete(DeleteBehavior.Cascade);
+            o.HasOne(x => x.VolunteerSignup)
+                .WithMany()
+                .HasForeignKey(x => x.VolunteerSignupId)
+                .OnDelete(DeleteBehavior.Cascade);
             o.Property(x => x.LastError).HasMaxLength(1000);
             o.HasIndex(x => new { x.Status, x.NextAttemptAt });
             o.HasIndex(x => new { x.RegistrationId, x.Kind });
@@ -89,6 +95,17 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
                          nameof(FeedbackResponse.Ideas), nameof(FeedbackResponse.AnythingElse)
                      })
                 f.Property(text).HasMaxLength(2000);
+        });
+
+        builder.Entity<VolunteerSignup>(v =>
+        {
+            v.Property(x => x.FullName).HasMaxLength(200);
+            v.Property(x => x.Email).HasMaxLength(300);
+            v.Property(x => x.Phone).HasMaxLength(50);
+            v.Property(x => x.Language).HasMaxLength(5);
+            v.Property(x => x.Contributions).HasMaxLength(1000);
+            v.Property(x => x.ContributionsOther).HasMaxLength(300);
+            v.HasIndex(x => x.Email);
         });
 
         builder.Entity<SiteSetting>(s =>

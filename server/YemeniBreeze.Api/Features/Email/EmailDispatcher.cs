@@ -9,6 +9,9 @@ public static class EmailOutbox
 {
     public static void Enqueue(AppDbContext db, Registration registration, EmailKind kind) =>
         db.OutgoingEmails.Add(new OutgoingEmail { Registration = registration, Kind = kind });
+
+    public static void EnqueueVolunteerThanks(AppDbContext db, VolunteerSignup signup) =>
+        db.OutgoingEmails.Add(new OutgoingEmail { VolunteerSignup = signup, Kind = EmailKind.VolunteerThanks });
 }
 
 /// <summary>Lets request handlers nudge the dispatcher so new emails go out right away instead of on the next poll.</summary>
@@ -104,6 +107,7 @@ public class EmailDispatcher(
 
         var batch = await db.OutgoingEmails
             .Include(o => o.Registration!).ThenInclude(r => r.Event)
+            .Include(o => o.VolunteerSignup)
             .Where(o => o.Status == EmailStatus.Pending && o.NextAttemptAt <= nowUtc)
             .OrderBy(o => o.NextAttemptAt).ThenBy(o => o.Id)
             .Take(20)
@@ -129,16 +133,27 @@ public class EmailDispatcher(
 
     private async Task SendOneAsync(OutgoingEmail item, EmailOptions options, CancellationToken ct)
     {
-        var registration = item.Registration!;
-        var ev = registration.Event!;
-        registration.ManageToken ??= Guid.NewGuid();
-
-        var content = RegistrationEmails.Build(registration, ev, item.Kind, options.SiteUrl);
-        if (content is null)
+        string toName, toEmail;
+        EmailContent? content;
+        if (item.VolunteerSignup is { } signup)
         {
-            item.Status = EmailStatus.Skipped;
-            item.LastError = $"Registration is {registration.Status}; the {item.Kind} email no longer applies.";
-            return;
+            toName = signup.FullName;
+            toEmail = signup.Email;
+            content = RegistrationEmails.BuildVolunteerThanks(signup, options.SiteUrl);
+        }
+        else
+        {
+            var registration = item.Registration!;
+            registration.ManageToken ??= Guid.NewGuid();
+            toName = registration.FullName;
+            toEmail = registration.Email;
+            content = RegistrationEmails.Build(registration, registration.Event!, item.Kind, options.SiteUrl);
+            if (content is null)
+            {
+                item.Status = EmailStatus.Skipped;
+                item.LastError = $"Registration is {registration.Status}; the {item.Kind} email no longer applies.";
+                return;
+            }
         }
 
         if (!emails.IsConfigured)
@@ -146,19 +161,19 @@ public class EmailDispatcher(
             item.Status = EmailStatus.Skipped;
             item.LastError = "No email provider configured.";
             logger.LogInformation("Email not configured — would send '{Subject}' to {Email}",
-                content.Subject, registration.Email);
+                content.Subject, toEmail);
             return;
         }
 
         item.Attempts++;
         try
         {
-            await emails.SendAsync(registration.FullName, registration.Email, content, ct);
+            await emails.SendAsync(toName, toEmail, content, ct);
             item.Status = EmailStatus.Sent;
             item.SentAt = DateTime.UtcNow;
             item.LastError = null;
             logger.LogInformation("Sent {Kind} email to {Email} via {Provider}",
-                item.Kind, registration.Email, options.ResolvedProvider);
+                item.Kind, toEmail, options.ResolvedProvider);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
@@ -170,7 +185,7 @@ public class EmailDispatcher(
     /// <summary>Schedules a retry with backoff, or gives up once the attempts are used.</summary>
     private void Fail(OutgoingEmail item, EmailOptions options, Exception ex, bool giveUp = false)
     {
-        var to = item.Registration?.Email;
+        var to = item.Registration?.Email ?? item.VolunteerSignup?.Email;
         var error = ex.Message;
         item.LastError = error.Length > 1000 ? error[..1000] : error;
         if (giveUp || item.Attempts >= options.MaxAttempts)

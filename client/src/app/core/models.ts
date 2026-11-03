@@ -163,23 +163,61 @@ export interface FeedbackSummary {
 
 export type FeedbackAudience = 'checkedIn' | 'confirmed';
 
-/** Someone who said yes or maybe to taking part, with their latest answers. */
+/** Text in the site's three languages. Dutch and Arabic may be empty: English is the fallback. */
+export interface LocalizedText {
+  en: string;
+  nl: string;
+  ar: string;
+}
+
+export type VolunteerFieldType = 'short' | 'long' | 'email' | 'phone' | 'one' | 'many' | 'yesno' | 'date';
+
+/**
+ * One question on the Volunteer form. `lock` marks the questions that can't be removed:
+ * 'contact' (name, email) and 'roles' (what they want to help with).
+ */
+export interface VolunteerFormField {
+  id: string;
+  type: VolunteerFieldType;
+  lock: 'contact' | 'roles' | null;
+  required: boolean;
+  label: LocalizedText;
+  help: LocalizedText;
+  options: { id: string; label: LocalizedText }[];
+}
+
+/** An answer to one of the form's other questions, with the question's wording when it was sent. */
+export interface VolunteerAnswer {
+  fieldId: string;
+  type: VolunteerFieldType;
+  question: LocalizedText;
+  value: string | null;
+  choices: LocalizedText[] | null;
+}
+
+/**
+ * Someone who wants to volunteer: they signed up on the website, said yes or maybe in an
+ * event's feedback, or both. People are matched by email, so each shows once.
+ */
 export interface Volunteer {
-  /** Their latest feedback response. */
-  id: number;
-  fullName: string;
   email: string;
+  fullName: string;
   phone: string | null;
   language: string;
-  interest: 'yes' | 'maybe';
   contributions: string[];
   contributionsOther: string | null;
-  ideas: string | null;
-  anythingElse: string | null;
-  event: { id: number; titleEn: string; titleNl: string; titleAr: string; date: string };
-  eventsCount: number;
-  updatedAt: string;
+  latestAt: string;
   contacted: boolean;
+  signup: { id: number; signedUpAt: string; answers: VolunteerAnswer[] } | null;
+  feedback: {
+    responseId: number;
+    interest: 'yes' | 'maybe';
+    event: { id: number; titleEn: string; titleNl: string; titleAr: string; date: string };
+    eventsCount: number;
+    ideas: string | null;
+    anythingElse: string | null;
+    repliedAt: string;
+  } | null;
 }
 export type EmailStatus = 'Pending' | 'Sent' | 'Failed' | 'Skipped';
 

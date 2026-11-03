@@ -196,6 +196,38 @@ public static class RegistrationEmails
             [new("yemen-breeze.png", Logo.Value, "image/png", LogoContentId)]);
     }
 
+    /// <summary>"Thanks for signing up": sent to someone who signed up on the Volunteer page.</summary>
+    public static EmailContent BuildVolunteerThanks(VolunteerSignup s, string publicBaseUrl)
+    {
+        var baseUrl = publicBaseUrl.TrimEnd('/');
+        var t = Strings(s.Language);
+        var subject = t["volunteerSubject"];
+        var heading = t["volunteerHeading"];
+        var greeting = string.Format(t["greeting"], FirstName(s.FullName));
+        var eventsUrl = $"{baseUrl}/events";
+
+        var body = new StringBuilder();
+        body.Append(Paragraph(H(greeting)));
+        body.Append(Paragraph(H(t["volunteerIntro"])));
+        body.Append(Paragraph(H(t["volunteerNext"])));
+        body.Append(Button(t["volunteerButton"], eventsUrl));
+
+        var html = Layout(s.Language, subject, t["volunteerPreheader"], heading, body.ToString(), t, baseUrl);
+
+        var text = new StringBuilder();
+        text.AppendLine("YEMEN BREEZE · نسمات اليمن").AppendLine();
+        text.AppendLine(heading).AppendLine();
+        text.AppendLine(greeting).AppendLine();
+        text.AppendLine(t["volunteerIntro"]).AppendLine();
+        text.AppendLine(t["volunteerNext"]).AppendLine();
+        text.AppendLine($"{t["volunteerButton"]}: {eventsUrl}").AppendLine();
+        text.AppendLine(t["signoff"]).AppendLine(t["team"]).AppendLine();
+        text.AppendLine(t["footer"]).AppendLine($"{t["followUs"]} {InstagramHandle} — {InstagramUrl}");
+
+        return new EmailContent(subject, html, text.ToString(),
+            [new("yemen-breeze.png", Logo.Value, "image/png", LogoContentId)]);
+    }
+
     private static string H(string? value) => WebUtility.HtmlEncode(value ?? "");
 
     private static string FirstName(string fullName) =>
@@ -593,6 +625,12 @@ public static class RegistrationEmails
             ["feedbackButtonNote"] = "Het duurt ongeveer 1 minuut.",
             ["feedbackClosing"] = "We kijken ernaar uit om van je te horen en je snel weer te zien!",
             ["feedbackPreheader"] = "Vertel ons wat je mooi vond en wat beter kan — 1 minuut.",
+            ["volunteerSubject"] = "Bedankt voor je aanmelding als vrijwilliger",
+            ["volunteerHeading"] = "Bedankt voor je aanmelding!",
+            ["volunteerIntro"] = "Wat fijn dat je wilt helpen bij Yemen Breeze! We hebben je aanmelding als vrijwilliger ontvangen.",
+            ["volunteerNext"] = "Iemand van ons team neemt binnenkort contact met je op om te bespreken wat je wilt doen. Tot die tijd ben je van harte welkom bij onze evenementen.",
+            ["volunteerButton"] = "Bekijk komende evenementen",
+            ["volunteerPreheader"] = "We hebben je aanmelding ontvangen — we nemen snel contact op.",
             ["greeting"] = "Beste {0},",
             ["shareNote"] = "Een klein verzoek: deel de details van dit evenement alsjeblieft niet met mensen die zich niet hebben ingeschreven. Ken je iemand die ook wil komen? Die kan zich inschrijven via onze website.",
             ["shareNoteLink"] = "Hier inschrijven",
@@ -657,6 +695,12 @@ public static class RegistrationEmails
             ["feedbackButtonNote"] = "يستغرق حوالي دقيقة واحدة.",
             ["feedbackClosing"] = "نتطلّع إلى سماع رأيك ورؤيتك مجددًا!",
             ["feedbackPreheader"] = "أخبرنا بما أحببته وبما يمكن أن نحسّنه — دقيقة واحدة فقط.",
+            ["volunteerSubject"] = "شكرًا لتسجيلك متطوعًا معنا",
+            ["volunteerHeading"] = "شكرًا لتسجيلك!",
+            ["volunteerIntro"] = "يسعدنا أنك ترغب في التطوع مع نسمات اليمن! وصلنا تسجيلك.",
+            ["volunteerNext"] = "سيتواصل معك أحد أعضاء فريقنا قريبًا ليتحدث معك عمّا تودّ أن تقدّمه. وحتى ذلك الحين، أنت مرحّب بك دائمًا في فعالياتنا.",
+            ["volunteerButton"] = "الفعاليات القادمة",
+            ["volunteerPreheader"] = "وصلنا تسجيلك — سنتواصل معك قريبًا.",
             ["greeting"] = "مرحبًا {0}،",
             ["shareNote"] = "طلب صغير: نرجو ألّا تشارك تفاصيل الفعالية مع أي شخص غير مسجّل. هل تعرف أحدًا يرغب في الانضمام؟ يمكنه التسجيل عبر موقعنا.",
             ["shareNoteLink"] = "سجّل من هنا",
@@ -721,6 +765,12 @@ public static class RegistrationEmails
             ["feedbackButtonNote"] = "It takes about 1 minute.",
             ["feedbackClosing"] = "We look forward to hearing from you and seeing you again!",
             ["feedbackPreheader"] = "Tell us what you loved and what we can do better — 1 minute.",
+            ["volunteerSubject"] = "Thank you for signing up to volunteer",
+            ["volunteerHeading"] = "Thank you for signing up!",
+            ["volunteerIntro"] = "We are so happy you would like to help with Yemen Breeze! We have your volunteer sign-up.",
+            ["volunteerNext"] = "Someone from our team will get in touch with you soon to talk about what you would like to do. Until then, you are always welcome at our events.",
+            ["volunteerButton"] = "See upcoming events",
+            ["volunteerPreheader"] = "We have your sign-up — we will be in touch soon.",
             ["greeting"] = "Dear {0},",
             ["shareNote"] = "A small request: please keep the event details to yourself and don't share them with anyone who hasn't registered. Know someone who'd like to join? They can sign up through our website.",
             ["shareNoteLink"] = "Register here",

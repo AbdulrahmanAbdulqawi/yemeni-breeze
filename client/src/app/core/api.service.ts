@@ -14,6 +14,7 @@ import {
   FeedbackForm,
   FeedbackSummary,
   Volunteer,
+  VolunteerFormField,
   GalleryItemDto,
   GalleryPageDto,
   LoginResponse,
@@ -158,8 +159,30 @@ export class ApiService {
     return this.http.get<Volunteer[]>('/api/admin/volunteers');
   }
 
-  adminSetVolunteerContacted(id: number, contacted: boolean) {
-    return this.http.post<{ contacted: boolean }>(`/api/admin/volunteers/${id}/contacted`, { contacted });
+  adminSetVolunteerContacted(email: string, contacted: boolean) {
+    return this.http.post<{ contacted: boolean }>('/api/admin/volunteers/contacted', { email, contacted });
+  }
+
+  getVolunteerForm() {
+    return this.http.get<{ fields: VolunteerFormField[] }>('/api/volunteer-form');
+  }
+
+  /** `answers` maps question ids to text, or to a list of choice ids for "pick several". */
+  volunteerSignup(request: {
+    language: string;
+    answers: Record<string, string | string[]>;
+    helpOther: string | null;
+    consent: boolean;
+  }) {
+    return this.http.post<{ message: string }>('/api/volunteers', request);
+  }
+
+  adminGetVolunteerForm() {
+    return this.http.get<{ fields: VolunteerFormField[]; updatedAt: string | null }>('/api/admin/volunteers/form');
+  }
+
+  adminSaveVolunteerForm(fields: VolunteerFormField[]) {
+    return this.http.put<{ fields: VolunteerFormField[]; updatedAt: string | null }>('/api/admin/volunteers/form', { fields });
   }
 
   volunteersCsvUrl() {

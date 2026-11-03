@@ -568,7 +568,7 @@ namespace YemeniBreeze.Api.Migrations
                     b.Property<DateTime>("NextAttemptAt")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("RegistrationId")
+                    b.Property<int?>("RegistrationId")
                         .HasColumnType("INTEGER");
 
                     b.Property<DateTime?>("SentAt")
@@ -577,7 +577,12 @@ namespace YemeniBreeze.Api.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("INTEGER");
 
+                    b.Property<int?>("VolunteerSignupId")
+                        .HasColumnType("INTEGER");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("VolunteerSignupId");
 
                     b.HasIndex("RegistrationId", "Kind");
 
@@ -743,6 +748,74 @@ namespace YemeniBreeze.Api.Migrations
                     b.ToTable("TeamMembers");
                 });
 
+            modelBuilder.Entity("YemeniBreeze.Api.Domain.VolunteerForm", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("FieldsJson")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("VolunteerForms");
+                });
+
+            modelBuilder.Entity("YemeniBreeze.Api.Domain.VolunteerSignup", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("AnswersJson")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("ContactedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Contributions")
+                        .HasMaxLength(1000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ContributionsOther")
+                        .HasMaxLength(300)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Language")
+                        .IsRequired()
+                        .HasMaxLength(5)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Phone")
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Email");
+
+                    b.ToTable("VolunteerSignups");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -837,10 +910,16 @@ namespace YemeniBreeze.Api.Migrations
                     b.HasOne("YemeniBreeze.Api.Domain.Registration", "Registration")
                         .WithMany()
                         .HasForeignKey("RegistrationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("YemeniBreeze.Api.Domain.VolunteerSignup", "VolunteerSignup")
+                        .WithMany()
+                        .HasForeignKey("VolunteerSignupId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("Registration");
+
+                    b.Navigation("VolunteerSignup");
                 });
 
             modelBuilder.Entity("YemeniBreeze.Api.Domain.Registration", b =>

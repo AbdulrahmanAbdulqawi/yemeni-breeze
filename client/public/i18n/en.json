@@ -16,6 +16,10 @@
       "title": "Gallery",
       "description": "Photos from Yemen Breeze events — Yemeni food, music, and community in Amsterdam."
     },
+    "volunteer": {
+      "title": "Volunteer",
+      "description": "Volunteer with Yemen Breeze: cook, perform, take photos or help on the day. Tell us what you would like to do."
+    },
     "contact": {
       "title": "Book us",
       "description": "Book Yemen Breeze for your event — photography and video editing, a Yemeni corner, and Yemeni food."
@@ -26,6 +30,7 @@
     "about": "Our Story",
     "events": "Events",
     "gallery": "Gallery",
+    "volunteer": "Volunteer",
     "contact": "Book us"
   },
   "footer": {
@@ -54,7 +59,14 @@
     "upcomingTitle": "Upcoming event",
     "viewAllEvents": "See all events",
     "missionTitle": "Why we exist",
-    "missionText": "Most people outside Yemen only know the war. We show another side: history, art, beauty. Yemen Breeze celebrates what Yemen has given to the world — and challenges the stereotypes and discrimination that Yemenis and other diaspora communities face."
+    "missionText": "Most people outside Yemen only know the war. We show another side: history, art, beauty. Yemen Breeze celebrates what Yemen has given to the world — and challenges the stereotypes and discrimination that Yemenis and other diaspora communities face.",
+    "volunteerTitle": "Want to volunteer?",
+    "volunteerText": "Cook, perform, take photos or help on the day. Join the people who make Yemen Breeze happen.",
+    "volunteerCta": "Volunteer with us",
+    "volunteerCooking": "Cooking",
+    "volunteerMusic": "Music & dance",
+    "volunteerMedia": "Photos & media",
+    "volunteerHelping": "Helping out"
   },
   "about": {
     "title": "Our Story",
@@ -303,6 +315,38 @@
     "sent": "Thank you — we will get back to you soon.",
     "error": "Could not send your message. Please try again.",
     "emailTitle": "Email us"
+  },
+  "volunteer": {
+    "title": "Volunteer with Yemen Breeze",
+    "intro": "Help us share Yemeni food, music and traditions in the Netherlands. Tell us what you would like to do, and we will get in touch before the next event.",
+    "howTitle": "How it works",
+    "step1Title": "Tell us what you'd like to do",
+    "step1Text": "Pick one thing or several. No experience needed.",
+    "step2Title": "We get in touch",
+    "step2Text": "Someone from the team contacts you by email or phone.",
+    "step3Title": "Join us at the next event",
+    "step3Text": "We plan it together, as much or as little as you like.",
+    "questions": "Questions first? Email",
+    "formTitle": "Join our volunteers",
+    "requiredNote": "Fields marked with this are needed:",
+    "otherLabel": "What else would you like to do?",
+    "yes": "Yes",
+    "no": "No",
+    "consent": "Yemen Breeze may contact me about volunteering. My details are only used for this.",
+    "send": "Send my sign-up",
+    "sending": "Sending…",
+    "loading": "Loading the form…",
+    "loadError": "The form could not be loaded. Please refresh the page or try again later.",
+    "errorRequired": "Please answer: {{question}}",
+    "errorEmail": "Please enter a valid email address.",
+    "errorConsent": "Please tick the box so we can contact you.",
+    "errorSend": "Your sign-up could not be sent. Please check your answers and try again.",
+    "errorBusy": "Too many tries in a short time. Please wait a few minutes and try again.",
+    "thanksTitle": "Thank you, {{name}}!",
+    "thanksText": "We have your sign-up. Someone from the team will get in touch with you soon.",
+    "thanksCopy": "We also sent a copy to",
+    "seeEvents": "See upcoming events",
+    "another": "Sign up someone else"
   },
   "admin": {
     "login": {
@@ -566,19 +610,13 @@
       "queuedOne": "Feedback email on its way to {{name}}."
     },
     "volunteers": {
-      "title": "People who want to take part",
-      "intro": "Guests who said yes or maybe in their feedback, from every event.",
-      "statTotal": "Want to take part",
-      "statYes": "Yes, definitely",
-      "statMaybe": "Maybe, want to know more",
+      "title": "Volunteers",
+      "intro": "Sign-ups from the website's Volunteer page, and guests who said yes or maybe in their feedback.",
+      "statTotal": "Volunteers",
       "statNew": "Not contacted yet",
       "searchPlaceholder": "Search by name, email or phone",
-      "interestLabel": "Interest",
-      "interestAll": "Yes + maybe",
-      "interestYes": "Yes",
-      "interestMaybe": "Maybe",
-      "badgeYes": "Yes, definitely",
-      "badgeMaybe": "Maybe",
+      "badgeYes": "Feedback: yes",
+      "badgeMaybe": "Feedback: maybe",
       "rolesLabel": "What they want to do:",
       "all": "All",
       "roles": {
@@ -592,9 +630,7 @@
         "other": "Other"
       },
       "colName": "Name",
-      "colInterest": "Interest",
       "colRoles": "Wants to help with",
-      "colEvent": "Event",
       "colStatus": "Status",
       "replied": "Replied {{date}}",
       "statusNew": "New",
@@ -607,7 +643,6 @@
       "language": "Language",
       "event": "Latest event",
       "eventsCount": "Events",
-      "repliedLabel": "Replied",
       "languages": {
         "en": "English",
         "ar": "Arabic",
@@ -626,8 +661,82 @@
       "seeFeedback": "See full feedback",
       "markedContacted": "{{name}} marked as contacted",
       "markedNew": "{{name}} marked as new",
-      "empty": "No one has said they want to take part yet. Names appear here once guests answer the feedback form.",
-      "noMatch": "No one matches these filters."
+      "empty": "No volunteers yet. People show here once they sign up on the Volunteer page, or say yes or maybe in an event's feedback.",
+      "noMatch": "No one matches these filters.",
+      "sections": "Volunteers sections",
+      "tabPeople": "People",
+      "tabForm": "Sign-up form",
+      "statWebsite": "Signed up on the website",
+      "statFeedback": "Said yes or maybe in feedback",
+      "sourceLabel": "Came from",
+      "sourceAll": "Everyone",
+      "sourceWebsite": "Website sign-ups",
+      "sourceYes": "Feedback: yes",
+      "sourceMaybe": "Feedback: maybe",
+      "badgeWebsite": "Website sign-up",
+      "colSource": "Came from",
+      "colWhere": "Where",
+      "volunteerPage": "Volunteer page",
+      "signedUp": "Signed up {{date}}",
+      "signedUpLabel": "Signed up",
+      "moreAnswers": "More answers"
+    },
+    "volunteerForm": {
+      "intro": "Choose the questions on the website's Volunteer form. Changes show on the site once you save.",
+      "unsaved": "Unsaved changes",
+      "preview": "Preview form",
+      "discard": "Discard",
+      "save": "Save changes",
+      "saving": "Saving…",
+      "saved": "Form saved. The website shows the new questions now.",
+      "questions": "Questions",
+      "add": "Add a question",
+      "untitled": "Untitled question",
+      "newQuestion": "New question",
+      "required": "Required",
+      "optional": "Optional",
+      "alwaysOn": "Always on",
+      "needs": {
+        "nl": "Needs Dutch",
+        "ar": "Needs Arabic"
+      },
+      "moveUp": "Move “{{question}}” up",
+      "moveDown": "Move “{{question}}” down",
+      "alwaysLast": "The consent tick box and the Send button are always at the end of the form.",
+      "edit": "Edit question",
+      "lock": {
+        "contact": "Needed so you can contact people. You can change the wording, but not remove it or make it optional.",
+        "roles": "Used for the filters on the People tab. You can change the wording and the choices, but not remove it."
+      },
+      "type": "Answer type",
+      "types": {
+        "short": "Short answer",
+        "long": "Long answer",
+        "email": "Email",
+        "phone": "Phone number",
+        "one": "Pick one",
+        "many": "Pick several",
+        "yesno": "Yes / No",
+        "date": "Date"
+      },
+      "mustAnswer": "People must answer this",
+      "wording": "Wording",
+      "language": "Language",
+      "missingText": "Text missing",
+      "question": "Question",
+      "help": "Help text (optional, shown under the question)",
+      "choices": "Choices",
+      "choiceN": "Choice {{n}}",
+      "removeChoice": "Remove choice {{n}}",
+      "addChoice": "Add a choice",
+      "choiceNote": "Removing a choice doesn't change answers people already sent.",
+      "remove": "Remove this question",
+      "removeConfirm": "Remove “{{question}}”? Answers people already sent stay on their details.",
+      "removeYes": "Remove",
+      "keep": "Keep it",
+      "leaveConfirm": "You have unsaved changes to the form. Leave without saving?",
+      "leaveYes": "Leave without saving",
+      "stay": "Stay"
     }
   },
   "language": "Language"

@@ -1,6 +1,7 @@
 import { Component, DestroyRef, ElementRef, NgZone, afterNextRender, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { gsap } from 'gsap';
 import { map } from 'rxjs';
 import { ApiService } from '../../core/api.service';
@@ -11,7 +12,7 @@ import { Reveal } from '../../shared/motion/reveal.directive';
 
 @Component({
   selector: 'app-home',
-  imports: [RouterLink, CmsPipe, EventCard, Reveal, CountUp],
+  imports: [RouterLink, CmsPipe, TranslocoPipe, EventCard, Reveal, CountUp],
   templateUrl: './home.html',
   styleUrl: './home.scss'
 })

@@ -6,16 +6,22 @@ import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { ApiService } from '../core/api.service';
 import { LanguageService } from '../core/language.service';
 import { LocalizedDatePipe } from '../core/localized-date.pipe';
-import { Volunteer } from '../core/models';
+import { LocalizedText, Volunteer, VolunteerAnswer, VolunteerFormField } from '../core/models';
 import { FEEDBACK_OPTIONS } from '../pages/feedback/feedback-options';
 import { AdminLayout } from './admin-layout';
 import { PageHeader } from './ui/page-header';
 import { EmptyState, Spinner } from './ui/state-views';
 import { ToastService } from './ui/toast.service';
 
-type InterestFilter = 'all' | 'yes' | 'maybe';
+type SourceFilter = 'all' | 'website' | 'yes' | 'maybe';
+type Badge = { label: string; css: string };
 
-/** Everyone who said yes or maybe to taking part in future events, across all events. */
+const KNOWN_ROLES: readonly string[] = FEEDBACK_OPTIONS.contributions;
+
+/**
+ * Everyone who wants to volunteer: people who signed up on the website's Volunteer page and
+ * guests who said yes or maybe in an event's feedback. Each person shows once, matched by email.
+ */
 @Component({
   selector: 'app-admin-volunteers',
   imports: [FormsModule, RouterLink, TranslocoPipe, LocalizedDatePipe, PageHeader, EmptyState, Spinner],
@@ -26,6 +32,11 @@ type InterestFilter = 'all' | 'yes' | 'maybe';
         {{ 'admin.feedback.exportCsv' | transloco }}
       </button>
     </app-page-header>
+
+    <nav class="ad-tabs" [attr.aria-label]="'admin.volunteers.sections' | transloco">
+      <a class="on" aria-current="page">{{ 'admin.volunteers.tabPeople' | transloco }}</a>
+      <a routerLink="/admin/volunteers/form">{{ 'admin.volunteers.tabForm' | transloco }}</a>
+    </nav>
 
     @if (loading()) {
       <app-spinner />
@@ -38,12 +49,12 @@ type InterestFilter = 'all' | 'yes' | 'maybe';
           <span class="lbl">{{ 'admin.volunteers.statTotal' | transloco }}</span>
         </div>
         <div class="stat">
-          <span class="num yes">{{ countYes() }}</span>
-          <span class="lbl">{{ 'admin.volunteers.statYes' | transloco }}</span>
+          <span class="num web">{{ countWebsite() }}</span>
+          <span class="lbl">{{ 'admin.volunteers.statWebsite' | transloco }}</span>
         </div>
         <div class="stat">
-          <span class="num maybe">{{ people().length - countYes() }}</span>
-          <span class="lbl">{{ 'admin.volunteers.statMaybe' | transloco }}</span>
+          <span class="num yes">{{ countFeedback() }}</span>
+          <span class="lbl">{{ 'admin.volunteers.statFeedback' | transloco }}</span>
         </div>
         <div class="stat">
           <span class="num">{{ countNew() }}</span>
@@ -55,10 +66,10 @@ type InterestFilter = 'all' | 'yes' | 'maybe';
         <input class="ad-search" type="search" [ngModel]="query()" (ngModelChange)="query.set($event)"
                [placeholder]="'admin.volunteers.searchPlaceholder' | transloco"
                [attr.aria-label]="'admin.common.search' | transloco" />
-        <div class="segmented" role="group" [attr.aria-label]="'admin.volunteers.interestLabel' | transloco">
-          @for (option of interestOptions; track option.value) {
-            <button type="button" [class.on]="interest() === option.value" [attr.aria-pressed]="interest() === option.value"
-                    (click)="interest.set(option.value)">
+        <div class="segmented" role="group" [attr.aria-label]="'admin.volunteers.sourceLabel' | transloco">
+          @for (option of sourceOptions; track option.value) {
+            <button type="button" [class.on]="source() === option.value" [attr.aria-pressed]="source() === option.value"
+                    (click)="source.set(option.value)">
               {{ option.label | transloco }}
             </button>
           }
@@ -71,10 +82,10 @@ type InterestFilter = 'all' | 'yes' | 'maybe';
                 (click)="role.set('all')">
           {{ 'admin.volunteers.all' | transloco }} <span class="n">{{ people().length }}</span>
         </button>
-        @for (code of roleCodes; track code) {
+        @for (code of roleCodes(); track code) {
           <button type="button" class="role" [class.on]="role() === code" [attr.aria-pressed]="role() === code"
                   (click)="role.set(code)">
-            {{ 'admin.volunteers.roles.' + code | transloco }} <span class="n">{{ roleCount(code) }}</span>
+            {{ shortRole(code) }} <span class="n">{{ roleCount(code) }}</span>
           </button>
         }
       </div>
@@ -87,15 +98,15 @@ type InterestFilter = 'all' | 'yes' | 'maybe';
                 <thead>
                   <tr>
                     <th>{{ 'admin.volunteers.colName' | transloco }}</th>
-                    <th>{{ 'admin.volunteers.colInterest' | transloco }}</th>
+                    <th>{{ 'admin.volunteers.colSource' | transloco }}</th>
                     <th>{{ 'admin.volunteers.colRoles' | transloco }}</th>
-                    <th>{{ 'admin.volunteers.colEvent' | transloco }}</th>
+                    <th>{{ 'admin.volunteers.colWhere' | transloco }}</th>
                     <th>{{ 'admin.volunteers.colStatus' | transloco }}</th>
                   </tr>
                 </thead>
                 <tbody>
-                  @for (person of visible(); track person.id) {
-                    <tr [class.selected]="person.id === selectedId()">
+                  @for (person of visible(); track person.email) {
+                    <tr [class.selected]="person.email === selectedEmail()">
                       <td>
                         <button type="button" class="who" (click)="select(person)">
                           <span class="avatar" aria-hidden="true">{{ initials(person.fullName) }}</span>
@@ -106,15 +117,16 @@ type InterestFilter = 'all' | 'yes' | 'maybe';
                         </button>
                       </td>
                       <td>
-                        <span class="badge" [class.badge-confirmed]="person.interest === 'yes'"
-                              [class.badge-waitlisted]="person.interest === 'maybe'">
-                          {{ (person.interest === 'yes' ? 'admin.volunteers.badgeYes' : 'admin.volunteers.badgeMaybe') | transloco }}
+                        <span class="badges">
+                          @for (b of badges(person); track b.label) {
+                            <span class="badge" [class]="b.css">{{ b.label | transloco }}</span>
+                          }
                         </span>
                       </td>
                       <td>
                         <span class="chips">
                           @for (code of person.contributions.slice(0, 2); track code) {
-                            <span class="chip">{{ 'admin.volunteers.roles.' + code | transloco }}</span>
+                            <span class="chip">{{ shortRole(code) }}</span>
                           }
                           @if (person.contributions.length > 2) {
                             <span class="more">+{{ person.contributions.length - 2 }}</span>
@@ -122,8 +134,13 @@ type InterestFilter = 'all' | 'yes' | 'maybe';
                         </span>
                       </td>
                       <td class="event">
-                        <span class="event-title">{{ eventTitle(person) }}</span>
-                        <span class="muted">{{ 'admin.volunteers.replied' | transloco: { date: (person.updatedAt | localizedDate: 'medium') } }}</span>
+                        @if (person.signup && (!person.feedback || person.signup.signedUpAt >= person.feedback.repliedAt)) {
+                          <span class="event-title">{{ 'admin.volunteers.volunteerPage' | transloco }}</span>
+                          <span class="muted">{{ 'admin.volunteers.signedUp' | transloco: { date: (person.signup.signedUpAt | localizedDate: 'medium') } }}</span>
+                        } @else if (person.feedback; as fb) {
+                          <span class="event-title">{{ eventTitle(fb.event) }}</span>
+                          <span class="muted">{{ 'admin.volunteers.replied' | transloco: { date: (fb.repliedAt | localizedDate: 'medium') } }}</span>
+                        }
                       </td>
                       <td>
                         <span class="status" [class.contacted]="person.contacted">
@@ -148,17 +165,16 @@ type InterestFilter = 'all' | 'yes' | 'maybe';
               <div class="d-title">
                 <h2>{{ person.fullName }}</h2>
                 <div class="d-badges">
-                  <span class="badge" [class.badge-confirmed]="person.interest === 'yes'"
-                        [class.badge-waitlisted]="person.interest === 'maybe'">
-                    {{ (person.interest === 'yes' ? 'admin.volunteers.badgeYes' : 'admin.volunteers.badgeMaybe') | transloco }}
-                  </span>
+                  @for (b of badges(person); track b.label) {
+                    <span class="badge" [class]="b.css">{{ b.label | transloco }}</span>
+                  }
                   <span class="status pill" [class.contacted]="person.contacted">
                     <span class="dot" aria-hidden="true"></span>
                     {{ (person.contacted ? 'admin.volunteers.statusContacted' : 'admin.volunteers.statusNew') | transloco }}
                   </span>
                 </div>
               </div>
-              <button type="button" class="close" (click)="selectedId.set(null)"
+              <button type="button" class="close" (click)="selectedEmail.set(null)"
                       [attr.aria-label]="'admin.volunteers.close' | transloco">
                 <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
                   <path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none" />
@@ -177,14 +193,18 @@ type InterestFilter = 'all' | 'yes' | 'maybe';
                 }
                 <dt>{{ 'admin.volunteers.language' | transloco }}</dt>
                 <dd>{{ 'admin.volunteers.languages.' + person.language | transloco }}</dd>
-                <dt>{{ 'admin.volunteers.event' | transloco }}</dt>
-                <dd>{{ eventTitle(person) }}</dd>
-                @if (person.eventsCount > 1) {
-                  <dt>{{ 'admin.volunteers.eventsCount' | transloco }}</dt>
-                  <dd>{{ person.eventsCount }}</dd>
+                @if (person.signup; as s) {
+                  <dt>{{ 'admin.volunteers.signedUpLabel' | transloco }}</dt>
+                  <dd>{{ s.signedUpAt | localizedDate: 'long' }} · {{ 'admin.volunteers.volunteerPage' | transloco }}</dd>
                 }
-                <dt>{{ 'admin.volunteers.repliedLabel' | transloco }}</dt>
-                <dd>{{ person.updatedAt | localizedDate: 'long' }}</dd>
+                @if (person.feedback; as fb) {
+                  <dt>{{ 'admin.volunteers.event' | transloco }}</dt>
+                  <dd>{{ eventTitle(fb.event) }} · {{ fb.repliedAt | localizedDate: 'long' }}</dd>
+                  @if (fb.eventsCount > 1) {
+                    <dt>{{ 'admin.volunteers.eventsCount' | transloco }}</dt>
+                    <dd>{{ fb.eventsCount }}</dd>
+                  }
+                }
               </dl>
             </div>
 
@@ -200,7 +220,7 @@ type InterestFilter = 'all' | 'yes' | 'maybe';
                                 stroke-linejoin="round" fill="none" />
                         </svg>
                       </span>
-                      {{ 'feedback.options.contributions.' + code | transloco }}
+                      {{ fullRole(code) }}
                     </li>
                   }
                 </ul>
@@ -212,21 +232,41 @@ type InterestFilter = 'all' | 'yes' | 'maybe';
               }
             </div>
 
+            @if (shortAnswers(person); as answers) {
+              @if (answers.length) {
+                <div class="d-section">
+                  <h3>{{ 'admin.volunteers.moreAnswers' | transloco }}</h3>
+                  @for (a of answers; track a.fieldId) {
+                    <div class="said">
+                      <span class="said-label">{{ text(a.question) }}</span>
+                      <p class="answer">{{ answerText(a) }}</p>
+                    </div>
+                  }
+                </div>
+              }
+            }
+
             <div class="d-section">
               <h3>{{ 'admin.volunteers.ownWords' | transloco }}</h3>
-              @if (person.ideas) {
+              @for (a of longAnswers(person); track a.fieldId) {
+                <div class="said">
+                  <span class="said-label">{{ text(a.question) }}</span>
+                  <p>{{ a.value }}</p>
+                </div>
+              }
+              @if (person.feedback?.ideas; as ideas) {
                 <div class="said">
                   <span class="said-label">{{ 'admin.volunteers.ideas' | transloco }}</span>
-                  <p>{{ person.ideas }}</p>
+                  <p>{{ ideas }}</p>
                 </div>
               }
-              @if (person.anythingElse) {
+              @if (person.feedback?.anythingElse; as anything) {
                 <div class="said">
                   <span class="said-label">{{ 'admin.volunteers.anythingElse' | transloco }}</span>
-                  <p>{{ person.anythingElse }}</p>
+                  <p>{{ anything }}</p>
                 </div>
               }
-              @if (!person.ideas && !person.anythingElse) {
+              @if (!longAnswers(person).length && !person.feedback?.ideas && !person.feedback?.anythingElse) {
                 <p class="muted">{{ 'admin.volunteers.noWords' | transloco }}</p>
               }
             </div>
@@ -238,9 +278,11 @@ type InterestFilter = 'all' | 'yes' | 'maybe';
               <button type="button" class="btn btn-outline" [disabled]="saving()" (click)="toggleContacted(person)">
                 {{ (person.contacted ? 'admin.volunteers.markNew' : 'admin.volunteers.markContacted') | transloco }}
               </button>
-              <a class="see-all" [routerLink]="['/admin/events', person.event.id, 'feedback']">
-                {{ 'admin.volunteers.seeFeedback' | transloco }}
-              </a>
+              @if (person.feedback; as fb) {
+                <a class="see-all" [routerLink]="['/admin/events', fb.event.id, 'feedback']">
+                  {{ 'admin.volunteers.seeFeedback' | transloco }}
+                </a>
+              }
             </div>
           </aside>
         }
@@ -252,36 +294,19 @@ type InterestFilter = 'all' | 'yes' | 'maybe';
       color: #1d7c2e;
     }
 
-    .num.maybe {
-      color: #a86b0e;
+    .num.web {
+      color: #2b2bb0;
     }
 
-    .muted {
-      color: var(--ad-muted);
-      font-size: 0.85rem;
+    .badges {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.3rem;
     }
 
-    .segmented {
-      display: inline-flex;
-      border: 1.5px solid var(--ad-border-strong);
-      border-radius: 8px;
-      overflow: hidden;
-      background: var(--ad-surface);
-
-      button {
-        border: none;
-        background: none;
-        font: inherit;
-        font-weight: 600;
-        padding: 0.5rem 0.9rem;
-        cursor: pointer;
-        color: var(--ad-text);
-
-        &.on {
-          background: var(--yb-maroon);
-          color: var(--yb-cream);
-        }
-      }
+    .answer {
+      font-weight: 600;
     }
 
     .roles {
@@ -663,34 +688,45 @@ export class AdminVolunteers {
   private readonly detailsRef = viewChild<ElementRef<HTMLElement>>('details');
 
   readonly people = signal<Volunteer[]>([]);
+  /** The "help with" question, for the labels of choices the admin added in the form editor. */
+  private readonly helpField = signal<VolunteerFormField | null>(null);
   readonly loading = signal(true);
   readonly saving = signal(false);
   readonly query = signal('');
-  readonly interest = signal<InterestFilter>('all');
+  readonly source = signal<SourceFilter>('all');
   readonly role = signal<string>('all');
-  readonly selectedId = signal<number | null>(null);
+  readonly selectedEmail = signal<string | null>(null);
 
-  readonly roleCodes = FEEDBACK_OPTIONS.contributions;
-  readonly interestOptions: { value: InterestFilter; label: string }[] = [
-    { value: 'all', label: 'admin.volunteers.interestAll' },
-    { value: 'yes', label: 'admin.volunteers.interestYes' },
-    { value: 'maybe', label: 'admin.volunteers.interestMaybe' }
+  readonly sourceOptions: { value: SourceFilter; label: string }[] = [
+    { value: 'all', label: 'admin.volunteers.sourceAll' },
+    { value: 'website', label: 'admin.volunteers.sourceWebsite' },
+    { value: 'yes', label: 'admin.volunteers.sourceYes' },
+    { value: 'maybe', label: 'admin.volunteers.sourceMaybe' }
   ];
 
-  readonly countYes = computed(() => this.people().filter(p => p.interest === 'yes').length);
+  /** The usual roles, then any choice added in the form editor or found in someone's answers. */
+  readonly roleCodes = computed(() => {
+    const codes = [...KNOWN_ROLES];
+    for (const o of this.helpField()?.options ?? []) if (!codes.includes(o.id)) codes.push(o.id);
+    for (const p of this.people()) for (const c of p.contributions) if (!codes.includes(c)) codes.push(c);
+    return codes.filter(c => KNOWN_ROLES.includes(c) || this.roleCount(c) > 0);
+  });
+
+  readonly countWebsite = computed(() => this.people().filter(p => p.signup).length);
+  readonly countFeedback = computed(() => this.people().filter(p => p.feedback).length);
   readonly countNew = computed(() => this.people().filter(p => !p.contacted).length);
 
   readonly visible = computed(() => {
     const q = this.query().trim().toLowerCase();
-    const interest = this.interest();
+    const source = this.source();
     const role = this.role();
     return this.people()
-      .filter(p => interest === 'all' || p.interest === interest)
+      .filter(p => source === 'all' || (source === 'website' ? !!p.signup : p.feedback?.interest === source))
       .filter(p => role === 'all' || p.contributions.includes(role))
       .filter(p => !q || `${p.fullName} ${p.email} ${p.phone ?? ''}`.toLowerCase().includes(q));
   });
 
-  readonly selected = computed(() => this.people().find(p => p.id === this.selectedId()) ?? null);
+  readonly selected = computed(() => this.people().find(p => p.email === this.selectedEmail()) ?? null);
 
   constructor() {
     this.api.adminGetVolunteers().subscribe({
@@ -698,25 +734,49 @@ export class AdminVolunteers {
         this.people.set(people);
         this.loading.set(false);
         // On a wide screen the details sit beside the list, so open the first person straight away.
-        if (people.length && window.matchMedia('(min-width: 1100px)').matches) this.selectedId.set(people[0].id);
+        if (people.length && window.matchMedia('(min-width: 1100px)').matches) this.selectedEmail.set(people[0].email);
       },
       error: () => {
         this.loading.set(false);
         this.toasts.error(this.transloco.translate('admin.media.genericError'));
       }
     });
+    this.api.adminGetVolunteerForm().subscribe({
+      next: form => this.helpField.set(form.fields.find(f => f.id === 'help') ?? null),
+      error: () => this.helpField.set(null)
+    });
+  }
+
+  text(t: LocalizedText) {
+    const l = this.lang.current();
+    return (l === 'ar' ? t.ar : l === 'nl' ? t.nl : t.en) || t.en;
+  }
+
+  badges(person: Volunteer): Badge[] {
+    const list: Badge[] = [];
+    if (person.signup) list.push({ label: 'admin.volunteers.badgeWebsite', css: 'badge-pending' });
+    if (person.feedback?.interest === 'yes') list.push({ label: 'admin.volunteers.badgeYes', css: 'badge-confirmed' });
+    if (person.feedback?.interest === 'maybe') list.push({ label: 'admin.volunteers.badgeMaybe', css: 'badge-waitlisted' });
+    return list;
   }
 
   roleCount(code: string) {
     return this.people().filter(p => p.contributions.includes(code)).length;
   }
 
-  select(person: Volunteer) {
-    this.selectedId.set(person.id);
-    // On a phone the details are below the list: bring them into view.
-    if (!window.matchMedia('(min-width: 1100px)').matches) {
-      setTimeout(() => this.detailsRef()?.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'start' }));
-    }
+  private customRole(code: string) {
+    const option = this.helpField()?.options.find(o => o.id === code);
+    return option ? this.text(option.label) : code;
+  }
+
+  shortRole(code: string) {
+    return KNOWN_ROLES.includes(code) ? this.transloco.translate(`admin.volunteers.roles.${code}`) : this.customRole(code);
+  }
+
+  fullRole(code: string) {
+    return KNOWN_ROLES.includes(code)
+      ? this.transloco.translate(`feedback.options.contributions.${code}`)
+      : this.customRole(code);
   }
 
   /** The chosen tasks, without "other" (its own text is shown instead). */
@@ -724,8 +784,32 @@ export class AdminVolunteers {
     return person.contributions.filter(c => c !== 'other');
   }
 
-  eventTitle(person: Volunteer) {
-    const e = person.event;
+  shortAnswers(person: Volunteer) {
+    return (person.signup?.answers ?? []).filter(a => a.type !== 'long');
+  }
+
+  longAnswers(person: Volunteer) {
+    return (person.signup?.answers ?? []).filter(a => a.type === 'long' && a.value);
+  }
+
+  answerText(a: VolunteerAnswer) {
+    if (a.choices?.length) return a.choices.map(c => this.text(c)).join(', ');
+    if (a.type === 'yesno') return this.transloco.translate(a.value === 'yes' ? 'volunteer.yes' : 'volunteer.no');
+    if (a.type === 'date' && a.value) {
+      return new Date(a.value + 'T00:00:00').toLocaleDateString(this.lang.current(), { dateStyle: 'long' });
+    }
+    return a.value ?? '';
+  }
+
+  select(person: Volunteer) {
+    this.selectedEmail.set(person.email);
+    // On a phone the details are below the list: bring them into view.
+    if (!window.matchMedia('(min-width: 1100px)').matches) {
+      setTimeout(() => this.detailsRef()?.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+    }
+  }
+
+  eventTitle(e: { titleEn: string; titleNl: string; titleAr: string }) {
     const current = this.lang.current();
     return (current === 'ar' ? e.titleAr : current === 'nl' ? e.titleNl : e.titleEn) || e.titleEn;
   }
@@ -745,10 +829,10 @@ export class AdminVolunteers {
   toggleContacted(person: Volunteer) {
     const contacted = !person.contacted;
     this.saving.set(true);
-    this.api.adminSetVolunteerContacted(person.id, contacted).subscribe({
+    this.api.adminSetVolunteerContacted(person.email, contacted).subscribe({
       next: () => {
         this.saving.set(false);
-        this.people.update(list => list.map(p => (p.id === person.id ? { ...p, contacted } : p)));
+        this.people.update(list => list.map(p => (p.email === person.email ? { ...p, contacted } : p)));
         this.layout?.setNewVolunteers(this.countNew());
         this.toasts.success(this.transloco.translate(
           contacted ? 'admin.volunteers.markedContacted' : 'admin.volunteers.markedNew', { name: person.fullName }));

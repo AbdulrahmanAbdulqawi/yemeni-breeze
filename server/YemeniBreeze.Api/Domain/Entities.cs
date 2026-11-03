@@ -88,7 +88,9 @@ public enum EmailKind
     Reminder = 4,
     Rejected = 5,
     /// <summary>"How was the gathering?" — sent by an admin after the event, links to the feedback form.</summary>
-    Feedback = 6
+    Feedback = 6,
+    /// <summary>"Thanks for signing up" — sent to someone who signed up on the Volunteer page.</summary>
+    VolunteerThanks = 7
 }
 
 /// <summary>
@@ -139,12 +141,17 @@ public enum EmailStatus
     Skipped = 3
 }
 
-/// <summary>Outbox row: one email to one registrant, sent (and retried) by the EmailDispatcher.</summary>
+/// <summary>
+/// Outbox row: one email to one person, sent (and retried) by the EmailDispatcher. It belongs to a
+/// registration, or, for the volunteer thank-you email, to a volunteer sign-up.
+/// </summary>
 public class OutgoingEmail
 {
     public int Id { get; set; }
-    public int RegistrationId { get; set; }
+    public int? RegistrationId { get; set; }
     public Registration? Registration { get; set; }
+    public int? VolunteerSignupId { get; set; }
+    public VolunteerSignup? VolunteerSignup { get; set; }
     public EmailKind Kind { get; set; }
     public EmailStatus Status { get; set; } = EmailStatus.Pending;
     public int Attempts { get; set; }
@@ -217,4 +224,33 @@ public class ContactMessage
     public string Message { get; set; } = "";
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public bool IsRead { get; set; }
+}
+
+/// <summary>Someone who signed up on the website's Volunteer page.</summary>
+public class VolunteerSignup
+{
+    public int Id { get; set; }
+    public string FullName { get; set; } = "";
+    public string Email { get; set; } = "";
+    public string? Phone { get; set; }
+    public string Language { get; set; } = "en";
+    /// <summary>Choice ids picked in "What would you like to help with?", comma-separated.</summary>
+    public string? Contributions { get; set; }
+    public string? ContributionsOther { get; set; }
+    /// <summary>
+    /// Answers to the form's other questions, as JSON. Each keeps the question's wording from when
+    /// it was sent, so it still reads right after the question is changed or removed.
+    /// </summary>
+    public string AnswersJson { get; set; } = "[]";
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    /// <summary>When someone from the team marked this person as contacted.</summary>
+    public DateTime? ContactedAt { get; set; }
+}
+
+/// <summary>The questions on the Volunteer form, edited from the admin. One row; none means the defaults.</summary>
+public class VolunteerForm
+{
+    public int Id { get; set; }
+    public string FieldsJson { get; set; } = "[]";
+    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 }

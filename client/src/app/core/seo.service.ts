@@ -9,6 +9,7 @@ const PAGE_KEYS: Record<string, string> = {
   about: 'about',
   events: 'events',
   gallery: 'gallery',
+  volunteer: 'volunteer',
   contact: 'contact'
 };
 

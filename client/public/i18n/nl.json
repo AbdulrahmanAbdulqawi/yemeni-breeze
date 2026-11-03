@@ -16,6 +16,10 @@
       "title": "Galerij",
       "description": "Foto's van Yemen Breeze-evenementen — Jemenitisch eten, muziek en community in Amsterdam."
     },
+    "volunteer": {
+      "title": "Vrijwilliger",
+      "description": "Word vrijwilliger bij Yemen Breeze: koken, optreden, foto's maken of helpen op de dag zelf. Vertel ons wat je wilt doen."
+    },
     "contact": {
       "title": "Boek ons",
       "description": "Boek Yemen Breeze voor je evenement — fotografie en videomontage, een Jemenitische hoek en Jemenitisch eten."
@@ -26,6 +30,7 @@
     "about": "Ons verhaal",
     "events": "Evenementen",
     "gallery": "Galerij",
+    "volunteer": "Vrijwilliger",
     "contact": "Boek ons"
   },
   "footer": {
@@ -54,7 +59,14 @@
     "upcomingTitle": "Aankomend evenement",
     "viewAllEvents": "Bekijk alle evenementen",
     "missionTitle": "Waarom wij bestaan",
-    "missionText": "De meeste mensen buiten Jemen kennen alleen de oorlog. Wij laten een andere kant zien: geschiedenis, kunst, schoonheid. Yemen Breeze viert wat Jemen de wereld heeft gegeven — en bestrijdt de stereotypen en discriminatie waar Jemenieten en andere diasporagemeenschappen mee te maken hebben."
+    "missionText": "De meeste mensen buiten Jemen kennen alleen de oorlog. Wij laten een andere kant zien: geschiedenis, kunst, schoonheid. Yemen Breeze viert wat Jemen de wereld heeft gegeven — en bestrijdt de stereotypen en discriminatie waar Jemenieten en andere diasporagemeenschappen mee te maken hebben.",
+    "volunteerTitle": "Wil je vrijwilliger worden?",
+    "volunteerText": "Koken, optreden, foto's maken of helpen op de dag zelf. Sluit je aan bij de mensen die Yemen Breeze mogelijk maken.",
+    "volunteerCta": "Word vrijwilliger",
+    "volunteerCooking": "Koken",
+    "volunteerMusic": "Muziek & dans",
+    "volunteerMedia": "Foto's & media",
+    "volunteerHelping": "Meehelpen"
   },
   "about": {
     "title": "Ons verhaal",
@@ -303,6 +315,38 @@
     "sent": "Dank je — we nemen snel contact op.",
     "error": "Bericht kon niet worden verzonden. Probeer het opnieuw.",
     "emailTitle": "Mail ons"
+  },
+  "volunteer": {
+    "title": "Word vrijwilliger bij Yemen Breeze",
+    "intro": "Help ons Jemenitisch eten, muziek en tradities te delen in Nederland. Vertel ons wat je wilt doen, dan nemen we vóór het volgende evenement contact op.",
+    "howTitle": "Zo werkt het",
+    "step1Title": "Vertel wat je wilt doen",
+    "step1Text": "Kies één ding of meerdere. Ervaring is niet nodig.",
+    "step2Title": "We nemen contact op",
+    "step2Text": "Iemand van het team neemt per e-mail of telefoon contact met je op.",
+    "step3Title": "Doe mee bij het volgende evenement",
+    "step3Text": "We plannen het samen, zoveel of zo weinig als je wilt.",
+    "questions": "Eerst een vraag? Mail naar",
+    "formTitle": "Sluit je aan bij onze vrijwilligers",
+    "requiredNote": "Velden met dit teken zijn nodig:",
+    "otherLabel": "Wat wil je nog meer doen?",
+    "yes": "Ja",
+    "no": "Nee",
+    "consent": "Yemen Breeze mag contact met me opnemen over vrijwilligerswerk. Mijn gegevens worden alleen hiervoor gebruikt.",
+    "send": "Verstuur mijn aanmelding",
+    "sending": "Versturen…",
+    "loading": "Het formulier wordt geladen…",
+    "loadError": "Het formulier kon niet worden geladen. Vernieuw de pagina of probeer het later opnieuw.",
+    "errorRequired": "Beantwoord deze vraag: {{question}}",
+    "errorEmail": "Vul een geldig e-mailadres in.",
+    "errorConsent": "Vink het vakje aan zodat we contact met je kunnen opnemen.",
+    "errorSend": "Je aanmelding kon niet worden verstuurd. Controleer je antwoorden en probeer het opnieuw.",
+    "errorBusy": "Te veel pogingen in korte tijd. Wacht een paar minuten en probeer het opnieuw.",
+    "thanksTitle": "Bedankt, {{name}}!",
+    "thanksText": "We hebben je aanmelding ontvangen. Iemand van het team neemt snel contact met je op.",
+    "thanksCopy": "We hebben ook een kopie gestuurd naar",
+    "seeEvents": "Bekijk komende evenementen",
+    "another": "Meld nog iemand aan"
   },
   "admin": {
     "login": {
@@ -566,19 +610,13 @@
       "queuedOne": "De feedbackmail is onderweg naar {{name}}."
     },
     "volunteers": {
-      "title": "Mensen die willen meedoen",
-      "intro": "Gasten die in hun feedback ja of misschien zeiden, van alle evenementen.",
-      "statTotal": "Willen meedoen",
-      "statYes": "Ja, zeker",
-      "statMaybe": "Misschien, willen meer weten",
+      "title": "Vrijwilligers",
+      "intro": "Aanmeldingen via de Vrijwilliger-pagina van de website, en gasten die in hun feedback ja of misschien zeiden.",
+      "statTotal": "Vrijwilligers",
       "statNew": "Nog niet benaderd",
       "searchPlaceholder": "Zoek op naam, e-mail of telefoon",
-      "interestLabel": "Interesse",
-      "interestAll": "Ja + misschien",
-      "interestYes": "Ja",
-      "interestMaybe": "Misschien",
-      "badgeYes": "Ja, zeker",
-      "badgeMaybe": "Misschien",
+      "badgeYes": "Feedback: ja",
+      "badgeMaybe": "Feedback: misschien",
       "rolesLabel": "Wat ze willen doen:",
       "all": "Alle",
       "roles": {
@@ -592,9 +630,7 @@
         "other": "Anders"
       },
       "colName": "Naam",
-      "colInterest": "Interesse",
       "colRoles": "Wil helpen met",
-      "colEvent": "Evenement",
       "colStatus": "Status",
       "replied": "Gereageerd {{date}}",
       "statusNew": "Nieuw",
@@ -607,7 +643,6 @@
       "language": "Taal",
       "event": "Laatste evenement",
       "eventsCount": "Evenementen",
-      "repliedLabel": "Gereageerd",
       "languages": {
         "en": "Engels",
         "ar": "Arabisch",
@@ -626,8 +661,82 @@
       "seeFeedback": "Bekijk volledige feedback",
       "markedContacted": "{{name}} gemarkeerd als benaderd",
       "markedNew": "{{name}} gemarkeerd als nieuw",
-      "empty": "Nog niemand heeft aangegeven mee te willen doen. Namen verschijnen hier zodra gasten de feedback invullen.",
-      "noMatch": "Niemand past bij deze filters."
+      "empty": "Nog geen vrijwilligers. Mensen verschijnen hier zodra ze zich aanmelden op de Vrijwilliger-pagina, of ja of misschien zeggen in de feedback van een evenement.",
+      "noMatch": "Niemand past bij deze filters.",
+      "sections": "Onderdelen van Vrijwilligers",
+      "tabPeople": "Mensen",
+      "tabForm": "Aanmeldformulier",
+      "statWebsite": "Aangemeld via de website",
+      "statFeedback": "Ja of misschien in feedback",
+      "sourceLabel": "Gekomen via",
+      "sourceAll": "Iedereen",
+      "sourceWebsite": "Website-aanmeldingen",
+      "sourceYes": "Feedback: ja",
+      "sourceMaybe": "Feedback: misschien",
+      "badgeWebsite": "Website-aanmelding",
+      "colSource": "Gekomen via",
+      "colWhere": "Waar",
+      "volunteerPage": "Vrijwilliger-pagina",
+      "signedUp": "Aangemeld {{date}}",
+      "signedUpLabel": "Aangemeld",
+      "moreAnswers": "Meer antwoorden"
+    },
+    "volunteerForm": {
+      "intro": "Kies de vragen op het Vrijwilliger-formulier van de website. Wijzigingen staan op de site zodra je opslaat.",
+      "unsaved": "Niet-opgeslagen wijzigingen",
+      "preview": "Formulier bekijken",
+      "discard": "Verwerpen",
+      "save": "Wijzigingen opslaan",
+      "saving": "Opslaan…",
+      "saved": "Formulier opgeslagen. De website toont nu de nieuwe vragen.",
+      "questions": "Vragen",
+      "add": "Vraag toevoegen",
+      "untitled": "Vraag zonder titel",
+      "newQuestion": "Nieuwe vraag",
+      "required": "Verplicht",
+      "optional": "Optioneel",
+      "alwaysOn": "Altijd aan",
+      "needs": {
+        "nl": "Nederlands ontbreekt",
+        "ar": "Arabisch ontbreekt"
+      },
+      "moveUp": "“{{question}}” omhoog",
+      "moveDown": "“{{question}}” omlaag",
+      "alwaysLast": "Het toestemmingsvakje en de Verstuur-knop staan altijd onderaan het formulier.",
+      "edit": "Vraag bewerken",
+      "lock": {
+        "contact": "Nodig om mensen te kunnen bereiken. Je kunt de tekst aanpassen, maar de vraag niet verwijderen of optioneel maken.",
+        "roles": "Wordt gebruikt voor de filters op het tabblad Mensen. Je kunt de tekst en de keuzes aanpassen, maar de vraag niet verwijderen."
+      },
+      "type": "Soort antwoord",
+      "types": {
+        "short": "Kort antwoord",
+        "long": "Lang antwoord",
+        "email": "E-mail",
+        "phone": "Telefoonnummer",
+        "one": "Kies er één",
+        "many": "Kies er meerdere",
+        "yesno": "Ja / Nee",
+        "date": "Datum"
+      },
+      "mustAnswer": "Mensen moeten dit beantwoorden",
+      "wording": "Tekst",
+      "language": "Taal",
+      "missingText": "Tekst ontbreekt",
+      "question": "Vraag",
+      "help": "Hulptekst (optioneel, onder de vraag)",
+      "choices": "Keuzes",
+      "choiceN": "Keuze {{n}}",
+      "removeChoice": "Keuze {{n}} verwijderen",
+      "addChoice": "Keuze toevoegen",
+      "choiceNote": "Een keuze verwijderen verandert niets aan antwoorden die al zijn verstuurd.",
+      "remove": "Deze vraag verwijderen",
+      "removeConfirm": "“{{question}}” verwijderen? Antwoorden die al zijn verstuurd blijven bij de details staan.",
+      "removeYes": "Verwijderen",
+      "keep": "Behouden",
+      "leaveConfirm": "Je hebt niet-opgeslagen wijzigingen in het formulier. Weggaan zonder op te slaan?",
+      "leaveYes": "Weggaan zonder opslaan",
+      "stay": "Blijven"
     }
   },
   "language": "Taal"

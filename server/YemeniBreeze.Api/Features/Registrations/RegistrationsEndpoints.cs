@@ -164,7 +164,7 @@ public static class RegistrationsEndpoints
             var lastEmails = (await db.OutgoingEmails
                     .Where(o => o.Registration!.EventId == eventId && o.CreatedAt >= o.Registration.CreatedAt)
                     .ToListAsync())
-                .GroupBy(o => o.RegistrationId)
+                .GroupBy(o => o.RegistrationId!.Value)
                 .ToDictionary(g => g.Key, g => g.MaxBy(o => o.Id)!);
             return registrations.Select(r => ToDto(r, lastEmails.GetValueOrDefault(r.Id)));
         });

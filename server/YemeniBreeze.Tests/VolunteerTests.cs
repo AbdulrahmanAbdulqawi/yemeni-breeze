@@ -94,14 +94,16 @@ public class VolunteerTests(EmailApiFactory factory) : IClassFixture<EmailApiFac
         var list = await ListAsync();
         var twice = Find(list, $"Twice-{tag}@Volunteer.test");
         Assert.NotNull(twice);
-        Assert.Equal("yes", twice!.Value.GetProperty("interest").GetString());
+        var feedback = twice!.Value.GetProperty("feedback");
+        Assert.Equal("yes", feedback.GetProperty("interest").GetString());
         Assert.Equal(["cooking", "media"], twice.Value.GetProperty("contributions").EnumerateArray().Select(c => c.GetString()));
-        Assert.Equal(2, twice.Value.GetProperty("eventsCount").GetInt32());
-        Assert.Equal(second.Id, twice.Value.GetProperty("event").GetProperty("id").GetInt32());
+        Assert.Equal(2, feedback.GetProperty("eventsCount").GetInt32());
+        Assert.Equal(second.Id, feedback.GetProperty("event").GetProperty("id").GetInt32());
+        Assert.Equal(JsonValueKind.Null, twice.Value.GetProperty("signup").ValueKind);
         Assert.Equal("ar", twice.Value.GetProperty("language").GetString());
         Assert.Null(Find(list, $"twice-{tag}@volunteer.test"));
 
-        Assert.Equal("maybe", Find(list, $"maybe-{tag}@volunteer.test")!.Value.GetProperty("interest").GetString());
+        Assert.Equal("maybe", Find(list, $"maybe-{tag}@volunteer.test")!.Value.GetProperty("feedback").GetProperty("interest").GetString());
         Assert.Null(Find(list, $"no-{tag}@volunteer.test"));
         Assert.Null(Find(list, $"skipped-{tag}@volunteer.test"));
         Assert.Null(Find(list, $"changed-{tag}@volunteer.test"));
@@ -119,17 +121,19 @@ public class VolunteerTests(EmailApiFactory factory) : IClassFixture<EmailApiFac
 
         Assert.False(Find(await ListAsync(), email)!.Value.GetProperty("contacted").GetBoolean());
 
-        var marked = await _client.PostAsJsonAsync($"/api/admin/volunteers/{latest.Id}/contacted", new { contacted = true });
+        var marked = await _client.PostAsJsonAsync("/api/admin/volunteers/contacted",
+            new { email = email.ToUpperInvariant(), contacted = true });
         Assert.Equal(HttpStatusCode.OK, marked.StatusCode);
         Assert.True(Find(await ListAsync(), email)!.Value.GetProperty("contacted").GetBoolean());
         var stamped = await WithDbAsync(db => db.FeedbackResponses
             .Where(f => f.Id == old.Id || f.Id == latest.Id).Select(f => f.ContactedAt).ToListAsync());
         Assert.All(stamped, when => Assert.NotNull(when));
 
-        await _client.PostAsJsonAsync($"/api/admin/volunteers/{latest.Id}/contacted", new { contacted = false });
+        await _client.PostAsJsonAsync("/api/admin/volunteers/contacted", new { email, contacted = false });
         Assert.False(Find(await ListAsync(), email)!.Value.GetProperty("contacted").GetBoolean());
 
-        var missing = await _client.PostAsJsonAsync("/api/admin/volunteers/999999/contacted", new { contacted = true });
+        var missing = await _client.PostAsJsonAsync("/api/admin/volunteers/contacted",
+            new { email = "nobody@volunteer.test", contacted = true });
         Assert.Equal(HttpStatusCode.NotFound, missing.StatusCode);
     }
 

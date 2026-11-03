@@ -12,6 +12,7 @@ export const routes: Routes = [
       { path: 'events', loadComponent: () => import('./pages/events/events-list').then(m => m.EventsList) },
       { path: 'events/:slug', loadComponent: () => import('./pages/events/event-detail').then(m => m.EventDetail) },
       { path: 'gallery', loadComponent: () => import('./pages/gallery/gallery-page').then(m => m.GalleryPage) },
+      { path: 'volunteer', loadComponent: () => import('./pages/volunteer/volunteer-page').then(m => m.VolunteerPage) },
       { path: 'contact', loadComponent: () => import('./pages/contact/contact-page').then(m => m.ContactPage) },
       { path: 'team/:slug', loadComponent: () => import('./pages/team/team-member-page').then(m => m.TeamMemberPage) },
       { path: 'registrations/:token', loadComponent: () => import('./pages/registration/manage-registration').then(m => m.ManageRegistration) },
@@ -35,6 +36,11 @@ export const routes: Routes = [
       { path: 'events/:eventId/checkin', loadComponent: () => import('./admin/admin-checkin').then(m => m.AdminCheckin) },
       { path: 'events/:id', loadComponent: () => import('./admin/admin-event-form').then(m => m.AdminEventForm) },
       { path: 'volunteers', loadComponent: () => import('./admin/admin-volunteers').then(m => m.AdminVolunteers) },
+      {
+        path: 'volunteers/form',
+        loadComponent: () => import('./admin/admin-volunteer-form').then(m => m.AdminVolunteerForm),
+        canDeactivate: [(page: { canLeave(): boolean | Promise<boolean> }) => page.canLeave()]
+      },
       { path: 'media', loadComponent: () => import('./admin/media/media-studio').then(m => m.MediaStudio) },
       { path: 'gallery', redirectTo: 'media', pathMatch: 'full' },
       { path: 'messages', loadComponent: () => import('./admin/admin-messages').then(m => m.AdminMessages) },

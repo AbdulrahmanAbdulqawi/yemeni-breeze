@@ -212,3 +212,247 @@
     }
   }
 }
+
+/* Volunteers: People / Sign-up form tabs, segmented filters and the form editor */
+.admin-shell {
+  .ad-tabs {
+    display: flex;
+    gap: 0.25rem;
+    margin: -0.4rem 0 1.2rem;
+    border-bottom: 1px solid var(--ad-border);
+
+    a {
+      padding: 0.6rem 1rem;
+      margin-bottom: -1px;
+      font-weight: 700;
+      font-size: 0.92rem;
+      color: var(--ad-muted);
+      text-decoration: none;
+      border-bottom: 2.5px solid transparent;
+
+      &.on {
+        color: var(--ad-text);
+        border-bottom-color: var(--yb-maroon);
+      }
+
+      &:hover {
+        color: var(--yb-maroon);
+      }
+    }
+  }
+
+  .segmented {
+    display: inline-flex;
+    flex-wrap: wrap;
+    border: 1.5px solid var(--ad-border-strong);
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--ad-surface);
+
+    button {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      border: none;
+      background: none;
+      font: inherit;
+      font-weight: 600;
+      padding: 0.5rem 0.9rem;
+      cursor: pointer;
+      color: var(--ad-text);
+
+      &.on {
+        background: var(--yb-maroon);
+        color: var(--yb-cream);
+      }
+    }
+  }
+
+  .btn-sm {
+    padding: 0.35rem 0.8rem;
+    font-size: 0.86rem;
+  }
+
+  .btn-danger-outline {
+    background: #fff;
+    color: #a3231b;
+    border: 1.5px solid #e7b9b0;
+
+    &:hover {
+      background: #fbeae7;
+      color: #a3231b;
+    }
+  }
+
+  .icon {
+    width: 36px;
+    height: 36px;
+    flex: none;
+    border-radius: 8px;
+    border: 1px solid var(--ad-border);
+    background: var(--ad-surface);
+    color: var(--ad-text);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+
+    svg {
+      width: 14px;
+      height: 14px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2.4;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+  }
+
+  .fe-edit {
+    .part {
+      padding: 1rem 1.2rem;
+      border-bottom: 1px solid var(--ad-border);
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+
+      &:last-child {
+        border-bottom: none;
+      }
+    }
+
+    .row {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      gap: 0.8rem;
+    }
+
+    .grow {
+      flex: 1 1 200px;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 1.05rem;
+    }
+
+    h3 {
+      margin: 0;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--ad-muted);
+    }
+
+    label[for],
+    .lbl {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--ad-muted);
+      margin-top: 0.3rem;
+    }
+
+    input:not([type='checkbox']),
+    select {
+      min-height: 42px;
+      padding: 0.45rem 0.75rem;
+      border: 1.5px solid var(--ad-border-strong);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ad-text);
+      font: inherit;
+      box-sizing: border-box;
+      width: 100%;
+    }
+
+    input[dir='rtl'] {
+      font-family: 'Cairo', sans-serif;
+    }
+
+    .lock {
+      margin: 0;
+      padding: 0.6rem 0.75rem;
+      border-radius: 8px;
+      background: var(--yb-surface-low);
+      font-size: 0.86rem;
+    }
+
+    .fixed {
+      min-height: 42px;
+      display: flex;
+      align-items: center;
+      padding: 0 0.75rem;
+      border-radius: 8px;
+      background: var(--ad-bg);
+      font-weight: 600;
+    }
+
+    .check {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.55rem;
+      min-height: 42px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+
+      input {
+        width: 18px;
+        height: 18px;
+        margin: 0;
+        accent-color: var(--yb-maroon);
+      }
+    }
+
+    .choice {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .mark {
+      width: 15px;
+      height: 15px;
+      flex: none;
+      border: 1.5px solid var(--ad-border-strong);
+      border-radius: 4px;
+
+      &.round {
+        border-radius: 50%;
+      }
+    }
+
+    .add-choice {
+      align-self: flex-start;
+      min-height: 38px;
+      padding: 0 0.8rem;
+      border-radius: 8px;
+      border: 1.5px dashed var(--ad-border-strong);
+      background: #fff;
+      color: var(--yb-maroon);
+      font: inherit;
+      font-weight: 700;
+      font-size: 0.86rem;
+      cursor: pointer;
+    }
+
+    .muted {
+      margin: 0;
+    }
+  }
+
+  .muted {
+    color: var(--ad-muted);
+    font-size: 0.85rem;
+  }
+}
