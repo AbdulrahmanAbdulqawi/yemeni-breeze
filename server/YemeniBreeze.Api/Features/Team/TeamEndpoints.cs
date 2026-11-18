@@ -43,6 +43,8 @@ public static class TeamEndpoints
 
         admin.MapPost("/", async (TeamMemberInput input, AppDbContext db) =>
         {
+            if (Validate(input) is { } createError)
+                return Results.BadRequest(new { message = createError });
             var member = new TeamMember();
             Apply(member, input);
             member.Slug = await GenerateSlugAsync(member, db);
@@ -53,6 +55,8 @@ public static class TeamEndpoints
 
         admin.MapPut("/{id:int}", async (int id, TeamMemberInput input, AppDbContext db, StorageService storage) =>
         {
+            if (Validate(input) is { } editError)
+                return Results.BadRequest(new { message = editError });
             var member = await db.TeamMembers.FindAsync(id);
             if (member is null) return Results.NotFound();
 
@@ -90,9 +94,29 @@ public static class TeamEndpoints
             await storage.DeleteAsync(originalKey);
     }
 
+    private const int MaxNameLength = 200;
+    private const int MaxRoleLength = 200;
+    private const int MaxBioLength = 4000;
+
+    /// <summary>Returns a readable error message, or null when the input is valid.</summary>
+    private static string? Validate(TeamMemberInput input)
+    {
+        if (string.IsNullOrWhiteSpace(input.Name))
+            return "Name is required.";
+        if (input.Name.Trim().Length > MaxNameLength)
+            return $"Name must be at most {MaxNameLength} characters.";
+        if ((input.RoleEn?.Length ?? 0) > MaxRoleLength || (input.RoleNl?.Length ?? 0) > MaxRoleLength
+            || (input.RoleAr?.Length ?? 0) > MaxRoleLength)
+            return $"Each role must be at most {MaxRoleLength} characters.";
+        if ((input.BioEn?.Length ?? 0) > MaxBioLength || (input.BioNl?.Length ?? 0) > MaxBioLength
+            || (input.BioAr?.Length ?? 0) > MaxBioLength)
+            return $"Each bio must be at most {MaxBioLength} characters.";
+        return null;
+    }
+
     private static void Apply(TeamMember member, TeamMemberInput input)
     {
-        member.Name = input.Name;
+        member.Name = input.Name.Trim();
         member.RoleEn = input.RoleEn;
         member.RoleNl = input.RoleNl;
         member.RoleAr = input.RoleAr;
