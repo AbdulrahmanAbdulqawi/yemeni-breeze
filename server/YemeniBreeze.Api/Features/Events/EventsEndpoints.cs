@@ -85,7 +85,9 @@ public static class EventsEndpoints
 
         admin.MapPost("/", async (EventInput input, AppDbContext db) =>
         {
-            if (await db.Events.AnyAsync(e => e.Slug == input.Slug))
+            var slug = NormalizeSlug(input.Slug);
+            if (!IsValidSlug(slug)) return Results.BadRequest(InvalidSlug);
+            if (await db.Events.AnyAsync(e => e.Slug == slug))
                 return Results.Conflict(new { message = "An event with this slug already exists." });
             if (!IsValidDonationUrl(input.DonationUrl)) return Results.BadRequest(InvalidDonationUrl);
             if (input.ExactAddress?.Trim().Length > 500) return Results.BadRequest(AddressTooLong);
@@ -106,7 +108,9 @@ public static class EventsEndpoints
             var ev = await db.Events.Include(e => e.Registrations)
                 .FirstOrDefaultAsync(e => e.Id == id);
             if (ev is null) return Results.NotFound();
-            if (await db.Events.AnyAsync(e => e.Slug == input.Slug && e.Id != id))
+            var slug = NormalizeSlug(input.Slug);
+            if (!IsValidSlug(slug)) return Results.BadRequest(InvalidSlug);
+            if (await db.Events.AnyAsync(e => e.Slug == slug && e.Id != id))
                 return Results.Conflict(new { message = "An event with this slug already exists." });
             if (!IsValidDonationUrl(input.DonationUrl)) return Results.BadRequest(InvalidDonationUrl);
             if (input.ExactAddress?.Trim().Length > 500) return Results.BadRequest(AddressTooLong);
@@ -150,7 +154,7 @@ public static class EventsEndpoints
 
     private static void Apply(Event ev, EventInput input)
     {
-        ev.Slug = input.Slug.Trim().ToLowerInvariant();
+        ev.Slug = NormalizeSlug(input.Slug);
         ev.TitleEn = input.TitleEn;
         ev.TitleNl = input.TitleNl;
         ev.TitleAr = input.TitleAr;
@@ -182,6 +186,15 @@ public static class EventsEndpoints
 
     private static readonly object InvalidDonationUrl =
         new { message = "The donation link must be a full web address starting with https://" };
+
+    private static string NormalizeSlug(string? slug) => (slug ?? "").Trim().ToLowerInvariant();
+
+    /// <summary>The slug is the event's public URL: lowercase letters and digits separated by single hyphens.</summary>
+    private static bool IsValidSlug(string slug) =>
+        System.Text.RegularExpressions.Regex.IsMatch(slug, "^[a-z0-9]+(-[a-z0-9]+)*$");
+
+    private static readonly object InvalidSlug =
+        new { message = "The slug may only contain lowercase letters and digits separated by single hyphens, for example my-event-2026." };
 
     private static readonly object AddressTooLong =
         new { message = "The exact address can be at most 500 characters." };
