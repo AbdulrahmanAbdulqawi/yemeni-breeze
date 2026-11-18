@@ -189,10 +189,63 @@ public class V4ContentAndTeamTests : IClassFixture<ApiFactory>
         Assert.Equal(HttpStatusCode.OK, (await _client.GetAsync(newPhoto.Url)).StatusCode);
     }
 
-    private static object TeamPayload(string name, string? bioEn = null, string? photoUrl = null) => new
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    public async Task Creating_A_Team_Member_With_A_Blank_Name_Returns_400(string name)
+    {
+        await AuthenticateAsync();
+        var response = await _client.PostAsJsonAsync("/api/admin/team", TeamPayload(name));
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task Creating_A_Team_Member_With_Too_Long_Fields_Returns_400()
+    {
+        await AuthenticateAsync();
+        var longName = await _client.PostAsJsonAsync("/api/admin/team", TeamPayload(new string('a', 201)));
+        Assert.Equal(HttpStatusCode.BadRequest, longName.StatusCode);
+
+        var longBio = await _client.PostAsJsonAsync("/api/admin/team",
+            TeamPayload("Long Bio Person", bioEn: new string('b', 4001)));
+        Assert.Equal(HttpStatusCode.BadRequest, longBio.StatusCode);
+
+        var longRole = await _client.PostAsJsonAsync("/api/admin/team",
+            TeamPayload("Long Role Person", roleEn: new string('r', 201)));
+        Assert.Equal(HttpStatusCode.BadRequest, longRole.StatusCode);
+    }
+
+    [Fact]
+    public async Task Editing_A_Team_Member_Validates_And_Trims_The_Name()
+    {
+        await AuthenticateAsync();
+        var created = await _client.PostAsJsonAsync("/api/admin/team", TeamPayload("  Trim Person  "));
+        created.EnsureSuccessStatusCode();
+        var member = await created.Content.ReadFromJsonAsync<TeamRow>();
+        Assert.Equal("Trim Person", member!.Name);
+
+        var blank = await _client.PutAsJsonAsync($"/api/admin/team/{member.Id}", TeamPayload("   "));
+        Assert.Equal(HttpStatusCode.BadRequest, blank.StatusCode);
+
+        var longRole = await _client.PutAsJsonAsync($"/api/admin/team/{member.Id}",
+            TeamPayload("Trim Person", roleEn: new string('r', 201)));
+        Assert.Equal(HttpStatusCode.BadRequest, longRole.StatusCode);
+
+        var longBio = await _client.PutAsJsonAsync($"/api/admin/team/{member.Id}",
+            TeamPayload("Trim Person", bioEn: new string('b', 4001)));
+        Assert.Equal(HttpStatusCode.BadRequest, longBio.StatusCode);
+
+        var renamed = await _client.PutAsJsonAsync($"/api/admin/team/{member.Id}", TeamPayload("  Renamed Person "));
+        renamed.EnsureSuccessStatusCode();
+        var row = await renamed.Content.ReadFromJsonAsync<TeamRow>();
+        Assert.Equal("Renamed Person", row!.Name);
+    }
+
+    private static object TeamPayload(string name, string? bioEn = null, string? photoUrl = null,
+        string roleEn = "Volunteer") => new
     {
         Name = name,
-        RoleEn = "Volunteer", RoleNl = "Vrijwilliger", RoleAr = "متطوع",
+        RoleEn = roleEn, RoleNl = "Vrijwilliger", RoleAr = "متطوع",
         PhotoUrl = photoUrl,
         BioEn = bioEn, BioNl = (string?)null, BioAr = (string?)null,
         SortOrder = 0
